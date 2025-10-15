@@ -1,26 +1,32 @@
 export const theme = {
   colors: {
-    primary: '#001F3F',        // Logo navy blue
-    primaryDark: '#001428',    // Darker navy from logo
-    primaryLight: '#002D5C',   // Lighter navy
-    secondary: '#D4AF37',      // Logo gold
+    primary: '#0B1221',        // Deep navy blue background
+    primaryDark: '#060A12',    // Even darker navy
+    primaryLight: '#1B1F2A',   // Charcoal for shadows
+    secondary: '#C9A14A',      // Gold from logo
     secondaryDark: '#B8960E',  // Darker gold
-    secondaryLight: '#FFD700', // Brighter gold for highlights
-    accent: '#FFD700',         // Bright gold for accents
-    background: '#001428',     // Rich navy background to match logo
-    surface: '#001F3F',        // Navy surface
-    surfaceLight: '#002D5C',   // Lighter navy
-    surfaceElevated: '#003366', // Even lighter for cards
-    text: '#FFFFFF',
-    textSecondary: '#9AA6B2',
-    textTertiary: '#6B7B8C',
+    secondaryLight: '#D4AF37', // Soft gold outline
+    accent: '#C9A14A',         // Gold for accents
+    background: '#0B1221',     // Deep navy background
+    surface: '#1B1F2A',        // Charcoal surface
+    surfaceLight: '#252A38',   // Lighter charcoal
+    surfaceElevated: '#2F3442', // Even lighter for cards
+    text: '#FFFFFF',           // Pure white
+    textSecondary: '#F9F9F9',  // Off-white
+    textTertiary: '#9AA6B2',
     error: '#FF6B6B',
     success: '#4ECDC4',
-    border: '#003366',
-    borderLight: '#004080',
+    border: '#2F3442',
+    borderLight: '#3F4452',
     white: '#FFFFFF',
+    offWhite: '#F9F9F9',
     black: '#000000',
-    overlay: 'rgba(0, 20, 40, 0.85)',
+    overlay: 'rgba(11, 18, 33, 0.85)',
+  },
+  fonts: {
+    heading: 'Cormorant Garamond',  // For headings/hero text
+    body: 'Poppins',                // For body/buttons/UI
+    alt: 'Montserrat',              // Alternative body font
   },
   spacing: {
     xs: 4,
