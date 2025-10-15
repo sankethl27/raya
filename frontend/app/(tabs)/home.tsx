@@ -79,15 +79,28 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
         
-        <View style={styles.heroBanner}>
-          <Text style={styles.heroTitle}>Book. Collaborate. Get noticed.</Text>
-          <Text style={styles.heroSubtitle}>
-            Whether it's a live event, personal gig, or brand collab — we make it easy to connect, partner, and grow.
-          </Text>
-          <Text style={styles.heroDescription}>
-            Hire or get hired, check availability, and grow your visibility effortlessly.
-          </Text>
-        </View>
+        <LinearGradient
+          colors={['#F9E28C', '#E1C05B', '#D4AF37']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.heroBanner}
+        >
+          <View style={styles.heroContent}>
+            <View style={styles.heroIconRow}>
+              <Ionicons name="calendar" size={24} color={theme.colors.primaryDark} />
+              <Ionicons name="people" size={24} color={theme.colors.primaryDark} />
+              <Ionicons name="sparkles" size={24} color={theme.colors.primaryDark} />
+            </View>
+            <Text style={styles.heroTitle}>Book. Collaborate.{'\n'}Get Noticed.</Text>
+            <Text style={styles.heroSubtitle}>
+              Whether it's a live event, personal gig, or brand collab — we make it easy to connect, partner, and grow.
+            </Text>
+            <View style={styles.heroDivider} />
+            <Text style={styles.heroDescription}>
+              Hire or get hired, check availability, and grow your visibility effortlessly.
+            </Text>
+          </View>
+        </LinearGradient>
       </LinearGradient>
 
       <ScrollView
