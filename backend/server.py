@@ -795,6 +795,121 @@ async def verify_featured_payment(data: dict, current_user: dict = Depends(get_c
         logging.error(f"Payment verification failed: {e}")
         raise HTTPException(status_code=400, detail="Payment verification failed")
 
+# ==================== PROFILE MANAGEMENT ROUTES ====================
+
+@api_router.post("/profile/pause")
+async def pause_profile(current_user: dict = Depends(get_current_user)):
+    """Pause profile - hidden from venues but data saved, can still chat"""
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": {"is_paused": True}}
+    )
+    return {"message": "Profile paused successfully"}
+
+@api_router.post("/profile/unpause")
+async def unpause_profile(current_user: dict = Depends(get_current_user)):
+    """Unpause profile - visible again to venues"""
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": {"is_paused": False}}
+    )
+    return {"message": "Profile unpaused successfully"}
+
+@api_router.delete("/profile/delete")
+async def delete_profile(current_user: dict = Depends(get_current_user)):
+    """Permanently delete user profile and all associated data"""
+    user_id = current_user["id"]
+    
+    # Delete all associated data
+    await db.users.delete_one({"id": user_id})
+    await db.artist_profiles.delete_many({"user_id": user_id})
+    await db.partner_profiles.delete_many({"user_id": user_id})
+    await db.venue_profiles.delete_many({"user_id": user_id})
+    await db.reviews.delete_many({"reviewer_id": user_id})
+    await db.wishlists.delete_many({"venue_user_id": user_id})
+    await db.chat_rooms.delete_many({"$or": [{"venue_user_id": user_id}, {"provider_user_id": user_id}]})
+    
+    return {"message": "Profile permanently deleted"}
+
+# ==================== ADMIN ANALYTICS ROUTES ====================
+
+@api_router.get("/admin/analytics")
+async def get_analytics(current_user: dict = Depends(get_current_user)):
+    if current_user["user_type"] != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Total users by type
+    total_artists = await db.users.count_documents({"user_type": "artist"})
+    total_partners = await db.users.count_documents({"user_type": "partner"})
+    total_venues = await db.users.count_documents({"user_type": "venue"})
+    total_users = total_artists + total_partners + total_venues
+    
+    # Active users (logged in last 7 days)
+    seven_days_ago = datetime.utcnow() - timedelta(days=7)
+    active_users = await db.users.count_documents({
+        "last_login": {"$gte": seven_days_ago}
+    })
+    
+    # Chat statistics
+    total_chats = await db.chat_rooms.count_documents({})
+    total_messages = await db.messages.count_documents({})
+    
+    # Active chats (messages in last 7 days)
+    active_chat_rooms = await db.messages.distinct("chat_room_id", {
+        "created_at": {"$gte": seven_days_ago}
+    })
+    active_chats = len(active_chat_rooms)
+    
+    # Rating statistics
+    all_artists = await db.artist_profiles.find().to_list(1000)
+    all_partners = await db.partner_profiles.find().to_list(1000)
+    
+    artist_ratings = [a["rating"] for a in all_artists if a.get("rating", 0) > 0]
+    partner_ratings = [p["rating"] for p in all_partners if p.get("rating", 0) > 0]
+    
+    avg_artist_rating = sum(artist_ratings) / len(artist_ratings) if artist_ratings else 0
+    avg_partner_rating = sum(partner_ratings) / len(partner_ratings) if partner_ratings else 0
+    
+    # Featured listings
+    featured_artists = await db.artist_profiles.count_documents({"is_featured": True})
+    featured_partners = await db.partner_profiles.count_documents({"is_featured": True})
+    
+    # Revenue from featured (if payment orders exist)
+    completed_orders = await db.payment_orders.find({"status": "completed"}).to_list(1000)
+    total_revenue = sum(order.get("amount", 0) for order in completed_orders) / 100  # Convert paise to rupees
+    
+    # Growth stats (new users last 30 days)
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    new_users = await db.users.count_documents({
+        "created_at": {"$gte": thirty_days_ago}
+    })
+    
+    return {
+        "users": {
+            "total": total_users,
+            "artists": total_artists,
+            "partners": total_partners,
+            "venues": total_venues,
+            "active_7_days": active_users,
+            "new_30_days": new_users
+        },
+        "chats": {
+            "total_rooms": total_chats,
+            "active_rooms": active_chats,
+            "total_messages": total_messages
+        },
+        "ratings": {
+            "avg_artist_rating": round(avg_artist_rating, 2),
+            "avg_partner_rating": round(avg_partner_rating, 2),
+            "total_reviews": sum(a.get("review_count", 0) for a in all_artists) + sum(p.get("review_count", 0) for p in all_partners)
+        },
+        "featured": {
+            "artists": featured_artists,
+            "partners": featured_partners,
+            "total_revenue": round(total_revenue, 2)
+        }
+    }
+
 # ==================== SOCKET.IO EVENTS ====================
 
 connected_users = {}  # {user_id: sid}
