@@ -270,6 +270,12 @@ async def login(credentials: UserLogin):
             detail="Incorrect email or password"
         )
     
+    # Update last login
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"last_login": datetime.utcnow()}}
+    )
+    
     access_token = create_access_token(data={"sub": user["id"]})
     
     return Token(
