@@ -243,9 +243,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logoImage: {
-    width: 150,
-    height: 60,
-    marginBottom: theme.spacing.xs,
+    width: 220,
+    height: 90,
+    marginBottom: theme.spacing.sm,
   },
   tagline: {
     fontSize: theme.fontSize.md,
