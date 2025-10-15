@@ -130,12 +130,16 @@ export default function HomeScreen() {
       >
         <View style={styles.headerContent}>
           <View style={styles.headerLeft}>
-            <Image 
-              source={{ uri: 'https://customer-assets.emergentagent.com/job_artist-hub-37/artifacts/nm0jan68_ChatGPT%20Image%20Oct%2015%2C%202025%2C%2010_51_19%20PM.png' }}
-              style={styles.logoImage}
-              resizeMode="contain"
-            />
-            <Text style={styles.tagline}>One platform. Endless connections.</Text>
+            <Animated.View style={logoAnimatedStyle}>
+              <Image 
+                source={{ uri: 'https://customer-assets.emergentagent.com/job_artist-hub-37/artifacts/nm0jan68_ChatGPT%20Image%20Oct%2015%2C%202025%2C%2010_51_19%20PM.png' }}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
+            </Animated.View>
+            <Animated.Text style={[styles.tagline, logoAnimatedStyle]}>
+              One platform. Endless connections.
+            </Animated.Text>
           </View>
           <TouchableOpacity
             style={styles.logoutButton}
@@ -148,28 +152,44 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
         
-        <LinearGradient
-          colors={['#F9E28C', '#E1C05B', '#D4AF37']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.heroBanner}
-        >
-          <View style={styles.heroContent}>
-            <View style={styles.heroIconRow}>
-              <Ionicons name="calendar" size={24} color={theme.colors.primaryDark} />
-              <Ionicons name="people" size={24} color={theme.colors.primaryDark} />
-              <Ionicons name="sparkles" size={24} color={theme.colors.primaryDark} />
+        <Animated.View style={bannerAnimatedStyle}>
+          <LinearGradient
+            colors={['#F9E28C', '#E1C05B', '#D4AF37']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.heroBanner}
+          >
+            {/* Floating sparkles */}
+            <Animated.View style={[styles.heroBannerSparkle1, sparkleAnimatedStyle]}>
+              <Ionicons name="sparkles" size={20} color={theme.colors.primaryDark} />
+            </Animated.View>
+            <Animated.View style={[styles.heroBannerSparkle2, sparkleAnimatedStyle]}>
+              <Ionicons name="sparkles" size={16} color={theme.colors.primaryDark} />
+            </Animated.View>
+
+            <View style={styles.heroContent}>
+              <View style={styles.heroIconRow}>
+                <View style={styles.heroIconBubble}>
+                  <Ionicons name="calendar" size={20} color={theme.colors.primaryDark} />
+                </View>
+                <View style={styles.heroIconBubble}>
+                  <Ionicons name="people" size={20} color={theme.colors.primaryDark} />
+                </View>
+                <View style={styles.heroIconBubble}>
+                  <Ionicons name="sparkles" size={20} color={theme.colors.primaryDark} />
+                </View>
+              </View>
+              <Text style={styles.heroTitle}>Book. Collaborate.{'\n'}Get Noticed.</Text>
+              <Text style={styles.heroSubtitle}>
+                Whether it's a live event, personal gig, or brand collab — we make it easy to connect, partner, and grow.
+              </Text>
+              <View style={styles.heroDivider} />
+              <Text style={styles.heroDescription}>
+                Hire or get hired, check availability, and grow your visibility effortlessly.
+              </Text>
             </View>
-            <Text style={styles.heroTitle}>Book. Collaborate.{'\n'}Get Noticed.</Text>
-            <Text style={styles.heroSubtitle}>
-              Whether it's a live event, personal gig, or brand collab — we make it easy to connect, partner, and grow.
-            </Text>
-            <View style={styles.heroDivider} />
-            <Text style={styles.heroDescription}>
-              Hire or get hired, check availability, and grow your visibility effortlessly.
-            </Text>
-          </View>
-        </LinearGradient>
+          </LinearGradient>
+        </Animated.View>
       </LinearGradient>
 
       <ScrollView
@@ -177,38 +197,45 @@ export default function HomeScreen() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.colors.secondary} />
         }
+        scrollEventThrottle={16}
       >
         {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Explore</Text>
           <View style={styles.quickActions}>
-            <TouchableOpacity
+            <AnimatedTouchableOpacity
               style={styles.actionCard}
               onPress={() => router.push('/(tabs)/artists')}
+              activeOpacity={0.9}
             >
               <LinearGradient
                 colors={[theme.colors.primary, theme.colors.primaryLight]}
                 style={styles.actionGradient}
               >
-                <Ionicons name="brush" size={32} color={theme.colors.secondary} />
+                <View style={styles.actionIconContainer}>
+                  <Ionicons name="brush" size={32} color={theme.colors.secondary} />
+                </View>
                 <Text style={styles.actionTitle}>Artists</Text>
                 <Text style={styles.actionSubtitle}>Discover talent</Text>
               </LinearGradient>
-            </TouchableOpacity>
+            </AnimatedTouchableOpacity>
 
-            <TouchableOpacity
+            <AnimatedTouchableOpacity
               style={styles.actionCard}
               onPress={() => router.push('/(tabs)/partners')}
+              activeOpacity={0.9}
             >
               <LinearGradient
                 colors={[theme.colors.primary, theme.colors.primaryLight]}
                 style={styles.actionGradient}
               >
-                <Ionicons name="briefcase" size={32} color={theme.colors.secondary} />
+                <View style={styles.actionIconContainer}>
+                  <Ionicons name="briefcase" size={32} color={theme.colors.secondary} />
+                </View>
                 <Text style={styles.actionTitle}>Partners</Text>
                 <Text style={styles.actionSubtitle}>Find brands</Text>
               </LinearGradient>
-            </TouchableOpacity>
+            </AnimatedTouchableOpacity>
           </View>
         </View>
 
@@ -218,7 +245,7 @@ export default function HomeScreen() {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Featured Artists</Text>
               <TouchableOpacity onPress={() => router.push('/(tabs)/artists')}>
-                <Text style={styles.seeAll}>See All</Text>
+                <Text style={styles.seeAll}>See All →</Text>
               </TouchableOpacity>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carousel}>
@@ -227,11 +254,17 @@ export default function HomeScreen() {
                   key={artist.id}
                   style={styles.featuredCard}
                   onPress={() => router.push(`/artist/${artist.id}`)}
+                  activeOpacity={0.9}
                 >
-                  <View style={styles.featuredBadge}>
+                  <LinearGradient
+                    colors={['#F9E28C', '#E1C05B']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.featuredBadge}
+                  >
                     <Ionicons name="star" size={12} color={theme.colors.primaryDark} />
                     <Text style={styles.featuredText}>Featured</Text>
-                  </View>
+                  </LinearGradient>
                   <View style={styles.cardContent}>
                     <Text style={styles.cardTitle} numberOfLines={1}>{artist.stage_name}</Text>
                     <Text style={styles.cardSubtitle} numberOfLines={1}>{artist.art_type}</Text>
@@ -252,7 +285,7 @@ export default function HomeScreen() {
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Featured Partners</Text>
               <TouchableOpacity onPress={() => router.push('/(tabs)/partners')}>
-                <Text style={styles.seeAll}>See All</Text>
+                <Text style={styles.seeAll}>See All →</Text>
               </TouchableOpacity>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carousel}>
@@ -261,11 +294,17 @@ export default function HomeScreen() {
                   key={partner.id}
                   style={styles.featuredCard}
                   onPress={() => router.push(`/partner/${partner.id}`)}
+                  activeOpacity={0.9}
                 >
-                  <View style={styles.featuredBadge}>
+                  <LinearGradient
+                    colors={['#F9E28C', '#E1C05B']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.featuredBadge}
+                  >
                     <Ionicons name="star" size={12} color={theme.colors.primaryDark} />
                     <Text style={styles.featuredText}>Featured</Text>
-                  </View>
+                  </LinearGradient>
                   <View style={styles.cardContent}>
                     <Text style={styles.cardTitle} numberOfLines={1}>{partner.brand_name}</Text>
                     <Text style={styles.cardSubtitle} numberOfLines={1}>{partner.service_type}</Text>
@@ -285,8 +324,11 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.infoCard}
             onPress={() => router.push('/about')}
+            activeOpacity={0.8}
           >
-            <Ionicons name="information-circle" size={24} color={theme.colors.secondary} />
+            <View style={styles.infoIconContainer}>
+              <Ionicons name="information-circle" size={24} color={theme.colors.secondary} />
+            </View>
             <Text style={styles.infoText}>About Us</Text>
             <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
           </TouchableOpacity>
@@ -294,8 +336,11 @@ export default function HomeScreen() {
           <TouchableOpacity
             style={styles.infoCard}
             onPress={() => router.push('/contact')}
+            activeOpacity={0.8}
           >
-            <Ionicons name="mail" size={24} color={theme.colors.secondary} />
+            <View style={styles.infoIconContainer}>
+              <Ionicons name="mail" size={24} color={theme.colors.secondary} />
+            </View>
             <Text style={styles.infoText}>Contact Us</Text>
             <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
           </TouchableOpacity>
