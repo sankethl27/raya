@@ -378,6 +378,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.md,
     color: theme.colors.textSecondary,
     fontWeight: '400',
+    letterSpacing: 0.5,
   },
   logoutButton: {
     width: 48,
@@ -391,8 +392,23 @@ const styles = StyleSheet.create({
   heroBanner: {
     borderRadius: theme.borderRadius.xxl,
     marginTop: theme.spacing.md,
-    overflow: 'hidden',
+    overflow: 'visible',
+    position: 'relative',
     ...theme.shadows.gold,
+  },
+  heroBannerSparkle1: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    zIndex: 10,
+    opacity: 0.7,
+  },
+  heroBannerSparkle2: {
+    position: 'absolute',
+    bottom: 30,
+    left: 30,
+    zIndex: 10,
+    opacity: 0.6,
   },
   heroContent: {
     padding: theme.spacing.xl,
@@ -401,6 +417,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: theme.spacing.md,
     marginBottom: theme.spacing.lg,
+    justifyContent: 'center',
+  },
+  heroIconBubble: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 14, 39, 0.2)',
+    alignItems: 'center',
     justifyContent: 'center',
   },
   heroTitle: {
@@ -452,6 +476,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.xl,
     fontWeight: 'bold',
     color: theme.colors.white,
+    letterSpacing: 0.3,
   },
   seeAll: {
     fontSize: theme.fontSize.sm,
@@ -464,18 +489,29 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     flex: 1,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.xl,
     overflow: 'hidden',
+    ...theme.shadows.md,
   },
   actionGradient: {
     padding: theme.spacing.lg,
     alignItems: 'center',
     gap: theme.spacing.sm,
   },
+  actionIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: theme.spacing.sm,
+  },
   actionTitle: {
     fontSize: theme.fontSize.lg,
     fontWeight: 'bold',
     color: theme.colors.white,
+    letterSpacing: 0.3,
   },
   actionSubtitle: {
     fontSize: theme.fontSize.sm,
@@ -486,24 +522,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
   },
   featuredCard: {
-    width: 160,
+    width: 180,
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.xl,
     marginRight: theme.spacing.md,
     overflow: 'hidden',
+    ...theme.shadows.md,
   },
   featuredBadge: {
-    backgroundColor: theme.colors.secondary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
-    paddingVertical: 4,
+    paddingVertical: 6,
   },
   featuredText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: 'bold',
     color: theme.colors.primaryDark,
+    letterSpacing: 0.5,
   },
   cardContent: {
     padding: theme.spacing.md,
@@ -513,6 +550,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: theme.colors.white,
     marginBottom: 4,
+    letterSpacing: 0.2,
   },
   cardSubtitle: {
     fontSize: theme.fontSize.sm,
@@ -527,19 +565,30 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: theme.fontSize.sm,
     color: theme.colors.white,
+    fontWeight: '600',
   },
   infoCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: theme.colors.surface,
     padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
+    borderRadius: theme.borderRadius.xl,
     marginBottom: theme.spacing.md,
     gap: theme.spacing.md,
+    ...theme.shadows.sm,
+  },
+  infoIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   infoText: {
     flex: 1,
     fontSize: theme.fontSize.md,
     color: theme.colors.white,
+    fontWeight: '500',
   },
 });
