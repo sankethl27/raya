@@ -56,14 +56,44 @@ export default function EditProfileScreen() {
         setArtType(profile.art_type || '');
         setExperienceGigs(profile.experience_gigs?.toString() || '0');
         setAvailability(profile.availability || []);
+        setMediaGallery(profile.media_gallery || []);
       } else if (user?.user_type === 'partner') {
         setBrandName(profile.brand_name || '');
         setServiceType(profile.service_type || '');
+        setMediaGallery(profile.media_gallery || []);
       } else if (user?.user_type === 'venue') {
         setVenueName(profile.venue_name || '');
       }
     }
   }, [profile, user]);
+
+  const pickMedia = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please grant camera roll permissions');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images', 'videos'],
+        allowsMultipleSelection: false,
+        quality: 0.8,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets[0].base64) {
+        const base64 = `data:${result.assets[0].mimeType};base64,${result.assets[0].base64}`;
+        setMediaGallery([...mediaGallery, base64]);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to pick media');
+    }
+  };
+
+  const removeMedia = (index: number) => {
+    setMediaGallery(mediaGallery.filter((_, i) => i !== index));
+  };
 
   const addAvailabilityDay = () => {
     setAvailability([...availability, { day: 'Monday', time_slots: ['9:00 AM - 12:00 PM'] }]);
