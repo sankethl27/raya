@@ -3,10 +3,10 @@ export const theme = {
     primary: '#0B1221',        // Deep navy blue background
     primaryDark: '#060A12',    // Even darker navy
     primaryLight: '#1B1F2A',   // Charcoal for shadows
-    secondary: '#C9A14A',      // Gold from logo
-    secondaryDark: '#B8960E',  // Darker gold
-    secondaryLight: '#D4AF37', // Soft gold outline
-    accent: '#C9A14A',         // Gold for accents
+    secondary: '#D4AF37',      // Gold (main)
+    secondaryDark: '#B98E1D',  // Shadow gold
+    secondaryLight: '#F9E28C', // Highlight gold
+    accent: '#E1C05B',         // Mid gold
     background: '#0B1221',     // Deep navy background
     surface: '#1B1F2A',        // Charcoal surface
     surfaceLight: '#252A38',   // Lighter charcoal
@@ -22,6 +22,7 @@ export const theme = {
     offWhite: '#F9F9F9',
     black: '#000000',
     overlay: 'rgba(11, 18, 33, 0.85)',
+    goldGradient: ['#F9E28C', '#E1C05B', '#B98E1D'], // Highlight → Mid → Shadow
   },
   fonts: {
     heading: 'Cormorant Garamond',  // For headings/hero text
