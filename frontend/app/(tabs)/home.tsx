@@ -242,11 +242,9 @@ const styles = StyleSheet.create({
   headerLeft: {
     flex: 1,
   },
-  appName: {
-    fontSize: theme.fontSize.hero,
-    fontWeight: '800',
-    color: theme.colors.secondary,
-    letterSpacing: 4,
+  logoImage: {
+    width: 150,
+    height: 60,
     marginBottom: theme.spacing.xs,
   },
   tagline: {
