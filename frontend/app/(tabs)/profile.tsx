@@ -565,4 +565,22 @@ const styles = StyleSheet.create({
     color: theme.colors.primaryDark,
     fontWeight: '600',
   },
+  adminButton: {
+    borderRadius: theme.borderRadius.xl,
+    overflow: 'hidden',
+    ...theme.shadows.gold,
+  },
+  adminGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: theme.spacing.lg,
+    gap: theme.spacing.md,
+  },
+  adminButtonText: {
+    flex: 1,
+    fontSize: theme.fontSize.lg,
+    fontWeight: '700',
+    color: theme.colors.primaryDark,
+  },
 });
