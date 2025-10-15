@@ -51,9 +51,10 @@ export default function ReviewScreen() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      Alert.alert('Success', 'Review submitted successfully!', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      Alert.alert('Success', 'Review submitted successfully!');
+      setTimeout(() => {
+        router.back();
+      }, 1000);
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to submit review');
     } finally {
