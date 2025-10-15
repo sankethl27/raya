@@ -274,6 +274,18 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
+  sparkle1: {
+    position: 'absolute',
+    top: 80,
+    right: 40,
+    opacity: 0.6,
+  },
+  sparkle2: {
+    position: 'absolute',
+    bottom: 180,
+    left: 30,
+    opacity: 0.5,
+  },
   content: {
     flex: 1,
     justifyContent: 'space-between',
@@ -286,8 +298,8 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.xxl,
   },
   logoImage: {
-    width: 250,
-    height: 180,
+    width: 280,
+    height: 200,
     marginBottom: theme.spacing.lg,
   },
   tagline: {
@@ -295,34 +307,56 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     textAlign: 'center',
     opacity: 0.9,
+    letterSpacing: 0.5,
   },
   buttonContainer: {
     gap: theme.spacing.md,
   },
   button: {
-    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.xl,
+    overflow: 'hidden',
+    ...theme.shadows.lg,
+  },
+  buttonGradient: {
+    paddingVertical: theme.spacing.md + 4,
     paddingHorizontal: theme.spacing.xl,
-    borderRadius: theme.borderRadius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   primaryButton: {
-    backgroundColor: theme.colors.secondary,
+    // No need for backgroundColor, using gradient
   },
   secondaryButton: {
     backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: theme.colors.secondary,
+  },
+  sparkleButtonBorder: {
+    borderRadius: theme.borderRadius.xl,
+  },
+  borderGradient: {
+    padding: 3, // Border width
+    borderRadius: theme.borderRadius.xl,
+  },
+  innerButton: {
+    backgroundColor: theme.colors.primary,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.xl,
+    borderRadius: theme.borderRadius.xl - 3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
   },
   primaryButtonText: {
     color: theme.colors.primaryDark,
     fontSize: theme.fontSize.lg,
     fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   secondaryButtonText: {
     color: theme.colors.secondary,
     fontSize: theme.fontSize.lg,
     fontWeight: 'bold',
+    letterSpacing: 0.5,
   },
   featuresContainer: {
     gap: theme.spacing.md,
@@ -331,9 +365,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.md,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.secondary,
+  },
+  featureIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(212, 175, 55, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   featureText: {
+    flex: 1,
     color: theme.colors.white,
     fontSize: theme.fontSize.md,
+    fontWeight: '500',
   },
 });
