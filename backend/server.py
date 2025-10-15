@@ -303,8 +303,58 @@ async def get_me(current_user: dict = Depends(get_current_user)):
 # ==================== PROFILE ROUTES ====================
 
 @api_router.get("/artists")
-async def get_artists():
-    artists = await db.artist_profiles.find().to_list(1000)
+async def get_artists(
+    min_rating: Optional[float] = None,
+    max_rating: Optional[float] = None,
+    min_experience: Optional[int] = None,
+    max_experience: Optional[int] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    location: Optional[str] = None,
+    available_only: Optional[bool] = False
+):
+    query = {}
+    
+    # Rating filter
+    if min_rating is not None or max_rating is not None:
+        query["rating"] = {}
+        if min_rating is not None:
+            query["rating"]["$gte"] = min_rating
+        if max_rating is not None:
+            query["rating"]["$lte"] = max_rating
+    
+    # Experience filter
+    if min_experience is not None or max_experience is not None:
+        query["experience_gigs"] = {}
+        if min_experience is not None:
+            query["experience_gigs"]["$gte"] = min_experience
+        if max_experience is not None:
+            query["experience_gigs"]["$lte"] = max_experience
+    
+    # Location filter
+    if location:
+        query["locations"] = location
+    
+    # Availability filter
+    if available_only:
+        query["availability"] = {"$exists": True, "$ne": []}
+    
+    artists = await db.artist_profiles.find(query).to_list(1000)
+    
+    # Price filter (done after fetch since it's nested)
+    if min_price is not None or max_price is not None:
+        filtered_artists = []
+        for artist in artists:
+            if artist.get("pricing"):
+                price = artist["pricing"].get("price_per_hour")
+                if price is not None:
+                    if (min_price is None or price >= min_price) and (max_price is None or price <= max_price):
+                        filtered_artists.append(artist)
+                elif artist["pricing"].get("is_for_promotion"):
+                    # Include artists working for promotion in any price range
+                    filtered_artists.append(artist)
+        artists = filtered_artists
+    
     for artist in artists:
         artist.pop("_id", None)
     return artists
