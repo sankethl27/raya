@@ -630,4 +630,44 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.colors.primaryDark,
   },
+  mediaSection: {
+    marginBottom: theme.spacing.lg,
+  },
+  mediaGallery: {
+    flexDirection: 'row',
+  },
+  mediaItem: {
+    marginRight: theme.spacing.md,
+    position: 'relative',
+  },
+  mediaImage: {
+    width: 120,
+    height: 120,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: theme.colors.surfaceLight,
+  },
+  removeMediaButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: theme.colors.white,
+    borderRadius: 12,
+  },
+  addMediaButton: {
+    width: 120,
+    height: 120,
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: theme.colors.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.surface,
+  },
+  addMediaText: {
+    fontSize: theme.fontSize.xs,
+    color: theme.colors.secondary,
+    fontWeight: '600',
+    marginTop: theme.spacing.xs,
+  },
 });
