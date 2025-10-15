@@ -39,8 +39,39 @@ export default function HomeScreen() {
   const [partners, setPartners] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Animations
+  const logoScale = useSharedValue(0.8);
+  const logoOpacity = useSharedValue(0);
+  const bannerScale = useSharedValue(0.95);
+  const bannerOpacity = useSharedValue(0);
+  const sparkleRotate = useSharedValue(0);
+  const sparkleScale = useSharedValue(1);
+  const scrollY = useSharedValue(0);
+
   useEffect(() => {
     fetchData();
+
+    // Entrance animations
+    logoScale.value = withSpring(1, { damping: 10 });
+    logoOpacity.value = withTiming(1, { duration: 600 });
+
+    setTimeout(() => {
+      bannerScale.value = withSpring(1, { damping: 8 });
+      bannerOpacity.value = withTiming(1, { duration: 500 });
+    }, 300);
+
+    // Continuous sparkle animation
+    sparkleRotate.value = withRepeat(
+      withTiming(360, { duration: 3000, easing: Easing.linear }),
+      -1
+    );
+    sparkleScale.value = withRepeat(
+      withSequence(
+        withTiming(1.2, { duration: 1000 }),
+        withTiming(1, { duration: 1000 })
+      ),
+      -1
+    );
   }, []);
 
   const fetchData = async () => {
@@ -64,6 +95,31 @@ export default function HomeScreen() {
     setRefreshing(true);
     await fetchData();
     setRefreshing(false);
+  };
+
+  const logoAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: logoScale.value }],
+    opacity: logoOpacity.value,
+  }));
+
+  const bannerAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: bannerScale.value }],
+    opacity: bannerOpacity.value,
+  }));
+
+  const sparkleAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { rotate: `${sparkleRotate.value}deg` },
+      { scale: sparkleScale.value },
+    ],
+  }));
+
+  const handleCardPress = (scale: Animated.SharedValue<number>, action: () => void) => {
+    scale.value = withSequence(
+      withSpring(0.95, { damping: 10 }),
+      withSpring(1, { damping: 10 })
+    );
+    setTimeout(action, 100);
   };
 
   return (
