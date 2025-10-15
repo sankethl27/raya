@@ -69,73 +69,112 @@ export default function ProfileScreen() {
       </LinearGradient>
 
       <ScrollView style={styles.content}>
-        {profile && (
+        {(user?.user_type === 'artist' || user?.user_type === 'partner') && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Profile Information</Text>
             
-            {user?.user_type === 'artist' && (
+            {!profile ? (
+              <View style={styles.noProfileContainer}>
+                <Ionicons name="add-circle-outline" size={64} color={theme.colors.secondary} />
+                <Text style={styles.noProfileText}>Complete your profile to get discovered!</Text>
+                <Text style={styles.noProfileSubtext}>
+                  Add your details, photos, and availability to start connecting with venues.
+                </Text>
+                <TouchableOpacity
+                  style={styles.createButton}
+                  onPress={() => router.push('/edit-profile')}
+                >
+                  <Ionicons name="add-circle" size={20} color={theme.colors.primaryDark} />
+                  <Text style={styles.createButtonText}>Create Profile</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
               <>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Stage Name</Text>
-                  <Text style={styles.infoValue}>{profile.stage_name}</Text>
-                </View>
-                
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Art Type</Text>
-                  <Text style={styles.infoValue}>{profile.art_type}</Text>
-                </View>
-                
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Experience</Text>
-                  <Text style={styles.infoValue}>{profile.experience_gigs} gigs</Text>
-                </View>
-                
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Rating</Text>
-                  <View style={styles.ratingRow}>
-                    <Ionicons name="star" size={16} color={theme.colors.secondary} />
-                    <Text style={styles.infoValue}>{profile.rating.toFixed(1)} ({profile.review_count} reviews)</Text>
-                  </View>
-                </View>
-              </>
-            )}
-            
-            {user?.user_type === 'partner' && (
-              <>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Brand Name</Text>
-                  <Text style={styles.infoValue}>{profile.brand_name}</Text>
-                </View>
-                
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Service Type</Text>
-                  <Text style={styles.infoValue}>{profile.service_type}</Text>
-                </View>
-                
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Rating</Text>
-                  <View style={styles.ratingRow}>
-                    <Ionicons name="star" size={16} color={theme.colors.secondary} />
-                    <Text style={styles.infoValue}>{profile.rating.toFixed(1)} ({profile.review_count} reviews)</Text>
-                  </View>
-                </View>
-              </>
-            )}
-            
-            {user?.user_type === 'venue' && (
-              <>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Venue Name</Text>
-                  <Text style={styles.infoValue}>{profile.venue_name}</Text>
-                </View>
-                
-                {profile.description && (
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Description</Text>
-                    <Text style={styles.infoValue}>{profile.description}</Text>
-                  </View>
+                {user?.user_type === 'artist' && (
+                  <>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Stage Name</Text>
+                      <Text style={styles.infoValue}>{profile.stage_name || 'Not set'}</Text>
+                    </View>
+                    
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Art Type</Text>
+                      <Text style={styles.infoValue}>{profile.art_type || 'Not set'}</Text>
+                    </View>
+                    
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Experience</Text>
+                      <Text style={styles.infoValue}>{profile.experience_gigs || 0} gigs</Text>
+                    </View>
+                    
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Media Gallery</Text>
+                      <Text style={styles.infoValue}>{profile.media_gallery?.length || 0} items</Text>
+                    </View>
+                    
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Rating</Text>
+                      <View style={styles.ratingRow}>
+                        <Ionicons name="star" size={16} color={theme.colors.secondary} />
+                        <Text style={styles.infoValue}>{profile.rating?.toFixed(1) || '0.0'} ({profile.review_count || 0} reviews)</Text>
+                      </View>
+                    </View>
+                  </>
                 )}
+                
+                {user?.user_type === 'partner' && (
+                  <>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Brand Name</Text>
+                      <Text style={styles.infoValue}>{profile.brand_name || 'Not set'}</Text>
+                    </View>
+                    
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Service Type</Text>
+                      <Text style={styles.infoValue}>{profile.service_type || 'Not set'}</Text>
+                    </View>
+                    
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Media Gallery</Text>
+                      <Text style={styles.infoValue}>{profile.media_gallery?.length || 0} items</Text>
+                    </View>
+                    
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Rating</Text>
+                      <View style={styles.ratingRow}>
+                        <Ionicons name="star" size={16} color={theme.colors.secondary} />
+                        <Text style={styles.infoValue}>{profile.rating?.toFixed(1) || '0.0'} ({profile.review_count || 0} reviews)</Text>
+                      </View>
+                    </View>
+                  </>
+                )}
+                
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => router.push('/edit-profile')}
+                >
+                  <Ionicons name="create" size={20} color={theme.colors.primaryDark} />
+                  <Text style={styles.editButtonText}>Edit Profile</Text>
+                </TouchableOpacity>
               </>
+            )}
+          </View>
+        )}
+
+        {user?.user_type === 'venue' && profile && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Profile Information</Text>
+            
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Venue Name</Text>
+              <Text style={styles.infoValue}>{profile.venue_name || 'Not set'}</Text>
+            </View>
+            
+            {profile.description && (
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Description</Text>
+                <Text style={styles.infoValue}>{profile.description}</Text>
+              </View>
             )}
             
             <TouchableOpacity
