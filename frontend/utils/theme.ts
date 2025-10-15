@@ -1,16 +1,16 @@
 export const theme = {
   colors: {
-    primary: '#0B1221',        // Deep navy blue background
-    primaryDark: '#060A12',    // Even darker navy
-    primaryLight: '#1B1F2A',   // Charcoal for shadows
+    primary: '#000e27',        // Deep navy blue background
+    primaryDark: '#000510',    // Even darker navy
+    primaryLight: '#001a3d',   // Lighter navy
     secondary: '#D4AF37',      // Gold (main)
     secondaryDark: '#B98E1D',  // Shadow gold
     secondaryLight: '#F9E28C', // Highlight gold
     accent: '#E1C05B',         // Mid gold
-    background: '#0B1221',     // Deep navy background
-    surface: '#1B1F2A',        // Charcoal surface
-    surfaceLight: '#252A38',   // Lighter charcoal
-    surfaceElevated: '#2F3442', // Even lighter for cards
+    background: '#000e27',     // Deep navy background
+    surface: '#001a3d',        // Navy surface (no gray!)
+    surfaceLight: '#002550',   // Lighter navy
+    surfaceElevated: '#003366', // Even lighter navy for cards
     text: '#FFFFFF',           // Pure white
     textSecondary: '#F9F9F9',  // Off-white
     textTertiary: '#9AA6B2',
