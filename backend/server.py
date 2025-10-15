@@ -118,9 +118,12 @@ class PartnerProfile(BaseModel):
     service_type: str  # premium water, book launch, food brands, etc.
     rating: float = 0.0
     review_count: int = 0
+    locations: List[str] = []  # e.g., ["Koramangala", "Indiranagar", "Whitefield"]
     profile_image: Optional[str] = None  # base64
+    media_gallery: List[str] = []  # base64 images/videos
     is_featured: bool = False
     featured_until: Optional[datetime] = None
+    featured_type: Optional[str] = None  # "monthly" for brands
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class VenueProfile(BaseModel):
