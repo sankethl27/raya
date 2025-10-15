@@ -64,6 +64,8 @@ class User(BaseModel):
     user_type: str  # artist, partner, venue, admin
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = True
+    is_paused: bool = False  # For pausing profile (hidden but data saved)
+    last_login: Optional[datetime] = None
 
 class UserRegister(BaseModel):
     email: EmailStr
