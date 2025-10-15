@@ -146,27 +146,93 @@ export default function ProfileScreen() {
         )}
 
         {(user?.user_type === 'artist' || user?.user_type === 'partner') && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>My Activity</Text>
-            
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => router.push('/my-chats')}
-            >
-              <Ionicons name="chatbubbles" size={24} color={theme.colors.secondary} />
-              <Text style={styles.menuText}>My Chats</Text>
-              <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => router.push('/my-reviews')}
-            >
-              <Ionicons name="star" size={24} color={theme.colors.secondary} />
-              <Text style={styles.menuText}>My Reviews</Text>
-              <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
+          <>
+            {/* GET FEATURED SECTION */}
+            <View style={styles.featuredSection}>
+              <LinearGradient
+                colors={[theme.colors.secondary, theme.colors.secondaryDark]}
+                style={styles.featuredGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <View style={styles.featuredContent}>
+                  <View style={styles.sparkleIcon}>
+                    <Ionicons name="sparkles" size={32} color={theme.colors.primaryDark} />
+                  </View>
+                  <Text style={styles.featuredTitle}>Get Featured</Text>
+                  <Text style={styles.featuredSubtitle}>
+                    Boost your visibility, reach more venues, and get booked faster.
+                  </Text>
+                  
+                  <View style={styles.pricingCards}>
+                    {user?.user_type === 'artist' && (
+                      <View style={styles.pricingCard}>
+                        <Text style={styles.pricingAmount}>₹199</Text>
+                        <Text style={styles.pricingPeriod}>/ week</Text>
+                      </View>
+                    )}
+                    {user?.user_type === 'partner' && (
+                      <View style={styles.pricingCard}>
+                        <Text style={styles.pricingAmount}>₹999</Text>
+                        <Text style={styles.pricingPeriod}>/ month</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.featuredButton}
+                    onPress={() => {
+                      Alert.alert(
+                        'Get Featured',
+                        'To activate featured placement, please add your Razorpay API keys to the backend .env file.\n\nSee /app/RAZORPAY_SETUP.md for instructions.',
+                        [{ text: 'OK' }]
+                      );
+                    }}
+                  >
+                    <Ionicons name="rocket" size={20} color={theme.colors.secondary} />
+                    <Text style={styles.featuredButtonText}>Get Featured Now</Text>
+                  </TouchableOpacity>
+
+                  <View style={styles.featuredBenefits}>
+                    <View style={styles.benefit}>
+                      <Ionicons name="checkmark-circle" size={16} color={theme.colors.primaryDark} />
+                      <Text style={styles.benefitText}>Top of search results</Text>
+                    </View>
+                    <View style={styles.benefit}>
+                      <Ionicons name="checkmark-circle" size={16} color={theme.colors.primaryDark} />
+                      <Text style={styles.benefitText}>Gold badge display</Text>
+                    </View>
+                    <View style={styles.benefit}>
+                      <Ionicons name="checkmark-circle" size={16} color={theme.colors.primaryDark} />
+                      <Text style={styles.benefitText}>3x more visibility</Text>
+                    </View>
+                  </View>
+                </View>
+              </LinearGradient>
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>My Activity</Text>
+              
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => router.push('/my-chats')}
+              >
+                <Ionicons name="chatbubbles" size={24} color={theme.colors.secondary} />
+                <Text style={styles.menuText}>My Chats</Text>
+                <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={() => router.push('/my-reviews')}
+              >
+                <Ionicons name="star" size={24} color={theme.colors.secondary} />
+                <Text style={styles.menuText}>My Reviews</Text>
+                <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+          </>
         )}
 
         {user?.user_type === 'venue' && (
