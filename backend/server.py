@@ -631,7 +631,7 @@ else:
 class FeaturedPaymentRequest(BaseModel):
     profile_id: str
     profile_type: str  # artist or partner
-    duration_days: int = 30  # Default 30 days featured
+    plan: str  # "weekly" (artists ₹199) or "monthly" (brands ₹999)
 
 @api_router.post("/payment/create-featured-order")
 async def create_featured_order(request: FeaturedPaymentRequest, current_user: dict = Depends(get_current_user)):
@@ -645,9 +645,15 @@ async def create_featured_order(request: FeaturedPaymentRequest, current_user: d
     if not profile or profile["user_id"] != current_user["id"]:
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # Calculate amount (₹999 per 30 days)
-    base_price = 99900  # ₹999 in paise
-    amount = base_price * (request.duration_days // 30)
+    # Calculate amount based on plan
+    if request.plan == "weekly":
+        amount = 19900  # ₹199 in paise
+        duration_days = 7
+    elif request.plan == "monthly":
+        amount = 99900  # ₹999 in paise
+        duration_days = 30
+    else:
+        raise HTTPException(status_code=400, detail="Invalid plan")
     
     try:
         # Create Razorpay order
