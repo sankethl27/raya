@@ -390,4 +390,90 @@ const styles = StyleSheet.create({
   logoutText: {
     color: theme.colors.error,
   },
+  featuredSection: {
+    padding: theme.spacing.lg,
+  },
+  featuredGradient: {
+    borderRadius: theme.borderRadius.xxl,
+    overflow: 'hidden',
+    ...theme.shadows.gold,
+  },
+  featuredContent: {
+    padding: theme.spacing.xl,
+    alignItems: 'center',
+  },
+  sparkleIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: theme.colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  featuredTitle: {
+    fontSize: theme.fontSize.xxxl,
+    fontWeight: '700',
+    color: theme.colors.primaryDark,
+    marginBottom: theme.spacing.sm,
+  },
+  featuredSubtitle: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.primaryDark,
+    textAlign: 'center',
+    marginBottom: theme.spacing.lg,
+    opacity: 0.9,
+  },
+  pricingCards: {
+    marginBottom: theme.spacing.lg,
+  },
+  pricingCard: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    backgroundColor: theme.colors.white,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    ...theme.shadows.md,
+  },
+  pricingAmount: {
+    fontSize: 36,
+    fontWeight: '700',
+    color: theme.colors.primaryDark,
+  },
+  pricingPeriod: {
+    fontSize: theme.fontSize.lg,
+    color: theme.colors.textTertiary,
+    marginLeft: theme.spacing.xs,
+  },
+  featuredButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    backgroundColor: theme.colors.white,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.xl,
+    borderRadius: theme.borderRadius.round,
+    marginBottom: theme.spacing.lg,
+    ...theme.shadows.md,
+  },
+  featuredButtonText: {
+    fontSize: theme.fontSize.lg,
+    fontWeight: '700',
+    color: theme.colors.secondary,
+  },
+  featuredBenefits: {
+    gap: theme.spacing.sm,
+    alignSelf: 'stretch',
+  },
+  benefit: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  benefitText: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.primaryDark,
+    fontWeight: '600',
+  },
 });
