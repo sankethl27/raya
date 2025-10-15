@@ -128,14 +128,20 @@ export default function HomeScreen() {
       >
         <View style={styles.headerContent}>
           <View style={styles.headerLeft}>
-            <Animated.View style={logoAnimatedStyle}>
+            <Animated.View style={{
+              transform: [{ scale: logoScale }],
+              opacity: logoOpacity,
+            }}>
               <Image 
                 source={{ uri: 'https://customer-assets.emergentagent.com/job_artist-hub-37/artifacts/nm0jan68_ChatGPT%20Image%20Oct%2015%2C%202025%2C%2010_51_19%20PM.png' }}
                 style={styles.logoImage}
                 resizeMode="contain"
               />
             </Animated.View>
-            <Animated.Text style={[styles.tagline, logoAnimatedStyle]}>
+            <Animated.Text style={[styles.tagline, {
+              transform: [{ scale: logoScale }],
+              opacity: logoOpacity,
+            }]}>
               One platform. Endless connections.
             </Animated.Text>
           </View>
