@@ -145,8 +145,94 @@ export default function ProfileScreen() {
           </View>
         )}
 
+        {/* ADMIN DASHBOARD LINK - Only visible to admin */}
+        {user?.user_type === 'admin' && (
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.adminButton}
+              onPress={() => router.push('/admin-dashboard')}
+            >
+              <LinearGradient
+                colors={[theme.colors.secondary, theme.colors.secondaryDark]}
+                style={styles.adminGradient}
+              >
+                <Ionicons name="analytics" size={24} color={theme.colors.primaryDark} />
+                <Text style={styles.adminButtonText}>Admin Dashboard</Text>
+                <Ionicons name="chevron-forward" size={20} color={theme.colors.primaryDark} />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {(user?.user_type === 'artist' || user?.user_type === 'partner') && (
           <>
+            {/* PROFILE MANAGEMENT */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Profile Management</Text>
+              
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={async () => {
+                  Alert.alert(
+                    'Pause Profile',
+                    'Your profile will be hidden from venues but you can still chat. Data will be saved.',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Pause',
+                        onPress: async () => {
+                          try {
+                            await axios.post(`${BACKEND_URL}/api/profile/pause`, {}, {
+                              headers: { Authorization: `Bearer ${token}` },
+                            });
+                            Alert.alert('Success', 'Profile paused');
+                          } catch (error) {
+                            Alert.alert('Error', 'Failed to pause profile');
+                          }
+                        },
+                      },
+                    ]
+                  );
+                }}
+              >
+                <Ionicons name="pause-circle" size={24} color={theme.colors.secondary} />
+                <Text style={styles.menuText}>Pause Profile</Text>
+                <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.menuItem}
+                onPress={async () => {
+                  Alert.alert(
+                    'Delete Profile',
+                    'This will permanently delete your account and all data. This cannot be undone!',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Delete',
+                        style: 'destructive',
+                        onPress: async () => {
+                          try {
+                            await axios.delete(`${BACKEND_URL}/api/profile/delete`, {
+                              headers: { Authorization: `Bearer ${token}` },
+                            });
+                            await logout();
+                            Alert.alert('Deleted', 'Profile permanently deleted');
+                          } catch (error) {
+                            Alert.alert('Error', 'Failed to delete profile');
+                          }
+                        },
+                      },
+                    ]
+                  );
+                }}
+              >
+                <Ionicons name="trash" size={24} color={theme.colors.error} />
+                <Text style={[styles.menuText, { color: theme.colors.error }]}>Delete Profile</Text>
+                <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
             {/* GET FEATURED SECTION */}
             <View style={styles.featuredSection}>
               <LinearGradient
