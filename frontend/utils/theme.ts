@@ -1,26 +1,26 @@
 export const theme = {
   colors: {
-    primary: '#0A1929',        // Deep navy blue
-    primaryDark: '#000814',    // Almost black navy
-    primaryLight: '#14213D',   // Lighter navy
-    secondary: '#C9A55C',      // Dark gold/bronze
-    secondaryDark: '#9B7E3C',  // Darker gold
-    secondaryLight: '#D4AF6A', // Lighter gold
-    accent: '#FDB913',         // Bright gold for highlights
-    background: '#000814',     // Rich black background
-    surface: '#0A1929',        // Navy surface
-    surfaceLight: '#14213D',   // Lighter navy
-    surfaceElevated: '#1A2942', // Even lighter for cards
+    primary: '#001F3F',        // Logo navy blue
+    primaryDark: '#001428',    // Darker navy from logo
+    primaryLight: '#002D5C',   // Lighter navy
+    secondary: '#D4AF37',      // Logo gold
+    secondaryDark: '#B8960E',  // Darker gold
+    secondaryLight: '#FFD700', // Brighter gold for highlights
+    accent: '#FFD700',         // Bright gold for accents
+    background: '#001428',     // Rich navy background to match logo
+    surface: '#001F3F',        // Navy surface
+    surfaceLight: '#002D5C',   // Lighter navy
+    surfaceElevated: '#003366', // Even lighter for cards
     text: '#FFFFFF',
     textSecondary: '#9AA6B2',
     textTertiary: '#6B7B8C',
     error: '#FF6B6B',
     success: '#4ECDC4',
-    border: '#1A2942',
-    borderLight: '#2A3952',
+    border: '#003366',
+    borderLight: '#004080',
     white: '#FFFFFF',
     black: '#000000',
-    overlay: 'rgba(0, 8, 20, 0.85)',
+    overlay: 'rgba(0, 20, 40, 0.85)',
   },
   spacing: {
     xs: 4,
