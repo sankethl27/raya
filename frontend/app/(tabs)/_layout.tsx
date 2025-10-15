@@ -2,7 +2,12 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../utils/theme';
 
+import { useAuth } from '../../contexts/AuthContext';
+
 export default function TabLayout() {
+  const { user } = useAuth();
+  const isVenue = user?.user_type === 'venue';
+
   return (
     <Tabs
       screenOptions={{
@@ -11,9 +16,9 @@ export default function TabLayout() {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.borderLight,
           borderTopWidth: 1,
-          height: 80,
-          paddingBottom: 20,
-          paddingTop: 12,
+          height: 90,
+          paddingBottom: 32,
+          paddingTop: 8,
         },
         tabBarActiveTintColor: theme.colors.secondary,
         tabBarInactiveTintColor: theme.colors.textSecondary,
@@ -23,7 +28,7 @@ export default function TabLayout() {
           marginTop: 4,
         },
         tabBarIconStyle: {
-          marginTop: 4,
+          marginTop: 0,
         },
       }}
     >
