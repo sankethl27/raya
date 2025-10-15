@@ -25,10 +25,11 @@ export default function WelcomeScreen() {
       >
         <View style={styles.content}>
           <View style={styles.logoContainer}>
-            <View style={styles.logoCircle}>
-              <Ionicons name="sparkles" size={60} color={theme.colors.secondary} />
-            </View>
-            <Text style={styles.appName}>RAYA</Text>
+            <Image 
+              source={{ uri: 'https://customer-assets.emergentagent.com/job_artist-hub-37/artifacts/nm0jan68_ChatGPT%20Image%20Oct%2015%2C%202025%2C%2010_51_19%20PM.png' }}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
             <Text style={styles.tagline}>One platform. Endless connections.</Text>
           </View>
 
