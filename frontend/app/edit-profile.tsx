@@ -141,6 +141,7 @@ export default function EditProfileScreen() {
           art_type: artType,
           experience_gigs: parseInt(experienceGigs) || 0,
           availability,
+          media_gallery: mediaGallery,
         };
       } else if (user?.user_type === 'partner') {
         endpoint = `/api/partners/${profile.id}`;
@@ -148,6 +149,7 @@ export default function EditProfileScreen() {
           ...updates,
           brand_name: brandName,
           service_type: serviceType,
+          media_gallery: mediaGallery,
         };
       } else if (user?.user_type === 'venue') {
         endpoint = `/api/venues/${profile.id}`;
