@@ -156,7 +156,10 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
         
-        <Animated.View style={bannerAnimatedStyle}>
+        <Animated.View style={{
+          transform: [{ scale: bannerScale }],
+          opacity: bannerOpacity,
+        }}>
           <LinearGradient
             colors={['#F9E28C', '#E1C05B', '#D4AF37']}
             start={{ x: 0, y: 0 }}
