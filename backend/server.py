@@ -349,6 +349,15 @@ async def get_artists(
     
     artists = await db.artist_profiles.find(query).to_list(1000)
     
+    # Filter out paused profiles
+    filtered_artists = []
+    for artist in artists:
+        user = await db.users.find_one({"id": artist["user_id"]})
+        if user and not user.get("is_paused", False):
+            filtered_artists.append(artist)
+    
+    artists = filtered_artists
+    
     # Price filter (done after fetch since it's nested)
     if min_price is not None or max_price is not None:
         filtered_artists = []
