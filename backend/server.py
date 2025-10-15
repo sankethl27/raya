@@ -602,6 +602,121 @@ async def delete_user(user_id: str, current_user: dict = Depends(get_current_use
     
     return {"message": "User deleted successfully"}
 
+# ==================== RAZORPAY PAYMENT ROUTES (READY FOR ACTIVATION) ====================
+
+# Initialize Razorpay client (will be activated when keys are provided)
+RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID", "")
+RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET", "")
+RAZORPAY_ENABLED = bool(RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET)
+
+if RAZORPAY_ENABLED:
+    razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+    logging.info("Razorpay payment gateway initialized")
+else:
+    logging.warning("Razorpay not enabled - missing API keys")
+
+class FeaturedPaymentRequest(BaseModel):
+    profile_id: str
+    profile_type: str  # artist or partner
+    duration_days: int = 30  # Default 30 days featured
+
+@api_router.post("/payment/create-featured-order")
+async def create_featured_order(request: FeaturedPaymentRequest, current_user: dict = Depends(get_current_user)):
+    if not RAZORPAY_ENABLED:
+        raise HTTPException(status_code=503, detail="Payment gateway not configured")
+    
+    # Verify user owns this profile
+    collection = db.artist_profiles if request.profile_type == "artist" else db.partner_profiles
+    profile = await collection.find_one({"id": request.profile_id})
+    
+    if not profile or profile["user_id"] != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Calculate amount (₹999 per 30 days)
+    base_price = 99900  # ₹999 in paise
+    amount = base_price * (request.duration_days // 30)
+    
+    try:
+        # Create Razorpay order
+        order = razorpay_client.order.create({
+            "amount": amount,
+            "currency": "INR",
+            "payment_capture": 1,
+            "notes": {
+                "profile_id": request.profile_id,
+                "profile_type": request.profile_type,
+                "user_id": current_user["id"],
+                "duration_days": request.duration_days
+            }
+        })
+        
+        # Store order in database
+        await db.payment_orders.insert_one({
+            "order_id": order["id"],
+            "profile_id": request.profile_id,
+            "profile_type": request.profile_type,
+            "user_id": current_user["id"],
+            "amount": amount,
+            "duration_days": request.duration_days,
+            "status": "created",
+            "created_at": datetime.utcnow()
+        })
+        
+        return {
+            "order_id": order["id"],
+            "amount": amount,
+            "currency": "INR",
+            "key_id": RAZORPAY_KEY_ID
+        }
+    except Exception as e:
+        logging.error(f"Razorpay order creation failed: {e}")
+        raise HTTPException(status_code=500, detail="Payment order creation failed")
+
+@api_router.post("/payment/verify-featured")
+async def verify_featured_payment(data: dict, current_user: dict = Depends(get_current_user)):
+    if not RAZORPAY_ENABLED:
+        raise HTTPException(status_code=503, detail="Payment gateway not configured")
+    
+    try:
+        # Verify payment signature
+        razorpay_client.utility.verify_payment_signature({
+            "razorpay_order_id": data["razorpay_order_id"],
+            "razorpay_payment_id": data["razorpay_payment_id"],
+            "razorpay_signature": data["razorpay_signature"]
+        })
+        
+        # Get order details
+        order = await db.payment_orders.find_one({"order_id": data["razorpay_order_id"]})
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        # Update profile to featured
+        collection = db.artist_profiles if order["profile_type"] == "artist" else db.partner_profiles
+        featured_until = datetime.utcnow() + timedelta(days=order["duration_days"])
+        
+        await collection.update_one(
+            {"id": order["profile_id"]},
+            {"$set": {
+                "is_featured": True,
+                "featured_until": featured_until
+            }}
+        )
+        
+        # Update order status
+        await db.payment_orders.update_one(
+            {"order_id": data["razorpay_order_id"]},
+            {"$set": {
+                "status": "completed",
+                "payment_id": data["razorpay_payment_id"],
+                "completed_at": datetime.utcnow()
+            }}
+        )
+        
+        return {"message": "Payment verified and profile featured successfully"}
+    except Exception as e:
+        logging.error(f"Payment verification failed: {e}")
+        raise HTTPException(status_code=400, detail="Payment verification failed")
+
 # ==================== SOCKET.IO EVENTS ====================
 
 connected_users = {}  # {user_id: sid}
