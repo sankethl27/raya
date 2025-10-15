@@ -9,16 +9,21 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
-          borderTopColor: theme.colors.border,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
+          borderTopColor: theme.colors.borderLight,
+          borderTopWidth: 1,
+          height: 80,
+          paddingBottom: 20,
+          paddingTop: 12,
         },
         tabBarActiveTintColor: theme.colors.secondary,
         tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
+          fontSize: 13,
+          fontWeight: '700',
+          marginTop: 4,
+        },
+        tabBarIconStyle: {
+          marginTop: 4,
         },
       }}
     >
