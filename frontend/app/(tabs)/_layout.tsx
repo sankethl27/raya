@@ -63,6 +63,7 @@ export default function TabLayout() {
         name="wishlist"
         options={{
           title: 'Wishlist',
+          href: isVenue ? '/(tabs)/wishlist' : null,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? "heart" : "heart-outline"} size={26} color={color} />
           ),
