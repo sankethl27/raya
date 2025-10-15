@@ -167,10 +167,20 @@ export default function HomeScreen() {
             style={styles.heroBanner}
           >
             {/* Floating sparkles */}
-            <Animated.View style={[styles.heroBannerSparkle1, sparkleAnimatedStyle]}>
+            <Animated.View style={[styles.heroBannerSparkle1, {
+              transform: [
+                { rotate: sparkleSpin },
+                { scale: sparkleScale },
+              ],
+            }]}>
               <Ionicons name="sparkles" size={20} color={theme.colors.primaryDark} />
             </Animated.View>
-            <Animated.View style={[styles.heroBannerSparkle2, sparkleAnimatedStyle]}>
+            <Animated.View style={[styles.heroBannerSparkle2, {
+              transform: [
+                { rotate: sparkleSpin },
+                { scale: sparkleScale },
+              ],
+            }]}>
               <Ionicons name="sparkles" size={16} color={theme.colors.primaryDark} />
             </Animated.View>
 
