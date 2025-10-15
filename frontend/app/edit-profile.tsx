@@ -380,6 +380,28 @@ export default function EditProfileScreen() {
                   editable={!loading}
                 />
               </View>
+
+              {/* MEDIA GALLERY SECTION */}
+              <View style={styles.mediaSection}>
+                <Text style={styles.label}>Photos & Videos</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaGallery}>
+                  {mediaGallery.map((media, index) => (
+                    <View key={index} style={styles.mediaItem}>
+                      <Image source={{ uri: media }} style={styles.mediaImage} />
+                      <TouchableOpacity
+                        style={styles.removeMediaButton}
+                        onPress={() => removeMedia(index)}
+                      >
+                        <Ionicons name="close-circle" size={24} color={theme.colors.error} />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                  <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia}>
+                    <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
+                    <Text style={styles.addMediaText}>Add Photo/Video</Text>
+                  </TouchableOpacity>
+                </ScrollView>
+              </View>
             </>
           )}
 
