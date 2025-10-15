@@ -44,6 +44,9 @@ export default function EditProfileScreen() {
   // Venue fields
   const [venueName, setVenueName] = useState('');
 
+  // Media gallery
+  const [mediaGallery, setMediaGallery] = useState<string[]>([]);
+
   useEffect(() => {
     if (profile) {
       setDescription(profile.description || '');
