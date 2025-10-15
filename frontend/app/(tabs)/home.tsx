@@ -59,19 +59,30 @@ export default function HomeScreen() {
         style={styles.header}
       >
         <View style={styles.headerContent}>
-          <View>
-            <Text style={styles.greeting}>Welcome to</Text>
+          <View style={styles.headerLeft}>
             <Text style={styles.appName}>RAYA</Text>
+            <Text style={styles.tagline}>One platform. Endless connections.</Text>
           </View>
           <TouchableOpacity
             style={styles.logoutButton}
-            onPress={logout}
+            onPress={async () => {
+              await logout();
+              router.replace('/auth/welcome');
+            }}
           >
-            <Ionicons name="log-out-outline" size={24} color={theme.colors.white} />
+            <Ionicons name="log-out-outline" size={24} color={theme.colors.secondary} />
           </TouchableOpacity>
         </View>
         
-        <Text style={styles.tagline}>One platform. Endless connections.</Text>
+        <View style={styles.heroBanner}>
+          <Text style={styles.heroTitle}>Book. Collaborate. Get noticed.</Text>
+          <Text style={styles.heroSubtitle}>
+            Whether it's a live event, personal gig, or brand collab — we make it easy to connect, partner, and grow.
+          </Text>
+          <Text style={styles.heroDescription}>
+            Hire or get hired, check availability, and grow your visibility effortlessly.
+          </Text>
+        </View>
       </LinearGradient>
 
       <ScrollView
