@@ -4,7 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ImageBackground,
+  Image,
   Dimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
