@@ -220,7 +220,7 @@ export default function HomeScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Explore</Text>
           <View style={styles.quickActions}>
-            <AnimatedTouchableOpacity
+            <TouchableOpacity
               style={styles.actionCard}
               onPress={() => router.push('/(tabs)/artists')}
               activeOpacity={0.9}
@@ -235,9 +235,9 @@ export default function HomeScreen() {
                 <Text style={styles.actionTitle}>Artists</Text>
                 <Text style={styles.actionSubtitle}>Discover talent</Text>
               </LinearGradient>
-            </AnimatedTouchableOpacity>
+            </TouchableOpacity>
 
-            <AnimatedTouchableOpacity
+            <TouchableOpacity
               style={styles.actionCard}
               onPress={() => router.push('/(tabs)/partners')}
               activeOpacity={0.9}
@@ -252,7 +252,7 @@ export default function HomeScreen() {
                 <Text style={styles.actionTitle}>Partners</Text>
                 <Text style={styles.actionSubtitle}>Find brands</Text>
               </LinearGradient>
-            </AnimatedTouchableOpacity>
+            </TouchableOpacity>
           </View>
         </View>
 
