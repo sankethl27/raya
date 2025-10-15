@@ -60,7 +60,11 @@ export default function HomeScreen() {
       >
         <View style={styles.headerContent}>
           <View style={styles.headerLeft}>
-            <Text style={styles.appName}>RAYA</Text>
+            <Image 
+              source={{ uri: 'https://customer-assets.emergentagent.com/job_artist-hub-37/artifacts/nm0jan68_ChatGPT%20Image%20Oct%2015%2C%202025%2C%2010_51_19%20PM.png' }}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
             <Text style={styles.tagline}>One platform. Endless connections.</Text>
           </View>
           <TouchableOpacity
