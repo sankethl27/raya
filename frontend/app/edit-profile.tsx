@@ -132,43 +132,98 @@ export default function EditProfileScreen() {
     try {
       let endpoint = '';
       let updates: any = { description };
+      let method: 'put' | 'post' = 'put';
+
+      // Check if creating new profile or updating
+      const isNewProfile = !profile || !profile.id;
 
       if (user?.user_type === 'artist') {
-        endpoint = `/api/artists/${profile.id}`;
-        updates = {
-          ...updates,
-          stage_name: stageName,
-          art_type: artType,
-          experience_gigs: parseInt(experienceGigs) || 0,
-          availability,
-          media_gallery: mediaGallery,
-        };
+        if (isNewProfile) {
+          // Create new artist profile
+          endpoint = `/api/artists`;
+          method = 'post';
+          updates = {
+            user_id: user.id,
+            stage_name: stageName || 'Artist',
+            art_type: artType || 'General',
+            description,
+            experience_gigs: parseInt(experienceGigs) || 0,
+            availability,
+            media_gallery: mediaGallery,
+            rating: 0,
+            review_count: 0,
+          };
+        } else {
+          // Update existing profile
+          endpoint = `/api/artists/${profile.id}`;
+          updates = {
+            ...updates,
+            stage_name: stageName,
+            art_type: artType,
+            experience_gigs: parseInt(experienceGigs) || 0,
+            availability,
+            media_gallery: mediaGallery,
+          };
+        }
       } else if (user?.user_type === 'partner') {
-        endpoint = `/api/partners/${profile.id}`;
-        updates = {
-          ...updates,
-          brand_name: brandName,
-          service_type: serviceType,
-          media_gallery: mediaGallery,
-        };
+        if (isNewProfile) {
+          // Create new partner profile
+          endpoint = `/api/partners`;
+          method = 'post';
+          updates = {
+            user_id: user.id,
+            brand_name: brandName || 'Brand',
+            service_type: serviceType || 'General',
+            description,
+            media_gallery: mediaGallery,
+            rating: 0,
+            review_count: 0,
+          };
+        } else {
+          // Update existing profile
+          endpoint = `/api/partners/${profile.id}`;
+          updates = {
+            ...updates,
+            brand_name: brandName,
+            service_type: serviceType,
+            media_gallery: mediaGallery,
+          };
+        }
       } else if (user?.user_type === 'venue') {
-        endpoint = `/api/venues/${profile.id}`;
-        updates = {
-          ...updates,
-          venue_name: venueName,
-        };
+        if (isNewProfile) {
+          endpoint = `/api/venues`;
+          method = 'post';
+          updates = {
+            user_id: user.id,
+            venue_name: venueName || 'Venue',
+            description,
+          };
+        } else {
+          endpoint = `/api/venues/${profile.id}`;
+          updates = {
+            ...updates,
+            venue_name: venueName,
+          };
+        }
       }
 
-      await axios.put(`${BACKEND_URL}${endpoint}`, updates, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // Use appropriate HTTP method
+      if (method === 'post') {
+        await axios.post(`${BACKEND_URL}${endpoint}`, updates, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        await axios.put(`${BACKEND_URL}${endpoint}`, updates, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
 
       await refreshProfile();
-      Alert.alert('Success', 'Profile updated successfully', [
+      Alert.alert('Success', isNewProfile ? 'Profile created successfully!' : 'Profile updated successfully!', [
         { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to update profile');
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to save profile');
     } finally {
       setLoading(false);
     }
