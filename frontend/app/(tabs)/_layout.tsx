@@ -31,8 +31,8 @@ export default function TabLayout() {
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? "home" : "home-outline"} size={26} color={color} />
           ),
         }}
       />
@@ -40,8 +40,8 @@ export default function TabLayout() {
         name="artists"
         options={{
           title: 'Artists',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="brush" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? "brush" : "brush-outline"} size={26} color={color} />
           ),
         }}
       />
@@ -49,8 +49,8 @@ export default function TabLayout() {
         name="partners"
         options={{
           title: 'Partners',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="briefcase" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? "briefcase" : "briefcase-outline"} size={26} color={color} />
           ),
         }}
       />
@@ -58,8 +58,8 @@ export default function TabLayout() {
         name="wishlist"
         options={{
           title: 'Wishlist',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? "heart" : "heart-outline"} size={26} color={color} />
           ),
         }}
       />
@@ -67,8 +67,8 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? "person" : "person-outline"} size={26} color={color} />
           ),
         }}
       />
