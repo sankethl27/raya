@@ -85,6 +85,12 @@ class Availability(BaseModel):
     day: str  # Monday, Tuesday, etc.
     time_slots: List[str]  # ["10:00 AM - 2:00 PM", "6:00 PM - 10:00 PM"]
 
+class PricingInfo(BaseModel):
+    price_per_hour: Optional[float] = None  # None means "for promotion"
+    is_for_promotion: bool = False
+    is_negotiable: bool = False
+    negotiation_conditions: Optional[str] = None  # e.g., "Negotiable for events >3 hours"
+
 class ArtistProfile(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
@@ -95,9 +101,13 @@ class ArtistProfile(BaseModel):
     rating: float = 0.0
     review_count: int = 0
     availability: List[Availability] = []
+    locations: List[str] = []  # e.g., ["Koramangala", "Indiranagar", "Whitefield"]
+    pricing: Optional[PricingInfo] = None
     profile_image: Optional[str] = None  # base64
+    media_gallery: List[str] = []  # base64 images/videos
     is_featured: bool = False
     featured_until: Optional[datetime] = None
+    featured_type: Optional[str] = None  # "weekly" or "monthly"
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class PartnerProfile(BaseModel):
