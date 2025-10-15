@@ -711,13 +711,14 @@ async def verify_featured_payment(data: dict, current_user: dict = Depends(get_c
         
         # Update profile to featured
         collection = db.artist_profiles if order["profile_type"] == "artist" else db.partner_profiles
-        featured_until = datetime.utcnow() + timedelta(days=order["duration_days"])
+        featured_until = datetime.utcnow() + timedelta(days=order.get("duration_days", 7))
         
         await collection.update_one(
             {"id": order["profile_id"]},
             {"$set": {
                 "is_featured": True,
-                "featured_until": featured_until
+                "featured_until": featured_until,
+                "featured_type": order.get("plan", "weekly")
             }}
         )
         
