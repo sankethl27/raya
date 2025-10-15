@@ -28,39 +28,74 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Animations
-  const logoScale = useSharedValue(0.8);
-  const logoOpacity = useSharedValue(0);
-  const bannerScale = useSharedValue(0.95);
-  const bannerOpacity = useSharedValue(0);
-  const sparkleRotate = useSharedValue(0);
-  const sparkleScale = useSharedValue(1);
-  const scrollY = useSharedValue(0);
+  const logoScale = useRef(new Animated.Value(0.8)).current;
+  const logoOpacity = useRef(new Animated.Value(0)).current;
+  const bannerScale = useRef(new Animated.Value(0.95)).current;
+  const bannerOpacity = useRef(new Animated.Value(0)).current;
+  const sparkleRotate = useRef(new Animated.Value(0)).current;
+  const sparkleScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     fetchData();
 
     // Entrance animations
-    logoScale.value = withSpring(1, { damping: 10 });
-    logoOpacity.value = withTiming(1, { duration: 600 });
+    Animated.parallel([
+      Animated.spring(logoScale, {
+        toValue: 1,
+        friction: 10,
+        useNativeDriver: true,
+      }),
+      Animated.timing(logoOpacity, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
     setTimeout(() => {
-      bannerScale.value = withSpring(1, { damping: 8 });
-      bannerOpacity.value = withTiming(1, { duration: 500 });
+      Animated.parallel([
+        Animated.spring(bannerScale, {
+          toValue: 1,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bannerOpacity, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }, 300);
 
     // Continuous sparkle animation
-    sparkleRotate.value = withRepeat(
-      withTiming(360, { duration: 3000, easing: Easing.linear }),
-      -1
-    );
-    sparkleScale.value = withRepeat(
-      withSequence(
-        withTiming(1.2, { duration: 1000 }),
-        withTiming(1, { duration: 1000 })
-      ),
-      -1
-    );
+    Animated.loop(
+      Animated.timing(sparkleRotate, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+      })
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(sparkleScale, {
+          toValue: 1.2,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sparkleScale, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
   }, []);
+
+  const sparkleSpin = sparkleRotate.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   const fetchData = async () => {
     try {
@@ -83,31 +118,6 @@ export default function HomeScreen() {
     setRefreshing(true);
     await fetchData();
     setRefreshing(false);
-  };
-
-  const logoAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: logoScale.value }],
-    opacity: logoOpacity.value,
-  }));
-
-  const bannerAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: bannerScale.value }],
-    opacity: bannerOpacity.value,
-  }));
-
-  const sparkleAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { rotate: `${sparkleRotate.value}deg` },
-      { scale: sparkleScale.value },
-    ],
-  }));
-
-  const handleCardPress = (scale: Animated.SharedValue<number>, action: () => void) => {
-    scale.value = withSequence(
-      withSpring(0.95, { damping: 10 }),
-      withSpring(1, { damping: 10 })
-    );
-    setTimeout(action, 100);
   };
 
   return (
