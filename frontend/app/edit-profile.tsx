@@ -151,6 +151,8 @@ export default function EditProfileScreen() {
             description,
             experience_gigs: parseInt(experienceGigs) || 0,
             availability,
+            locations,
+            press_kit: pressKit,
             media_gallery: mediaGallery,
             rating: 0,
             review_count: 0,
@@ -164,6 +166,8 @@ export default function EditProfileScreen() {
             art_type: artType,
             experience_gigs: parseInt(experienceGigs) || 0,
             availability,
+            locations,
+            press_kit: pressKit,
             media_gallery: mediaGallery,
           };
         }
