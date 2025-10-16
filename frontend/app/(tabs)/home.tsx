@@ -133,7 +133,7 @@ export default function HomeScreen() {
               opacity: logoOpacity,
             }}>
               <Image 
-                source={{ uri: 'https://customer-assets.emergentagent.com/job_artist-hub-37/artifacts/nm0jan68_ChatGPT%20Image%20Oct%2015%2C%202025%2C%2010_51_19%20PM.png' }}
+                source={{ uri: 'https://customer-assets.emergentagent.com/job_talent-nexus-25/artifacts/qp2elcj3_logo%20with%20transparent%20bcakg.png' }}
                 style={styles.logoImage}
                 resizeMode="contain"
               />
