@@ -258,8 +258,13 @@ export default function ProfileScreen() {
                             await axios.delete(`${BACKEND_URL}/api/profile`, {
                               headers: { Authorization: `Bearer ${token}` },
                             });
-                            await logout();
-                            Alert.alert('Deleted', 'Profile permanently deleted');
+                            // Don't logout - just refresh to show "Create Profile"
+                            Alert.alert('Deleted', 'Profile permanently deleted', [
+                              {
+                                text: 'OK',
+                                onPress: () => router.push('/edit-profile'),
+                              },
+                            ]);
                           } catch (error) {
                             Alert.alert('Error', 'Failed to delete profile');
                           }
