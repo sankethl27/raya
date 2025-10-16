@@ -413,6 +413,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     ...theme.shadows.md,
   },
+  bannerScroll: {
+    marginTop: theme.spacing.md,
+  },
   heroBanner: {
     borderRadius: theme.borderRadius.xxl,
     marginTop: theme.spacing.md,
