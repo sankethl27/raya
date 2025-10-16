@@ -760,6 +760,43 @@ async def get_messages(room_id: str, current_user: dict = Depends(get_current_us
     
     return messages
 
+@api_router.post("/chat/messages")
+async def send_message(message_data: dict, current_user: dict = Depends(get_current_user)):
+    room_id = message_data.get("room_id")
+    message_text = message_data.get("message")
+    
+    if not room_id or not message_text:
+        raise HTTPException(status_code=400, detail="room_id and message are required")
+    
+    # Verify user is part of this room
+    room = await db.chat_rooms.find_one({"id": room_id})
+    if not room:
+        raise HTTPException(status_code=404, detail="Chat room not found")
+    
+    if room["venue_user_id"] != current_user["id"] and room["provider_user_id"] != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Create new message
+    new_message = {
+        "id": str(uuid.uuid4()),
+        "chat_room_id": room_id,
+        "sender_id": current_user["id"],
+        "message": message_text,
+        "is_read": False,
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.messages.insert_one(new_message)
+    
+    # Update room's last_message_at
+    await db.chat_rooms.update_one(
+        {"id": room_id},
+        {"$set": {"last_message_at": datetime.utcnow()}}
+    )
+    
+    new_message.pop("_id", None)
+    return new_message
+
 # ==================== ADMIN ROUTES ====================
 
 @api_router.get("/admin/chats")
