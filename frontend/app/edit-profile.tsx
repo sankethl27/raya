@@ -36,6 +36,8 @@ export default function EditProfileScreen() {
   const [artType, setArtType] = useState('');
   const [experienceGigs, setExperienceGigs] = useState('');
   const [availability, setAvailability] = useState<any[]>([]);
+  const [locations, setLocations] = useState<string[]>([]);
+  const [pressKit, setPressKit] = useState('');
 
   // Partner fields
   const [brandName, setBrandName] = useState('');
