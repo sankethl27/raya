@@ -321,7 +321,7 @@ async def get_artists(
     location: Optional[str] = None,
     available_only: Optional[bool] = False
 ):
-    query = {}
+    query = {"is_paused": {"$ne": True}}  # Exclude paused profiles
     
     # Rating filter
     if min_rating is not None or max_rating is not None:
