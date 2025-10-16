@@ -255,7 +255,7 @@ export default function ProfileScreen() {
                         style: 'destructive',
                         onPress: async () => {
                           try {
-                            await axios.delete(`${BACKEND_URL}/api/profile/delete`, {
+                            await axios.delete(`${BACKEND_URL}/api/profile`, {
                               headers: { Authorization: `Bearer ${token}` },
                             });
                             await logout();
