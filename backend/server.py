@@ -504,6 +504,75 @@ async def update_venue(venue_id: str, updates: dict, current_user: dict = Depend
     updated_venue.pop("_id", None)
     return updated_venue
 
+# ==================== PROFILE MANAGEMENT ====================
+
+@api_router.post("/profile/pause")
+async def pause_profile(current_user: dict = Depends(get_current_user)):
+    """Pause user's profile"""
+    user_type = current_user["user_type"]
+    user_id = current_user["id"]
+    
+    if user_type == "artist":
+        collection = db.artist_profiles
+    elif user_type == "partner":
+        collection = db.partner_profiles
+    elif user_type == "venue":
+        collection = db.venue_profiles
+    else:
+        raise HTTPException(status_code=400, detail="Invalid user type")
+    
+    profile = await collection.find_one({"user_id": user_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    await collection.update_one({"user_id": user_id}, {"$set": {"is_paused": True}})
+    return {"message": "Profile paused successfully"}
+
+@api_router.post("/profile/unpause")
+async def unpause_profile(current_user: dict = Depends(get_current_user)):
+    """Unpause user's profile"""
+    user_type = current_user["user_type"]
+    user_id = current_user["id"]
+    
+    if user_type == "artist":
+        collection = db.artist_profiles
+    elif user_type == "partner":
+        collection = db.partner_profiles
+    elif user_type == "venue":
+        collection = db.venue_profiles
+    else:
+        raise HTTPException(status_code=400, detail="Invalid user type")
+    
+    profile = await collection.find_one({"user_id": user_id})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    await collection.update_one({"user_id": user_id}, {"$set": {"is_paused": False}})
+    return {"message": "Profile unpaused successfully"}
+
+@api_router.delete("/profile")
+async def delete_profile(current_user: dict = Depends(get_current_user)):
+    """Delete user's profile and account"""
+    user_type = current_user["user_type"]
+    user_id = current_user["id"]
+    
+    # Delete profile
+    if user_type == "artist":
+        await db.artist_profiles.delete_one({"user_id": user_id})
+    elif user_type == "partner":
+        await db.partner_profiles.delete_one({"user_id": user_id})
+    elif user_type == "venue":
+        await db.venue_profiles.delete_one({"user_id": user_id})
+    
+    # Delete user account
+    await db.users.delete_one({"id": user_id})
+    
+    # Delete related data
+    await db.wishlist.delete_many({"venue_user_id": user_id})
+    await db.reviews.delete_many({"reviewer_id": user_id})
+    
+    return {"message": "Profile and account deleted successfully"}
+
 # ==================== REVIEW ROUTES ====================
 
 @api_router.post("/reviews")
