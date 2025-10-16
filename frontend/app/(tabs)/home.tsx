@@ -212,6 +212,7 @@ export default function HomeScreen() {
               </Text>
             </View>
           </LinearGradient>
+          </ScrollView>
         </Animated.View>
       </LinearGradient>
 
