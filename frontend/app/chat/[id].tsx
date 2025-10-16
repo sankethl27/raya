@@ -36,7 +36,13 @@ export default function ChatScreen() {
     fetchMessages();
     initializeSocket();
 
+    // Poll for new messages every 3 seconds
+    const pollInterval = setInterval(() => {
+      fetchMessages();
+    }, 3000);
+
     return () => {
+      clearInterval(pollInterval);
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
