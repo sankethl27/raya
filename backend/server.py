@@ -384,6 +384,39 @@ async def get_artist(artist_id: str):
     artist.pop("_id", None)
     return artist
 
+@api_router.post("/artists")
+async def create_artist(artist_data: dict, current_user: dict = Depends(get_current_user)):
+    # Ensure user is an artist
+    if current_user["user_type"] != "artist":
+        raise HTTPException(status_code=403, detail="Only artists can create artist profiles")
+    
+    # Check if artist profile already exists
+    existing = await db.artist_profiles.find_one({"user_id": current_user["id"]})
+    if existing:
+        raise HTTPException(status_code=400, detail="Artist profile already exists")
+    
+    # Create new artist profile
+    new_artist = {
+        "id": str(uuid.uuid4()),
+        "user_id": current_user["id"],
+        "stage_name": artist_data.get("stage_name", "Artist"),
+        "art_type": artist_data.get("art_type", "General"),
+        "description": artist_data.get("description", ""),
+        "experience_gigs": artist_data.get("experience_gigs", 0),
+        "availability": artist_data.get("availability", []),
+        "locations": artist_data.get("locations", []),
+        "media_gallery": artist_data.get("media_gallery", []),
+        "rating": 0,
+        "review_count": 0,
+        "is_featured": False,
+        "pricing": artist_data.get("pricing", {"price_per_hour": None, "is_for_promotion": False, "is_negotiable": False}),
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.artist_profiles.insert_one(new_artist)
+    new_artist.pop("_id", None)
+    return new_artist
+
 @api_router.put("/artists/{artist_id}")
 async def update_artist(artist_id: str, updates: dict, current_user: dict = Depends(get_current_user)):
     artist = await db.artist_profiles.find_one({"id": artist_id})
