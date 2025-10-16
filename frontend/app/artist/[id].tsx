@@ -205,6 +205,67 @@ export default function ArtistDetailScreen() {
             <Text style={styles.description}>{artist.description || 'No description available.'}</Text>
           </View>
 
+          {/* MEDIA GALLERY - BIGGER DISPLAY */}
+          {artist.media_gallery && artist.media_gallery.length > 0 && (
+            <View style={styles.mediaSection}>
+              <View style={styles.mediaSectionHeader}>
+                <Ionicons name="images" size={28} color={theme.colors.secondary} />
+                <Text style={styles.sectionTitle}>Media Gallery</Text>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaScroll}>
+                {artist.media_gallery.map((media: string, index: number) => (
+                  <View key={index} style={styles.mediaItemContainer}>
+                    {media.startsWith('data:video') ? (
+                      <View style={styles.videoPlaceholder}>
+                        <Ionicons name="play-circle" size={64} color={theme.colors.secondary} />
+                        <Text style={styles.videoText}>Video {index + 1}</Text>
+                      </View>
+                    ) : (
+                      <Image source={{ uri: media }} style={styles.mediaImage} resizeMode="cover" />
+                    )}
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
+          {/* Press Kit */}
+          {artist.press_kit && (
+            <View style={styles.section}>
+              <View style={styles.pressKitHeader}>
+                <Ionicons name="document-text" size={24} color={theme.colors.secondary} />
+                <Text style={styles.sectionTitle}>Press Kit</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.pressKitButton}
+                onPress={() => {
+                  // Open URL
+                  Alert.alert('Press Kit', artist.press_kit);
+                }}
+              >
+                <Text style={styles.pressKitLink}>{artist.press_kit}</Text>
+                <Ionicons name="open-outline" size={20} color={theme.colors.secondary} />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Locations */}
+          {artist.locations && artist.locations.length > 0 && (
+            <View style={styles.section}>
+              <View style={styles.locationsSectionHeader}>
+                <Ionicons name="location" size={24} color={theme.colors.secondary} />
+                <Text style={styles.sectionTitle}>Performance Locations</Text>
+              </View>
+              <View style={styles.locationsGrid}>
+                {artist.locations.map((location: string, index: number) => (
+                  <View key={index} style={styles.locationChip}>
+                    <Text style={styles.locationText}>{location}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
           {/* AVAILABILITY - PROMINENTLY DISPLAYED */}
           <View style={styles.availabilitySection}>
             <View style={styles.availabilityHeader}>
