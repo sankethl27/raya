@@ -58,6 +58,8 @@ export default function EditProfileScreen() {
         setArtType(profile.art_type || '');
         setExperienceGigs(profile.experience_gigs?.toString() || '0');
         setAvailability(profile.availability || []);
+        setLocations(profile.locations || []);
+        setPressKit(profile.press_kit || '');
         setMediaGallery(profile.media_gallery || []);
       } else if (user?.user_type === 'partner') {
         setBrandName(profile.brand_name || '');
