@@ -155,6 +155,18 @@ const styles = StyleSheet.create({
   header: {
     marginTop: theme.spacing.xxl,
     marginBottom: theme.spacing.xl,
+    alignItems: 'center',
+  },
+  logo: {
+    width: 280,
+    height: 180,
+    marginBottom: theme.spacing.md,
+  },
+  tagline: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.textSecondary,
+    textAlign: 'center',
+    letterSpacing: 0.5,
   },
   title: {
     fontSize: theme.fontSize.xxl,
