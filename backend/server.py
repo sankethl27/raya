@@ -446,6 +446,36 @@ async def get_partner(partner_id: str):
     partner.pop("_id", None)
     return partner
 
+@api_router.post("/partners")
+async def create_partner(partner_data: dict, current_user: dict = Depends(get_current_user)):
+    # Ensure user is a partner
+    if current_user["user_type"] != "partner":
+        raise HTTPException(status_code=403, detail="Only partners can create partner profiles")
+    
+    # Check if partner profile already exists
+    existing = await db.partner_profiles.find_one({"user_id": current_user["id"]})
+    if existing:
+        raise HTTPException(status_code=400, detail="Partner profile already exists")
+    
+    # Create new partner profile
+    new_partner = {
+        "id": str(uuid.uuid4()),
+        "user_id": current_user["id"],
+        "brand_name": partner_data.get("brand_name", "Brand"),
+        "service_type": partner_data.get("service_type", "General"),
+        "description": partner_data.get("description", ""),
+        "locations": partner_data.get("locations", []),
+        "media_gallery": partner_data.get("media_gallery", []),
+        "rating": 0,
+        "review_count": 0,
+        "is_featured": False,
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.partner_profiles.insert_one(new_partner)
+    new_partner.pop("_id", None)
+    return new_partner
+
 @api_router.put("/partners/{partner_id}")
 async def update_partner(partner_id: str, updates: dict, current_user: dict = Depends(get_current_user)):
     partner = await db.partner_profiles.find_one({"id": partner_id})
