@@ -95,16 +95,59 @@ export default function ChatScreen() {
     }
   };
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!inputText.trim()) return;
 
-    if (socketRef.current) {
-      socketRef.current.emit('send_message', {
+    const messageText = inputText.trim();
+    setInputText('');
+
+    try {
+      // Immediately add message to UI (optimistic update)
+      const tempMessage = {
+        id: Date.now().toString(),
         room_id: id,
         sender_id: user?.id,
-        message: inputText.trim(),
-      });
-      setInputText('');
+        message: messageText,
+        created_at: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, tempMessage]);
+
+      // Send to backend via HTTP
+      const response = await axios.post(
+        `${BACKEND_URL}/api/chat/messages`,
+        {
+          room_id: id,
+          message: messageText,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Update with actual message from server
+      setMessages((prev) => 
+        prev.map(msg => msg.id === tempMessage.id ? response.data : msg)
+      );
+
+      // Scroll to bottom
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd();
+      }, 100);
+
+      // Also emit via socket if connected
+      if (socketRef.current?.connected) {
+        socketRef.current.emit('send_message', {
+          room_id: id,
+          sender_id: user?.id,
+          message: messageText,
+        });
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      Alert.alert('Error', 'Failed to send message');
+      // Remove failed message
+      setMessages((prev) => prev.slice(0, -1));
+      setInputText(messageText);
     }
   };
 
