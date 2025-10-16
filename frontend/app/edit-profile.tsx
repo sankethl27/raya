@@ -377,6 +377,60 @@ export default function EditProfileScreen() {
                   <Text style={styles.addDayText}>Add Available Day</Text>
                 </TouchableOpacity>
               </View>
+              
+              {/* LOCATIONS SECTION */}
+              <View style={styles.locationsSection}>
+                <View style={styles.locationHeader}>
+                  <Ionicons name="location" size={24} color={theme.colors.secondary} />
+                  <Text style={styles.sectionTitle}>Performance Locations</Text>
+                </View>
+                <Text style={styles.locationSubtitle}>Select areas where you can perform</Text>
+                
+                <View style={styles.locationsGrid}>
+                  {['Koramangala', 'Indiranagar', 'Whitefield', 'Electronic City', 'HSR Layout', 'BTM Layout', 'Marathahalli', 'Jayanagar', 'Malleshwaram', 'Rajajinagar', 'JP Nagar', 'Banashankari', 'Yelahanka', 'Hebbal', 'MG Road', 'Brigade Road', 'Bellandur', 'Sarjapur Road'].map((location) => (
+                    <TouchableOpacity
+                      key={location}
+                      style={[
+                        styles.locationChip,
+                        locations.includes(location) && styles.locationChipActive
+                      ]}
+                      onPress={() => {
+                        if (locations.includes(location)) {
+                          setLocations(locations.filter(l => l !== location));
+                        } else {
+                          setLocations([...locations, location]);
+                        }
+                      }}
+                      disabled={loading}
+                    >
+                      <Text style={[
+                        styles.locationChipText,
+                        locations.includes(location) && styles.locationChipTextActive
+                      ]}>{location}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+              
+              {/* PRESS KIT SECTION */}
+              <View style={styles.inputGroup}>
+                <View style={styles.pressKitHeader}>
+                  <Ionicons name="document-text" size={24} color={theme.colors.secondary} />
+                  <Text style={styles.label}>Press Kit URL (Optional)</Text>
+                </View>
+                <TextInput
+                  style={styles.input}
+                  value={pressKit}
+                  onChangeText={setPressKit}
+                  placeholder="https://yourwebsite.com/press-kit"
+                  placeholderTextColor={theme.colors.textSecondary}
+                  keyboardType="url"
+                  autoCapitalize="none"
+                  editable={!loading}
+                />
+                <Text style={styles.helperText}>Link to your press kit, portfolio, or EPK</Text>
+              </View>
+              
               {/* MEDIA GALLERY SECTION */}
               <View style={styles.mediaSection}>
                 <Text style={styles.label}>Photos & Videos</Text>
