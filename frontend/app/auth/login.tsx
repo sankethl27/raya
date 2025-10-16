@@ -62,8 +62,12 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           <View style={styles.header}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to continue</Text>
+            <Image 
+              source={{ uri: 'https://customer-assets.emergentagent.com/job_talent-nexus-25/artifacts/qp2elcj3_logo%20with%20transparent%20bcakg.png' }}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.tagline}>One platform. Endless connections.</Text>
           </View>
 
           <View style={styles.form}>
