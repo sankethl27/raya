@@ -160,12 +160,18 @@ export default function HomeScreen() {
           transform: [{ scale: bannerScale }],
           opacity: bannerOpacity,
         }}>
-          <LinearGradient
-            colors={['#F9E28C', '#E1C05B', '#D4AF37']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.heroBanner}
+          <ScrollView 
+            horizontal 
+            pagingEnabled 
+            showsHorizontalScrollIndicator={false}
+            style={styles.bannerScroll}
           >
+            <LinearGradient
+              colors={['#F9E28C', '#E1C05B', '#D4AF37']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroBanner}
+            >
             {/* Floating sparkles */}
             <Animated.View style={[styles.heroBannerSparkle1, {
               transform: [
