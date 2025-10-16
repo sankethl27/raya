@@ -433,7 +433,7 @@ async def update_artist(artist_id: str, updates: dict, current_user: dict = Depe
 
 @api_router.get("/partners")
 async def get_partners():
-    partners = await db.partner_profiles.find().to_list(1000)
+    partners = await db.partner_profiles.find({"is_paused": {"$ne": True}}).to_list(1000)
     for partner in partners:
         partner.pop("_id", None)
     return partners
