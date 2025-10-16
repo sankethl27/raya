@@ -94,6 +94,10 @@ export default function ChatScreen() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMessages(response.data);
+      // Auto scroll to bottom after fetching
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: false });
+      }, 100);
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
