@@ -140,8 +140,8 @@ class Review(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     profile_id: str  # artist or partner profile id
     profile_type: str  # artist or partner
-    reviewer_id: str  # venue user id
-    reviewer_name: str
+    reviewer_id: str = ""  # venue user id
+    reviewer_name: str = "Anonymous"
     rating: float  # 1-5
     comment: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
