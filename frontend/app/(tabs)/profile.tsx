@@ -212,35 +212,60 @@ export default function ProfileScreen() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Profile Management</Text>
               
-              <TouchableOpacity
-                style={styles.menuItem}
-                onPress={async () => {
-                  Alert.alert(
-                    'Pause Profile',
-                    'Your profile will be hidden from venues but you can still chat. Data will be saved.',
-                    [
-                      { text: 'Cancel', style: 'cancel' },
-                      {
-                        text: 'Pause',
-                        onPress: async () => {
-                          try {
-                            await axios.post(`${BACKEND_URL}/api/profile/pause`, {}, {
-                              headers: { Authorization: `Bearer ${token}` },
-                            });
-                            Alert.alert('Success', 'Profile paused');
-                          } catch (error) {
-                            Alert.alert('Error', 'Failed to pause profile');
-                          }
+              {/* PAUSE/UNPAUSE PROFILE */}
+              {profile?.is_paused ? (
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={async () => {
+                    try {
+                      await axios.post(`${BACKEND_URL}/api/profile/unpause`, {}, {
+                        headers: { Authorization: `Bearer ${token}` },
+                      });
+                      Alert.alert('Success', 'Profile is now visible again!', [
+                        { text: 'OK', onPress: () => router.replace('/(tabs)/profile') }
+                      ]);
+                    } catch (error) {
+                      Alert.alert('Error', 'Failed to unpause profile');
+                    }
+                  }}
+                >
+                  <Ionicons name="play-circle" size={24} color={theme.colors.success} />
+                  <Text style={[styles.menuText, { color: theme.colors.success }]}>Unpause Profile</Text>
+                  <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={async () => {
+                    Alert.alert(
+                      'Pause Profile',
+                      'Your profile will be hidden from venues but you can still chat. Data will be saved.',
+                      [
+                        { text: 'Cancel', style: 'cancel' },
+                        {
+                          text: 'Pause',
+                          onPress: async () => {
+                            try {
+                              await axios.post(`${BACKEND_URL}/api/profile/pause`, {}, {
+                                headers: { Authorization: `Bearer ${token}` },
+                              });
+                              Alert.alert('Success', 'Profile paused', [
+                                { text: 'OK', onPress: () => router.replace('/(tabs)/profile') }
+                              ]);
+                            } catch (error) {
+                              Alert.alert('Error', 'Failed to pause profile');
+                            }
+                          },
                         },
-                      },
-                    ]
-                  );
-                }}
-              >
-                <Ionicons name="pause-circle" size={24} color={theme.colors.secondary} />
-                <Text style={styles.menuText}>Pause Profile</Text>
-                <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
-              </TouchableOpacity>
+                      ]
+                    );
+                  }}
+                >
+                  <Ionicons name="pause-circle" size={24} color={theme.colors.secondary} />
+                  <Text style={styles.menuText}>Pause Profile</Text>
+                  <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity
                 style={styles.menuItem}
