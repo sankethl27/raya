@@ -1,33 +1,48 @@
+// New color theme based on reference image
 export const theme = {
   colors: {
-    primary: '#000e27',        // Deep navy blue background
-    primaryDark: '#000510',    // Even darker navy
-    primaryLight: '#001a3d',   // Lighter navy
-    secondary: '#D4AF37',      // Gold (main)
-    secondaryDark: '#B98E1D',  // Shadow gold
-    secondaryLight: '#F9E28C', // Highlight gold
-    accent: '#E1C05B',         // Mid gold
-    background: '#000e27',     // Deep navy background
-    surface: '#001a3d',        // Navy surface (no gray!)
-    surfaceLight: '#002550',   // Lighter navy
-    surfaceElevated: '#003366', // Even lighter navy for cards
-    text: '#FFFFFF',           // Pure white
-    textSecondary: '#F9F9F9',  // Off-white
+    // Primary - Dark navy/black (from reference image 4)
+    primary: '#0A0E27',
+    primaryDark: '#000000',
+    primaryLight: '#1a1f3a',
+    
+    // Secondary - Muted gold/beige (less prominent)
+    secondary: '#C9A865',
+    secondaryDark: '#A68954',
+    secondaryLight: '#E8D4A8',
+    accent: '#D4AF37',
+    
+    // Background
+    background: '#0A0E27',
+    surface: '#131829',
+    surfaceLight: '#1E2338',
+    surfaceElevated: '#252B42',
+    
+    // Text
+    text: '#FFFFFF',
+    textSecondary: '#E5E5E5',
     textTertiary: '#9AA6B2',
+    
+    // Status
     error: '#FF6B6B',
     success: '#4ECDC4',
+    warning: '#FFD93D',
+    
+    // Borders
     border: '#2F3442',
     borderLight: '#3F4452',
+    
+    // Others
     white: '#FFFFFF',
     offWhite: '#F9F9F9',
     black: '#000000',
-    overlay: 'rgba(11, 18, 33, 0.85)',
-    goldGradient: ['#F9E28C', '#E1C05B', '#B98E1D'], // Highlight → Mid → Shadow
+    overlay: 'rgba(10, 14, 39, 0.9)',
+    goldGradient: ['#E8D4A8', '#C9A865', '#A68954'],
   },
   fonts: {
-    heading: 'Cormorant Garamond',  // For headings/hero text
-    body: 'Poppins',                // For body/buttons/UI
-    alt: 'Montserrat',              // Alternative body font
+    heading: 'Cormorant Garamond',
+    body: 'Poppins',
+    alt: 'Montserrat',
   },
   spacing: {
     xs: 4,
@@ -79,7 +94,7 @@ export const theme = {
       elevation: 8,
     },
     gold: {
-      shadowColor: '#C9A55C',
+      shadowColor: '#C9A865',
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.3,
       shadowRadius: 12,
@@ -87,3 +102,25 @@ export const theme = {
     },
   },
 };
+
+// Bangalore locations
+export const BANGALORE_LOCATIONS = [
+  'Koramangala',
+  'Indiranagar',
+  'Whitefield',
+  'Electronic City',
+  'HSR Layout',
+  'BTM Layout',
+  'Marathahalli',
+  'Jayanagar',
+  'Malleshwaram',
+  'Rajajinagar',
+  'JP Nagar',
+  'Banashankari',
+  'Yelahanka',
+  'Hebbal',
+  'MG Road',
+  'Brigade Road',
+  'Bellandur',
+  'Sarjapur Road',
+];
