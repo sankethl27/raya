@@ -148,9 +148,9 @@ class Review(BaseModel):
 
 class Wishlist(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    venue_user_id: str
-    profile_id: str  # artist or partner profile id
-    profile_type: str  # artist or partner
+    venue_user_id: str = ""
+    profile_id: str = ""  # artist or partner profile id
+    profile_type: str = ""  # artist or partner
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class ChatRoom(BaseModel):
