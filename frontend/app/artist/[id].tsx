@@ -390,6 +390,12 @@ export default function ArtistDetailScreen() {
           )}
         </View>
       </ScrollView>
+      
+      <SubscriptionPopup
+        visible={showSubscriptionPopup}
+        onClose={() => setShowSubscriptionPopup(false)}
+        onSubscribe={handleSubscribe}
+      />
     </View>
   );
 }
