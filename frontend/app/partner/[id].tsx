@@ -31,6 +31,9 @@ export default function PartnerDetailScreen() {
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
 
   useEffect(() => {
+    if (user?.user_type === 'venue') {
+      trackView();
+    }
     fetchPartnerDetails();
     fetchReviews();
     if (user?.user_type === 'venue') {
