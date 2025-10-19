@@ -33,6 +33,9 @@ export default function ArtistDetailScreen() {
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
 
   useEffect(() => {
+    if (user?.user_type === 'venue') {
+      trackView();
+    }
     fetchArtistDetails();
     fetchReviews();
     if (user?.user_type === 'venue') {
