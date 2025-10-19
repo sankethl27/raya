@@ -210,6 +210,16 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: theme.spacing.sm,
   },
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    paddingVertical: theme.spacing.xs,
+    marginTop: theme.spacing.xs,
+  },
+  forgotPasswordText: {
+    color: theme.colors.secondary,
+    fontSize: theme.fontSize.sm,
+    textDecorationLine: 'underline',
+  },
   button: {
     backgroundColor: theme.colors.secondary,
     paddingVertical: theme.spacing.md,
