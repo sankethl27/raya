@@ -184,6 +184,31 @@ class Message(BaseModel):
     is_read: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+# ==================== NEW MODELS FOR MINI-BATCH 1 ====================
+
+class VenueSubscription(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    venue_user_id: str
+    subscription_type: str  # "trial", "monthly", "pay_per_view"
+    profile_views_remaining: int = 10  # 10 for trial, unlimited for monthly (-1)
+    subscription_status: str  # "active", "expired", "cancelled"
+    razorpay_subscription_id: Optional[str] = None
+    razorpay_payment_id: Optional[str] = None
+    amount_paid: Optional[float] = None
+    subscription_start: datetime = Field(default_factory=datetime.utcnow)
+    subscription_end: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class OTPVerification(BaseModel):
+    email: EmailStr
+    otp: str
+    purpose: str  # "signup" or "forgot_password"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: datetime
+    is_verified: bool = False
+
+# ==================== EXISTING ROUTES ====================
+
 # ==================== HELPER FUNCTIONS ====================
 
 def verify_password(plain_password, hashed_password):
