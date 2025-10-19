@@ -960,26 +960,50 @@ async def forgot_password(data: dict):
     if not all([email, new_password, otp_code]):
         raise HTTPException(status_code=400, detail="Email, OTP, and new password are required")
     
-    # Verify OTP first
+    # Verify OTP again for security
     stored_otp = otp_storage.get(email)
-    if not stored_otp or not stored_otp.get("is_verified"):
-        raise HTTPException(status_code=400, detail="OTP not verified")
+    if not stored_otp:
+        raise HTTPException(status_code=400, detail="OTP session expired. Please request a new OTP.")
     
-    if stored_otp["purpose"] != "forgot_password":
+    # Check if OTP is correct (re-verify)
+    if stored_otp["otp"] != otp_code:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+    
+    # Check if OTP purpose is correct
+    if stored_otp.get("purpose") != "forgot_password":
         raise HTTPException(status_code=400, detail="Invalid OTP purpose")
     
-    # Update password
+    # Check if OTP has expired
+    if datetime.utcnow() > stored_otp.get("expires_at"):
+        del otp_storage[email]
+        raise HTTPException(status_code=400, detail="OTP has expired. Please request a new one.")
+    
+    # Find user
     user = await db.users.find_one({"email": email})
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found with this email")
     
+    # Hash new password
     hashed_password = pwd_context.hash(new_password)
-    await db.users.update_one({"email": email}, {"$set": {"password": hashed_password}})
     
-    # Clear OTP
+    # Update password in database
+    result = await db.users.update_one(
+        {"email": email}, 
+        {"$set": {"password": hashed_password}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=500, detail="Failed to update password")
+    
+    # Clear OTP from storage
     del otp_storage[email]
     
-    return {"message": "Password reset successfully"}
+    logging.info(f"Password reset successful for user: {email}")
+    
+    return {
+        "message": "Password reset successfully. You can now login with your new password.",
+        "success": True
+    }
 
 # SUBSCRIPTION ENDPOINTS
 @api_router.post("/subscription/initialize")
