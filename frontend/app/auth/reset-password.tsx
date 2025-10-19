@@ -39,20 +39,28 @@ export default function ResetPasswordScreen() {
 
     setLoading(true);
     try {
-      await axios.post(`${BACKEND_URL}/api/auth/forgot-password`, {
-        email,
-        otp,
+      const response = await axios.post(`${BACKEND_URL}/api/auth/forgot-password`, {
+        email: String(email),
+        otp: String(otp),
         new_password: newPassword,
       });
 
-      Alert.alert('Success', 'Password reset successfully!', [
-        {
-          text: 'OK',
-          onPress: () => router.replace('/auth/login'),
-        },
-      ]);
+      Alert.alert(
+        'Success!', 
+        'Your password has been reset successfully. You can now login with your new password.',
+        [
+          {
+            text: 'Go to Login',
+            onPress: () => router.replace('/auth/login'),
+          },
+        ]
+      );
     } catch (error: any) {
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to reset password');
+      console.error('Password reset error:', error.response?.data);
+      Alert.alert(
+        'Error', 
+        error.response?.data?.detail || 'Failed to reset password. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
