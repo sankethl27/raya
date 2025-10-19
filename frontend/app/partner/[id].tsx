@@ -41,6 +41,48 @@ export default function PartnerDetailScreen() {
     }
   }, [id]);
 
+  const trackView = async () => {
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/subscription/track-view`,
+        { profile_id: id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (!response.data.allowed) {
+        setShowSubscriptionPopup(true);
+      }
+    } catch (error) {
+      console.log('View tracking:', error);
+    }
+  };
+
+  const handleSubscribe = async (type: 'monthly' | 'pay_per_view') => {
+    try {
+      const orderResponse = await axios.post(
+        `${BACKEND_URL}/api/subscription/create-razorpay-order`,
+        { payment_type: type },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      await axios.post(
+        `${BACKEND_URL}/api/subscription/verify-payment`,
+        {
+          razorpay_order_id: orderResponse.data.order_id,
+          razorpay_payment_id: 'test_payment_' + Date.now(),
+          razorpay_signature: 'test_signature',
+          payment_type: type,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      Alert.alert('Success!', 'Subscription activated successfully!');
+      setShowSubscriptionPopup(false);
+    } catch (error) {
+      Alert.alert('Error', 'Payment failed. Please try again.');
+    }
+  };
+
   const fetchPartnerDetails = async () => {
     try {
       const response = await axios.get(`${BACKEND_URL}/api/partners/${id}`);
