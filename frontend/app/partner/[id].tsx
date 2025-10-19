@@ -301,6 +301,12 @@ export default function PartnerDetailScreen() {
           )}
         </View>
       </ScrollView>
+      
+      <SubscriptionPopup
+        visible={showSubscriptionPopup}
+        onClose={() => setShowSubscriptionPopup(false)}
+        onSubscribe={handleSubscribe}
+      />
     </View>
   );
 }
