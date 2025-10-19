@@ -28,6 +28,7 @@ export default function PartnerDetailScreen() {
   const [reviews, setReviews] = useState([]);
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
 
   useEffect(() => {
     fetchPartnerDetails();
