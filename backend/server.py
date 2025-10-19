@@ -30,6 +30,21 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "raya-secret-key-change-in-production"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 10080  # 7 days
 
+# Razorpay setup
+RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET")
+
+if RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET:
+    razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+    logging.info("Razorpay initialized successfully")
+else:
+    razorpay_client = None
+    logging.warning("Razorpay not enabled - missing API keys")
+
+# Email/OTP setup (using simple random for demo - replace with actual email service)
+import random
+otp_storage = {}  # In production, use Redis
+
 security = HTTPBearer()
 
 # Socket.IO setup
