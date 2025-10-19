@@ -9,12 +9,15 @@ import {
   Platform,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../contexts/AuthContext';
 import { theme } from '../../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
@@ -23,10 +26,9 @@ export default function RegisterScreen() {
   const [userType, setUserType] = useState<'artist' | 'partner' | 'venue' | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { register } = useAuth();
   const router = useRouter();
 
-  const handleRegister = async () => {
+  const handleSendOTP = async () => {
     if (!email || !password || !confirmPassword || !userType) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -44,10 +46,35 @@ export default function RegisterScreen() {
 
     setLoading(true);
     try {
-      await register(email.toLowerCase().trim(), password, userType, {});
-      router.replace('/(tabs)/home');
+      // Send OTP first
+      const response = await axios.post(`${BACKEND_URL}/api/auth/send-otp`, {
+        email: email.toLowerCase().trim(),
+        purpose: 'signup',
+      });
+
+      Alert.alert(
+        'Verify Email',
+        `OTP sent! Code: ${response.data.otp}`,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              // Navigate to OTP verify with signup data
+              router.push({
+                pathname: '/auth/otp-verify-signup',
+                params: {
+                  email: email.toLowerCase().trim(),
+                  password,
+                  userType,
+                  otp: response.data.otp,
+                },
+              });
+            },
+          },
+        ]
+      );
     } catch (error: any) {
-      Alert.alert('Registration Failed', error.message);
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to send OTP');
     } finally {
       setLoading(false);
     }
