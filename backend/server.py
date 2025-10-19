@@ -891,6 +891,426 @@ async def delete_user(user_id: str, current_user: dict = Depends(get_current_use
     
     return {"message": "User deleted successfully"}
 
+# ==================== MINI-BATCH 1: OTP + SUBSCRIPTION + ADMIN ====================
+
+# OTP ENDPOINTS
+def generate_otp():
+    return str(random.randint(100000, 999999))
+
+@api_router.post("/auth/send-otp")
+async def send_otp(data: dict):
+    email = data.get("email")
+    purpose = data.get("purpose", "signup")  # signup or forgot_password
+    
+    if not email:
+        raise HTTPException(status_code=400, detail="Email is required")
+    
+    # Generate OTP
+    otp_code = generate_otp()
+    expires_at = datetime.utcnow() + timedelta(minutes=10)
+    
+    # Store OTP (in production, use Redis)
+    otp_storage[email] = {
+        "otp": otp_code,
+        "purpose": purpose,
+        "expires_at": expires_at,
+        "is_verified": False
+    }
+    
+    # In production, send email via SMTP/SendGrid
+    # For now, return OTP in response (REMOVE IN PRODUCTION!)
+    logging.info(f"OTP for {email}: {otp_code}")
+    
+    return {
+        "message": "OTP sent successfully",
+        "otp": otp_code,  # REMOVE IN PRODUCTION!
+        "expires_in_minutes": 10
+    }
+
+@api_router.post("/auth/verify-otp")
+async def verify_otp(data: dict):
+    email = data.get("email")
+    otp_code = data.get("otp")
+    
+    if not email or not otp_code:
+        raise HTTPException(status_code=400, detail="Email and OTP are required")
+    
+    stored_otp = otp_storage.get(email)
+    if not stored_otp:
+        raise HTTPException(status_code=404, detail="OTP not found or expired")
+    
+    if datetime.utcnow() > stored_otp["expires_at"]:
+        del otp_storage[email]
+        raise HTTPException(status_code=400, detail="OTP expired")
+    
+    if stored_otp["otp"] != otp_code:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+    
+    # Mark as verified
+    stored_otp["is_verified"] = True
+    
+    return {"message": "OTP verified successfully"}
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(data: dict):
+    email = data.get("email")
+    new_password = data.get("new_password")
+    otp_code = data.get("otp")
+    
+    if not all([email, new_password, otp_code]):
+        raise HTTPException(status_code=400, detail="Email, OTP, and new password are required")
+    
+    # Verify OTP first
+    stored_otp = otp_storage.get(email)
+    if not stored_otp or not stored_otp.get("is_verified"):
+        raise HTTPException(status_code=400, detail="OTP not verified")
+    
+    if stored_otp["purpose"] != "forgot_password":
+        raise HTTPException(status_code=400, detail="Invalid OTP purpose")
+    
+    # Update password
+    user = await db.users.find_one({"email": email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    hashed_password = pwd_context.hash(new_password)
+    await db.users.update_one({"email": email}, {"$set": {"password": hashed_password}})
+    
+    # Clear OTP
+    del otp_storage[email]
+    
+    return {"message": "Password reset successfully"}
+
+# SUBSCRIPTION ENDPOINTS
+@api_router.post("/subscription/initialize")
+async def initialize_subscription(current_user: dict = Depends(get_current_user)):
+    """Initialize free trial for new venue users"""
+    if current_user["user_type"] != "venue":
+        raise HTTPException(status_code=403, detail="Only venues can have subscriptions")
+    
+    # Check if subscription already exists
+    existing = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
+    if existing:
+        existing.pop("_id", None)
+        return existing
+    
+    # Create trial subscription
+    subscription = {
+        "id": str(uuid.uuid4()),
+        "venue_user_id": current_user["id"],
+        "subscription_type": "trial",
+        "profile_views_remaining": 10,
+        "subscription_status": "active",
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.venue_subscriptions.insert_one(subscription)
+    subscription.pop("_id", None)
+    return subscription
+
+@api_router.get("/subscription/status")
+async def get_subscription_status(current_user: dict = Depends(get_current_user)):
+    if current_user["user_type"] != "venue":
+        raise HTTPException(status_code=403, detail="Only venues can check subscription")
+    
+    subscription = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
+    if not subscription:
+        # Auto-initialize
+        return await initialize_subscription(current_user)
+    
+    subscription.pop("_id", None)
+    return subscription
+
+@api_router.post("/subscription/track-view")
+async def track_profile_view(data: dict, current_user: dict = Depends(get_current_user)):
+    """Track when venue views an artist/partner profile"""
+    if current_user["user_type"] != "venue":
+        raise HTTPException(status_code=403, detail="Only venues can track views")
+    
+    profile_id = data.get("profile_id")
+    if not profile_id:
+        raise HTTPException(status_code=400, detail="profile_id is required")
+    
+    subscription = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
+    if not subscription:
+        subscription = await initialize_subscription(current_user)
+        subscription = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
+    
+    # Check if unlimited (monthly subscription)
+    if subscription["profile_views_remaining"] == -1:
+        return {"allowed": True, "views_remaining": -1, "subscription_type": subscription["subscription_type"]}
+    
+    # Check if trial views exhausted
+    if subscription["profile_views_remaining"] <= 0:
+        return {
+            "allowed": False,
+            "views_remaining": 0,
+            "subscription_type": subscription["subscription_type"],
+            "message": "Trial views exhausted. Please subscribe."
+        }
+    
+    # Deduct one view
+    await db.venue_subscriptions.update_one(
+        {"venue_user_id": current_user["id"]},
+        {"$inc": {"profile_views_remaining": -1}}
+    )
+    
+    return {
+        "allowed": True,
+        "views_remaining": subscription["profile_views_remaining"] - 1,
+        "subscription_type": subscription["subscription_type"]
+    }
+
+@api_router.post("/subscription/create-razorpay-order")
+async def create_razorpay_order(data: dict, current_user: dict = Depends(get_current_user)):
+    """Create Razorpay order for subscription or pay-per-view"""
+    if current_user["user_type"] != "venue":
+        raise HTTPException(status_code=403, detail="Only venues can subscribe")
+    
+    payment_type = data.get("payment_type")  # "monthly" or "pay_per_view"
+    
+    if payment_type == "monthly":
+        amount = 49900  # ₹499 in paise
+        description = "Monthly Subscription - Unlimited Access"
+    elif payment_type == "pay_per_view":
+        amount = 9900  # ₹99 in paise
+        description = "10 Profile Views"
+    else:
+        raise HTTPException(status_code=400, detail="Invalid payment type")
+    
+    if not razorpay_client:
+        # For testing without Razorpay keys
+        return {
+            "order_id": f"test_order_{uuid.uuid4()}",
+            "amount": amount,
+            "currency": "INR",
+            "test_mode": True
+        }
+    
+    # Create Razorpay order
+    order_data = {
+        "amount": amount,
+        "currency": "INR",
+        "receipt": f"receipt_{current_user['id']}_{datetime.utcnow().timestamp()}",
+        "notes": {
+            "venue_user_id": current_user["id"],
+            "payment_type": payment_type
+        }
+    }
+    
+    order = razorpay_client.order.create(data=order_data)
+    return order
+
+@api_router.post("/subscription/verify-payment")
+async def verify_razorpay_payment(data: dict, current_user: dict = Depends(get_current_user)):
+    """Verify Razorpay payment and activate subscription"""
+    if current_user["user_type"] != "venue":
+        raise HTTPException(status_code=403, detail="Only venues can subscribe")
+    
+    razorpay_order_id = data.get("razorpay_order_id")
+    razorpay_payment_id = data.get("razorpay_payment_id")
+    razorpay_signature = data.get("razorpay_signature")
+    payment_type = data.get("payment_type")
+    
+    # In test mode (no Razorpay keys), accept any payment
+    if not razorpay_client:
+        # Update subscription directly
+        if payment_type == "monthly":
+            await db.venue_subscriptions.update_one(
+                {"venue_user_id": current_user["id"]},
+                {
+                    "$set": {
+                        "subscription_type": "monthly",
+                        "profile_views_remaining": -1,  # Unlimited
+                        "subscription_status": "active",
+                        "subscription_start": datetime.utcnow(),
+                        "subscription_end": datetime.utcnow() + timedelta(days=30),
+                        "amount_paid": 499.0
+                    }
+                }
+            )
+        elif payment_type == "pay_per_view":
+            await db.venue_subscriptions.update_one(
+                {"venue_user_id": current_user["id"]},
+                {
+                    "$set": {"subscription_type": "pay_per_view"},
+                    "$inc": {"profile_views_remaining": 10},
+                    "$set": {"subscription_status": "active"}
+                }
+            )
+        
+        return {"message": "Payment verified successfully (test mode)", "status": "active"}
+    
+    # Verify signature (production)
+    try:
+        params_dict = {
+            "razorpay_order_id": razorpay_order_id,
+            "razorpay_payment_id": razorpay_payment_id,
+            "razorpay_signature": razorpay_signature
+        }
+        razorpay_client.utility.verify_payment_signature(params_dict)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Payment verification failed")
+    
+    # Update subscription
+    if payment_type == "monthly":
+        await db.venue_subscriptions.update_one(
+            {"venue_user_id": current_user["id"]},
+            {
+                "$set": {
+                    "subscription_type": "monthly",
+                    "profile_views_remaining": -1,  # Unlimited
+                    "subscription_status": "active",
+                    "razorpay_payment_id": razorpay_payment_id,
+                    "subscription_start": datetime.utcnow(),
+                    "subscription_end": datetime.utcnow() + timedelta(days=30),
+                    "amount_paid": 499.0
+                }
+            }
+        )
+    elif payment_type == "pay_per_view":
+        await db.venue_subscriptions.update_one(
+            {"venue_user_id": current_user["id"]},
+            {
+                "$set": {
+                    "subscription_type": "pay_per_view",
+                    "subscription_status": "active",
+                    "razorpay_payment_id": razorpay_payment_id,
+                    "amount_paid": 99.0
+                },
+                "$inc": {"profile_views_remaining": 10}
+            }
+        )
+    
+    return {"message": "Payment verified and subscription activated", "status": "active"}
+
+# ADMIN ENDPOINTS FOR ADD/DELETE
+@api_router.post("/admin/artists")
+async def admin_add_artist(artist_data: dict, current_user: dict = Depends(get_current_user)):
+    """Admin can add artists directly"""
+    if current_user["user_type"] != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Create user account first
+    email = artist_data.get("email")
+    password = artist_data.get("password", "default123")  # Admin sets password
+    
+    # Check if user already exists
+    existing = await db.users.find_one({"email": email})
+    if existing:
+        raise HTTPException(status_code=400, detail="User with this email already exists")
+    
+    # Create user
+    user = {
+        "id": str(uuid.uuid4()),
+        "email": email,
+        "password": pwd_context.hash(password),
+        "user_type": "artist",
+        "is_paused": False,
+        "created_at": datetime.utcnow()
+    }
+    await db.users.insert_one(user)
+    
+    # Create artist profile
+    new_artist = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "stage_name": artist_data.get("stage_name", "Artist"),
+        "art_type": artist_data.get("art_type", "General"),
+        "description": artist_data.get("description", ""),
+        "experience_gigs": artist_data.get("experience_gigs", 0),
+        "availability": artist_data.get("availability", []),
+        "locations": artist_data.get("locations", []),
+        "media_gallery": artist_data.get("media_gallery", []),
+        "rating": 0,
+        "review_count": 0,
+        "is_featured": False,
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.artist_profiles.insert_one(new_artist)
+    new_artist.pop("_id", None)
+    user.pop("_id", None)
+    user.pop("password", None)
+    
+    return {"user": user, "profile": new_artist}
+
+@api_router.post("/admin/partners")
+async def admin_add_partner(partner_data: dict, current_user: dict = Depends(get_current_user)):
+    """Admin can add partners/brands directly"""
+    if current_user["user_type"] != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Create user account first
+    email = partner_data.get("email")
+    password = partner_data.get("password", "default123")
+    
+    existing = await db.users.find_one({"email": email})
+    if existing:
+        raise HTTPException(status_code=400, detail="User with this email already exists")
+    
+    user = {
+        "id": str(uuid.uuid4()),
+        "email": email,
+        "password": pwd_context.hash(password),
+        "user_type": "partner",
+        "is_paused": False,
+        "created_at": datetime.utcnow()
+    }
+    await db.users.insert_one(user)
+    
+    new_partner = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "brand_name": partner_data.get("brand_name", "Brand"),
+        "service_type": partner_data.get("service_type", "General"),
+        "description": partner_data.get("description", ""),
+        "locations": partner_data.get("locations", []),
+        "media_gallery": partner_data.get("media_gallery", []),
+        "rating": 0,
+        "review_count": 0,
+        "is_featured": False,
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.partner_profiles.insert_one(new_partner)
+    new_partner.pop("_id", None)
+    user.pop("_id", None)
+    user.pop("password", None)
+    
+    return {"user": user, "profile": new_partner}
+
+@api_router.delete("/admin/artist/{artist_id}")
+async def admin_delete_artist(artist_id: str, current_user: dict = Depends(get_current_user)):
+    """Admin can delete artist profiles"""
+    if current_user["user_type"] != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    artist = await db.artist_profiles.find_one({"id": artist_id})
+    if not artist:
+        raise HTTPException(status_code=404, detail="Artist not found")
+    
+    # Delete profile and user
+    await db.artist_profiles.delete_one({"id": artist_id})
+    await db.users.delete_one({"id": artist["user_id"]})
+    
+    return {"message": "Artist deleted successfully"}
+
+@api_router.delete("/admin/partner/{partner_id}")
+async def admin_delete_partner(partner_id: str, current_user: dict = Depends(get_current_user)):
+    """Admin can delete partner profiles"""
+    if current_user["user_type"] != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    partner = await db.partner_profiles.find_one({"id": partner_id})
+    if not partner:
+        raise HTTPException(status_code=404, detail="Partner not found")
+    
+    await db.partner_profiles.delete_one({"id": partner_id})
+    await db.users.delete_one({"id": partner["user_id"]})
+    
+    return {"message": "Partner deleted successfully"}
+
 # ==================== RAZORPAY PAYMENT ROUTES (READY FOR ACTIVATION) ====================
 
 # Initialize Razorpay client (will be activated when keys are provided)
