@@ -1,358 +1,451 @@
-diff --git a/frontend/app/(tabs)/home.tsx b/frontend/app/(tabs)/home.tsx
-index 319aa01..d08d671 100644
---- a/frontend/app/(tabs)/home.tsx
-+++ b/frontend/app/(tabs)/home.tsx
-@@ -28,40 +28,75 @@ export default function HomeScreen() {
-   const [refreshing, setRefreshing] = useState(false);
+diff --git a/frontend/app/artist/[id].tsx b/frontend/app/artist/[id].tsx
+index 1a42691..b04b81d 100644
+--- a/frontend/app/artist/[id].tsx
++++ b/frontend/app/artist/[id].tsx
+@@ -15,6 +15,7 @@ import { theme } from '../../utils/theme';
+ import { Ionicons } from '@expo/vector-icons';
+ import { LinearGradient } from 'expo-linear-gradient';
+ import axios from 'axios';
++import SubscriptionPopup from '../../components/SubscriptionPopup';
  
-   // Animations
--  const logoScale = useSharedValue(0.8);
--  const logoOpacity = useSharedValue(0);
--  const bannerScale = useSharedValue(0.95);
--  const bannerOpacity = useSharedValue(0);
--  const sparkleRotate = useSharedValue(0);
--  const sparkleScale = useSharedValue(1);
--  const scrollY = useSharedValue(0);
-+  const logoScale = useRef(new Animated.Value(0.8)).current;
-+  const logoOpacity = useRef(new Animated.Value(0)).current;
-+  const bannerScale = useRef(new Animated.Value(0.95)).current;
-+  const bannerOpacity = useRef(new Animated.Value(0)).current;
-+  const sparkleRotate = useRef(new Animated.Value(0)).current;
-+  const sparkleScale = useRef(new Animated.Value(1)).current;
+ const { width } = Dimensions.get('window');
+ const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+@@ -29,8 +30,12 @@ export default function ArtistDetailScreen() {
+   const [reviews, setReviews] = useState([]);
+   const [isInWishlist, setIsInWishlist] = useState(false);
+   const [loading, setLoading] = useState(true);
++  const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
  
    useEffect(() => {
-     fetchData();
++    if (user?.user_type === 'venue') {
++      trackView();
++    }
+     fetchArtistDetails();
+     fetchReviews();
+     if (user?.user_type === 'venue') {
+@@ -38,6 +43,49 @@ export default function ArtistDetailScreen() {
+     }
+   }, [id]);
  
-     // Entrance animations
--    logoScale.value = withSpring(1, { damping: 10 });
--    logoOpacity.value = withTiming(1, { duration: 600 });
-+    Animated.parallel([
-+      Animated.spring(logoScale, {
-+        toValue: 1,
-+        friction: 10,
-+        useNativeDriver: true,
-+      }),
-+      Animated.timing(logoOpacity, {
-+        toValue: 1,
-+        duration: 600,
-+        useNativeDriver: true,
-+      }),
-+    ]).start();
- 
-     setTimeout(() => {
--      bannerScale.value = withSpring(1, { damping: 8 });
--      bannerOpacity.value = withTiming(1, { duration: 500 });
-+      Animated.parallel([
-+        Animated.spring(bannerScale, {
-+          toValue: 1,
-+          friction: 8,
-+          useNativeDriver: true,
-+        }),
-+        Animated.timing(bannerOpacity, {
-+          toValue: 1,
-+          duration: 500,
-+          useNativeDriver: true,
-+        }),
-+      ]).start();
-     }, 300);
- 
-     // Continuous sparkle animation
--    sparkleRotate.value = withRepeat(
--      withTiming(360, { duration: 3000, easing: Easing.linear }),
--      -1
--    );
--    sparkleScale.value = withRepeat(
--      withSequence(
--        withTiming(1.2, { duration: 1000 }),
--        withTiming(1, { duration: 1000 })
--      ),
--      -1
--    );
-+    Animated.loop(
-+      Animated.timing(sparkleRotate, {
-+        toValue: 1,
-+        duration: 3000,
-+        useNativeDriver: true,
-+      })
-+    ).start();
++  const trackView = async () => {
++    try {
++      const response = await axios.post(
++        `${BACKEND_URL}/api/subscription/track-view`,
++        { profile_id: id },
++        { headers: { Authorization: `Bearer ${token}` } }
++      );
 +
-+    Animated.loop(
-+      Animated.sequence([
-+        Animated.timing(sparkleScale, {
-+          toValue: 1.2,
-+          duration: 1000,
-+          useNativeDriver: true,
-+        }),
-+        Animated.timing(sparkleScale, {
-+          toValue: 1,
-+          duration: 1000,
-+          useNativeDriver: true,
-+        }),
-+      ])
-+    ).start();
-   }, []);
- 
-+  const sparkleSpin = sparkleRotate.interpolate({
-+    inputRange: [0, 1],
-+    outputRange: ['0deg', '360deg'],
-+  });
++      if (!response.data.allowed) {
++        setShowSubscriptionPopup(true);
++      }
++    } catch (error) {
++      console.log('View tracking:', error);
++    }
++  };
 +
-   const fetchData = async () => {
++  const handleSubscribe = async (type: 'monthly' | 'pay_per_view') => {
++    try {
++      const orderResponse = await axios.post(
++        `${BACKEND_URL}/api/subscription/create-razorpay-order`,
++        { payment_type: type },
++        { headers: { Authorization: `Bearer ${token}` } }
++      );
++
++      // In test mode, auto-verify payment
++      await axios.post(
++        `${BACKEND_URL}/api/subscription/verify-payment`,
++        {
++          razorpay_order_id: orderResponse.data.order_id,
++          razorpay_payment_id: 'test_payment_' + Date.now(),
++          razorpay_signature: 'test_signature',
++          payment_type: type,
++        },
++        { headers: { Authorization: `Bearer ${token}` } }
++      );
++
++      Alert.alert('Success!', 'Subscription activated successfully!');
++      setShowSubscriptionPopup(false);
++    } catch (error) {
++      Alert.alert('Error', 'Payment failed. Please try again.');
++    }
++  };
++
+   const fetchArtistDetails = async () => {
      try {
-       const [artistsRes, partnersRes] = await Promise.all([
-@@ -85,31 +120,6 @@ export default function HomeScreen() {
-     setRefreshing(false);
-   };
- 
--  const logoAnimatedStyle = useAnimatedStyle(() => ({
--    transform: [{ scale: logoScale.value }],
--    opacity: logoOpacity.value,
--  }));
--
--  const bannerAnimatedStyle = useAnimatedStyle(() => ({
--    transform: [{ scale: bannerScale.value }],
--    opacity: bannerOpacity.value,
--  }));
--
--  const sparkleAnimatedStyle = useAnimatedStyle(() => ({
--    transform: [
--      { rotate: `${sparkleRotate.value}deg` },
--      { scale: sparkleScale.value },
--    ],
--  }));
--
--  const handleCardPress = (scale: Animated.SharedValue<number>, action: () => void) => {
--    scale.value = withSequence(
--      withSpring(0.95, { damping: 10 }),
--      withSpring(1, { damping: 10 })
--    );
--    setTimeout(action, 100);
--  };
--
-   return (
-     <View style={styles.container}>
-       <LinearGradient
-@@ -118,14 +128,20 @@ export default function HomeScreen() {
-       >
-         <View style={styles.headerContent}>
-           <View style={styles.headerLeft}>
--            <Animated.View style={logoAnimatedStyle}>
-+            <Animated.View style={{
-+              transform: [{ scale: logoScale }],
-+              opacity: logoOpacity,
-+            }}>
-               <Image 
-                 source={{ uri: 'https://customer-assets.emergentagent.com/job_artist-hub-37/artifacts/nm0jan68_ChatGPT%20Image%20Oct%2015%2C%202025%2C%2010_51_19%20PM.png' }}
-                 style={styles.logoImage}
-                 resizeMode="contain"
-               />
-             </Animated.View>
--            <Animated.Text style={[styles.tagline, logoAnimatedStyle]}>
-+            <Animated.Text style={[styles.tagline, {
-+              transform: [{ scale: logoScale }],
-+              opacity: logoOpacity,
-+            }]}>
-               One platform. Endless connections.
-             </Animated.Text>
-           </View>
-@@ -140,7 +156,10 @@ export default function HomeScreen() {
-           </TouchableOpacity>
+       const response = await axios.get(`${BACKEND_URL}/api/artists/${id}`);
+@@ -342,6 +390,12 @@ export default function ArtistDetailScreen() {
+           )}
          </View>
-         
--        <Animated.View style={bannerAnimatedStyle}>
-+        <Animated.View style={{
-+          transform: [{ scale: bannerScale }],
-+          opacity: bannerOpacity,
-+        }}>
-           <LinearGradient
-             colors={['#F9E28C', '#E1C05B', '#D4AF37']}
-             start={{ x: 0, y: 0 }}
-@@ -148,10 +167,20 @@ export default function HomeScreen() {
-             style={styles.heroBanner}
-           >
-             {/* Floating sparkles */}
--            <Animated.View style={[styles.heroBannerSparkle1, sparkleAnimatedStyle]}>
-+            <Animated.View style={[styles.heroBannerSparkle1, {
-+              transform: [
-+                { rotate: sparkleSpin },
-+                { scale: sparkleScale },
-+              ],
-+            }]}>
-               <Ionicons name="sparkles" size={20} color={theme.colors.primaryDark} />
-             </Animated.View>
--            <Animated.View style={[styles.heroBannerSparkle2, sparkleAnimatedStyle]}>
-+            <Animated.View style={[styles.heroBannerSparkle2, {
-+              transform: [
-+                { rotate: sparkleSpin },
-+                { scale: sparkleScale },
-+              ],
-+            }]}>
-               <Ionicons name="sparkles" size={16} color={theme.colors.primaryDark} />
-             </Animated.View>
- 
-@@ -191,7 +220,7 @@ export default function HomeScreen() {
-         <View style={styles.section}>
-           <Text style={styles.sectionTitle}>Explore</Text>
-           <View style={styles.quickActions}>
--            <AnimatedTouchableOpacity
-+            <TouchableOpacity
-               style={styles.actionCard}
-               onPress={() => router.push('/(tabs)/artists')}
-               activeOpacity={0.9}
-@@ -206,9 +235,9 @@ export default function HomeScreen() {
-                 <Text style={styles.actionTitle}>Artists</Text>
-                 <Text style={styles.actionSubtitle}>Discover talent</Text>
-               </LinearGradient>
--            </AnimatedTouchableOpacity>
-+            </TouchableOpacity>
- 
--            <AnimatedTouchableOpacity
-+            <TouchableOpacity
-               style={styles.actionCard}
-               onPress={() => router.push('/(tabs)/partners')}
-               activeOpacity={0.9}
-@@ -223,7 +252,7 @@ export default function HomeScreen() {
-                 <Text style={styles.actionTitle}>Partners</Text>
-                 <Text style={styles.actionSubtitle}>Find brands</Text>
-               </LinearGradient>
--            </AnimatedTouchableOpacity>
-+            </TouchableOpacity>
-           </View>
-         </View>
- 
+       </ScrollView>
++      
++      <SubscriptionPopup
++        visible={showSubscriptionPopup}
++        onClose={() => setShowSubscriptionPopup(false)}
++        onSubscribe={handleSubscribe}
++      />
+     </View>
+   );
+ }
 diff --git a/model.patch b/model.patch
-index d93cf10..19ba047 100644
+index aef3849..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,131 +0,0 @@
--diff --git a/test_result.md b/test_result.md
--index 187cba4..d8456a5 100644
----- a/test_result.md
--+++ b/test_result.md
--@@ -100,4 +100,123 @@
+@@ -1,358 +0,0 @@
+-diff --git a/frontend/app/(tabs)/home.tsx b/frontend/app/(tabs)/home.tsx
+-index 319aa01..d08d671 100644
+---- a/frontend/app/(tabs)/home.tsx
+-+++ b/frontend/app/(tabs)/home.tsx
+-@@ -28,40 +28,75 @@ export default function HomeScreen() {
+-   const [refreshing, setRefreshing] = useState(false);
 - 
-- #====================================================================================================
-- # Testing Data - Main Agent and testing sub agent both should log testing data below this section
---#====================================================================================================
--\ No newline at end of file
--+#====================================================================================================
+-   // Animations
+--  const logoScale = useSharedValue(0.8);
+--  const logoOpacity = useSharedValue(0);
+--  const bannerScale = useSharedValue(0.95);
+--  const bannerOpacity = useSharedValue(0);
+--  const sparkleRotate = useSharedValue(0);
+--  const sparkleScale = useSharedValue(1);
+--  const scrollY = useSharedValue(0);
+-+  const logoScale = useRef(new Animated.Value(0.8)).current;
+-+  const logoOpacity = useRef(new Animated.Value(0)).current;
+-+  const bannerScale = useRef(new Animated.Value(0.95)).current;
+-+  const bannerOpacity = useRef(new Animated.Value(0)).current;
+-+  const sparkleRotate = useRef(new Animated.Value(0)).current;
+-+  const sparkleScale = useRef(new Animated.Value(1)).current;
+- 
+-   useEffect(() => {
+-     fetchData();
+- 
+-     // Entrance animations
+--    logoScale.value = withSpring(1, { damping: 10 });
+--    logoOpacity.value = withTiming(1, { duration: 600 });
+-+    Animated.parallel([
+-+      Animated.spring(logoScale, {
+-+        toValue: 1,
+-+        friction: 10,
+-+        useNativeDriver: true,
+-+      }),
+-+      Animated.timing(logoOpacity, {
+-+        toValue: 1,
+-+        duration: 600,
+-+        useNativeDriver: true,
+-+      }),
+-+    ]).start();
+- 
+-     setTimeout(() => {
+--      bannerScale.value = withSpring(1, { damping: 8 });
+--      bannerOpacity.value = withTiming(1, { duration: 500 });
+-+      Animated.parallel([
+-+        Animated.spring(bannerScale, {
+-+          toValue: 1,
+-+          friction: 8,
+-+          useNativeDriver: true,
+-+        }),
+-+        Animated.timing(bannerOpacity, {
+-+          toValue: 1,
+-+          duration: 500,
+-+          useNativeDriver: true,
+-+        }),
+-+      ]).start();
+-     }, 300);
+- 
+-     // Continuous sparkle animation
+--    sparkleRotate.value = withRepeat(
+--      withTiming(360, { duration: 3000, easing: Easing.linear }),
+--      -1
+--    );
+--    sparkleScale.value = withRepeat(
+--      withSequence(
+--        withTiming(1.2, { duration: 1000 }),
+--        withTiming(1, { duration: 1000 })
+--      ),
+--      -1
+--    );
+-+    Animated.loop(
+-+      Animated.timing(sparkleRotate, {
+-+        toValue: 1,
+-+        duration: 3000,
+-+        useNativeDriver: true,
+-+      })
+-+    ).start();
 -+
--+user_problem_statement: "Test the Raya mobile app backend APIs including authentication, artists, partners, reviews, wishlist, and chat endpoints"
+-+    Animated.loop(
+-+      Animated.sequence([
+-+        Animated.timing(sparkleScale, {
+-+          toValue: 1.2,
+-+          duration: 1000,
+-+          useNativeDriver: true,
+-+        }),
+-+        Animated.timing(sparkleScale, {
+-+          toValue: 1,
+-+          duration: 1000,
+-+          useNativeDriver: true,
+-+        }),
+-+      ])
+-+    ).start();
+-   }, []);
+- 
+-+  const sparkleSpin = sparkleRotate.interpolate({
+-+    inputRange: [0, 1],
+-+    outputRange: ['0deg', '360deg'],
+-+  });
 -+
--+backend:
--+  - task: "Authentication - User Registration"
--+    implemented: true
--+    working: true
--+    file: "/app/backend/server.py"
--+    stuck_count: 0
--+    priority: "high"
--+    needs_retesting: false
--+    status_history:
--+        - working: true
--+          agent: "testing"
--+          comment: "Registration endpoint working correctly. Tested with POST /api/auth/register for all user types (artist, partner, venue). Users can be created successfully with profile data. Minor network timeout issues during bulk testing but individual registration confirmed working."
--+
--+  - task: "Authentication - User Login"
--+    implemented: true
--+    working: true
--+    file: "/app/backend/server.py"
--+    stuck_count: 0
--+    priority: "high"
--+    needs_retesting: false
--+    status_history:
--+        - working: true
--+          agent: "testing"
--+          comment: "Login endpoint working perfectly. POST /api/auth/login successfully authenticates users and returns access tokens. Tested with all three user types: test.artist@raya.com, premium.water@raya.com, venue.manager@raya.com"
--+
--+  - task: "Authentication - Get Current User"
--+    implemented: true
--+    working: true
--+    file: "/app/backend/server.py"
--+    stuck_count: 0
--+    priority: "high"
--+    needs_retesting: false
--+    status_history:
--+        - working: true
--+          agent: "testing"
--+          comment: "GET /api/auth/me endpoint working correctly. Returns user data and profile information for authenticated users. Proper JWT token validation implemented."
--+
--+  - task: "Artists Profile Management"
--+    implemented: true
--+    working: true
--+    file: "/app/backend/server.py"
--+    stuck_count: 0
--+    priority: "high"
--+    needs_retesting: false
--+    status_history:
--+        - working: true
--+          agent: "testing"
--+          comment: "All artist endpoints working: GET /api/artists (list all), GET /api/artists/{id} (get specific), PUT /api/artists/{id} (update with auth). Proper authorization checks in place."
--+
--+  - task: "Partners Profile Management"
--+    implemented: true
--+    working: true
--+    file: "/app/backend/server.py"
--+    stuck_count: 0
--+    priority: "high"
--+    needs_retesting: false
--+    status_history:
--+        - working: true
--+          agent: "testing"
--+          comment: "All partner endpoints working: GET /api/partners (list all), GET /api/partners/{id} (get specific), PUT /api/partners/{id} (update with auth). Proper authorization checks in place."
--+
--+  - task: "Reviews System"
--+    implemented: true
--+    working: true
--+    file: "/app/backend/server.py"
--+    stuck_count: 0
--+    priority: "high"
--+    needs_retesting: false
--+    status_history:
--+        - working: true
--+          agent: "testing"
--+          comment: "Review system working correctly. POST /api/reviews (venue-only creation) and GET /api/reviews/{profile_id} both functional. Proper rating calculation and review aggregation implemented."
--+
--+  - task: "Wishlist Management"
--+    implemented: true
--+    working: true
--+    file: "/app/backend/server.py"
--+    stuck_count: 0
--+    priority: "high"
--+    needs_retesting: false
--+    status_history:
--+        - working: true
--+          agent: "testing"
--+          comment: "Wishlist endpoints working perfectly. POST /api/wishlist (add), GET /api/wishlist (list), DELETE /api/wishlist/{profile_id} (remove) all functional. Venue-only access properly enforced."
--+
--+  - task: "Chat Room System"
--+    implemented: true
--+    working: true
--+    file: "/app/backend/server.py"
--+    stuck_count: 0
--+    priority: "high"
--+    needs_retesting: false
--+    status_history:
--+        - working: true
--+          agent: "testing"
--+          comment: "Chat system working correctly. POST /api/chat/room (create/get room), GET /api/chat/rooms (list user rooms), GET /api/chat/messages/{room_id} (get messages) all functional. Proper authorization and room access controls implemented."
--+
--+frontend:
--+  # No frontend testing performed as per instructions
--+
--+metadata:
--+  created_by: "testing_agent"
--+  version: "1.0"
--+  test_sequence: 1
--+  run_ui: false
--+
--+test_plan:
--+  current_focus:
--+    - "All backend API endpoints tested and verified"
--+  stuck_tasks: []
--+  test_all: true
--+  test_priority: "high_first"
--+
--+agent_communication:
--+    - agent: "testing"
--+      message: "Comprehensive backend API testing completed. All 8 major backend components tested successfully: Authentication (register/login/me), Artists management, Partners management, Reviews system, Wishlist management, and Chat rooms. All endpoints responding correctly with proper authentication, authorization, and data handling. Test users confirmed working: test.artist@raya.com, premium.water@raya.com, venue.manager@raya.com. Backend is fully functional and ready for production use."
--\ No newline at end of file
+-   const fetchData = async () => {
+-     try {
+-       const [artistsRes, partnersRes] = await Promise.all([
+-@@ -85,31 +120,6 @@ export default function HomeScreen() {
+-     setRefreshing(false);
+-   };
+- 
+--  const logoAnimatedStyle = useAnimatedStyle(() => ({
+--    transform: [{ scale: logoScale.value }],
+--    opacity: logoOpacity.value,
+--  }));
+--
+--  const bannerAnimatedStyle = useAnimatedStyle(() => ({
+--    transform: [{ scale: bannerScale.value }],
+--    opacity: bannerOpacity.value,
+--  }));
+--
+--  const sparkleAnimatedStyle = useAnimatedStyle(() => ({
+--    transform: [
+--      { rotate: `${sparkleRotate.value}deg` },
+--      { scale: sparkleScale.value },
+--    ],
+--  }));
+--
+--  const handleCardPress = (scale: Animated.SharedValue<number>, action: () => void) => {
+--    scale.value = withSequence(
+--      withSpring(0.95, { damping: 10 }),
+--      withSpring(1, { damping: 10 })
+--    );
+--    setTimeout(action, 100);
+--  };
+--
+-   return (
+-     <View style={styles.container}>
+-       <LinearGradient
+-@@ -118,14 +128,20 @@ export default function HomeScreen() {
+-       >
+-         <View style={styles.headerContent}>
+-           <View style={styles.headerLeft}>
+--            <Animated.View style={logoAnimatedStyle}>
+-+            <Animated.View style={{
+-+              transform: [{ scale: logoScale }],
+-+              opacity: logoOpacity,
+-+            }}>
+-               <Image 
+-                 source={{ uri: 'https://customer-assets.emergentagent.com/job_artist-hub-37/artifacts/nm0jan68_ChatGPT%20Image%20Oct%2015%2C%202025%2C%2010_51_19%20PM.png' }}
+-                 style={styles.logoImage}
+-                 resizeMode="contain"
+-               />
+-             </Animated.View>
+--            <Animated.Text style={[styles.tagline, logoAnimatedStyle]}>
+-+            <Animated.Text style={[styles.tagline, {
+-+              transform: [{ scale: logoScale }],
+-+              opacity: logoOpacity,
+-+            }]}>
+-               One platform. Endless connections.
+-             </Animated.Text>
+-           </View>
+-@@ -140,7 +156,10 @@ export default function HomeScreen() {
+-           </TouchableOpacity>
+-         </View>
+-         
+--        <Animated.View style={bannerAnimatedStyle}>
+-+        <Animated.View style={{
+-+          transform: [{ scale: bannerScale }],
+-+          opacity: bannerOpacity,
+-+        }}>
+-           <LinearGradient
+-             colors={['#F9E28C', '#E1C05B', '#D4AF37']}
+-             start={{ x: 0, y: 0 }}
+-@@ -148,10 +167,20 @@ export default function HomeScreen() {
+-             style={styles.heroBanner}
+-           >
+-             {/* Floating sparkles */}
+--            <Animated.View style={[styles.heroBannerSparkle1, sparkleAnimatedStyle]}>
+-+            <Animated.View style={[styles.heroBannerSparkle1, {
+-+              transform: [
+-+                { rotate: sparkleSpin },
+-+                { scale: sparkleScale },
+-+              ],
+-+            }]}>
+-               <Ionicons name="sparkles" size={20} color={theme.colors.primaryDark} />
+-             </Animated.View>
+--            <Animated.View style={[styles.heroBannerSparkle2, sparkleAnimatedStyle]}>
+-+            <Animated.View style={[styles.heroBannerSparkle2, {
+-+              transform: [
+-+                { rotate: sparkleSpin },
+-+                { scale: sparkleScale },
+-+              ],
+-+            }]}>
+-               <Ionicons name="sparkles" size={16} color={theme.colors.primaryDark} />
+-             </Animated.View>
+- 
+-@@ -191,7 +220,7 @@ export default function HomeScreen() {
+-         <View style={styles.section}>
+-           <Text style={styles.sectionTitle}>Explore</Text>
+-           <View style={styles.quickActions}>
+--            <AnimatedTouchableOpacity
+-+            <TouchableOpacity
+-               style={styles.actionCard}
+-               onPress={() => router.push('/(tabs)/artists')}
+-               activeOpacity={0.9}
+-@@ -206,9 +235,9 @@ export default function HomeScreen() {
+-                 <Text style={styles.actionTitle}>Artists</Text>
+-                 <Text style={styles.actionSubtitle}>Discover talent</Text>
+-               </LinearGradient>
+--            </AnimatedTouchableOpacity>
+-+            </TouchableOpacity>
+- 
+--            <AnimatedTouchableOpacity
+-+            <TouchableOpacity
+-               style={styles.actionCard}
+-               onPress={() => router.push('/(tabs)/partners')}
+-               activeOpacity={0.9}
+-@@ -223,7 +252,7 @@ export default function HomeScreen() {
+-                 <Text style={styles.actionTitle}>Partners</Text>
+-                 <Text style={styles.actionSubtitle}>Find brands</Text>
+-               </LinearGradient>
+--            </AnimatedTouchableOpacity>
+-+            </TouchableOpacity>
+-           </View>
+-         </View>
+- 
+-diff --git a/model.patch b/model.patch
+-index d93cf10..19ba047 100644
+---- a/model.patch
+-+++ b/model.patch
+-@@ -1,131 +0,0 @@
+--diff --git a/test_result.md b/test_result.md
+--index 187cba4..d8456a5 100644
+----- a/test_result.md
+--+++ b/test_result.md
+--@@ -100,4 +100,123 @@
+-- 
+-- #====================================================================================================
+-- # Testing Data - Main Agent and testing sub agent both should log testing data below this section
+---#====================================================================================================
+--\ No newline at end of file
+--+#====================================================================================================
+--+
+--+user_problem_statement: "Test the Raya mobile app backend APIs including authentication, artists, partners, reviews, wishlist, and chat endpoints"
+--+
+--+backend:
+--+  - task: "Authentication - User Registration"
+--+    implemented: true
+--+    working: true
+--+    file: "/app/backend/server.py"
+--+    stuck_count: 0
+--+    priority: "high"
+--+    needs_retesting: false
+--+    status_history:
+--+        - working: true
+--+          agent: "testing"
+--+          comment: "Registration endpoint working correctly. Tested with POST /api/auth/register for all user types (artist, partner, venue). Users can be created successfully with profile data. Minor network timeout issues during bulk testing but individual registration confirmed working."
+--+
+--+  - task: "Authentication - User Login"
+--+    implemented: true
+--+    working: true
+--+    file: "/app/backend/server.py"
+--+    stuck_count: 0
+--+    priority: "high"
+--+    needs_retesting: false
+--+    status_history:
+--+        - working: true
+--+          agent: "testing"
+--+          comment: "Login endpoint working perfectly. POST /api/auth/login successfully authenticates users and returns access tokens. Tested with all three user types: test.artist@raya.com, premium.water@raya.com, venue.manager@raya.com"
+--+
+--+  - task: "Authentication - Get Current User"
+--+    implemented: true
+--+    working: true
+--+    file: "/app/backend/server.py"
+--+    stuck_count: 0
+--+    priority: "high"
+--+    needs_retesting: false
+--+    status_history:
+--+        - working: true
+--+          agent: "testing"
+--+          comment: "GET /api/auth/me endpoint working correctly. Returns user data and profile information for authenticated users. Proper JWT token validation implemented."
+--+
+--+  - task: "Artists Profile Management"
+--+    implemented: true
+--+    working: true
+--+    file: "/app/backend/server.py"
+--+    stuck_count: 0
+--+    priority: "high"
+--+    needs_retesting: false
+--+    status_history:
+--+        - working: true
+--+          agent: "testing"
+--+          comment: "All artist endpoints working: GET /api/artists (list all), GET /api/artists/{id} (get specific), PUT /api/artists/{id} (update with auth). Proper authorization checks in place."
+--+
+--+  - task: "Partners Profile Management"
+--+    implemented: true
+--+    working: true
+--+    file: "/app/backend/server.py"
+--+    stuck_count: 0
+--+    priority: "high"
+--+    needs_retesting: false
+--+    status_history:
+--+        - working: true
+--+          agent: "testing"
+--+          comment: "All partner endpoints working: GET /api/partners (list all), GET /api/partners/{id} (get specific), PUT /api/partners/{id} (update with auth). Proper authorization checks in place."
+--+
+--+  - task: "Reviews System"
+--+    implemented: true
+--+    working: true
+--+    file: "/app/backend/server.py"
+--+    stuck_count: 0
+--+    priority: "high"
+--+    needs_retesting: false
+--+    status_history:
+--+        - working: true
+--+          agent: "testing"
+--+          comment: "Review system working correctly. POST /api/reviews (venue-only creation) and GET /api/reviews/{profile_id} both functional. Proper rating calculation and review aggregation implemented."
+--+
+--+  - task: "Wishlist Management"
+--+    implemented: true
+--+    working: true
+--+    file: "/app/backend/server.py"
+--+    stuck_count: 0
+--+    priority: "high"
+--+    needs_retesting: false
+--+    status_history:
+--+        - working: true
+--+          agent: "testing"
+--+          comment: "Wishlist endpoints working perfectly. POST /api/wishlist (add), GET /api/wishlist (list), DELETE /api/wishlist/{profile_id} (remove) all functional. Venue-only access properly enforced."
+--+
+--+  - task: "Chat Room System"
+--+    implemented: true
+--+    working: true
+--+    file: "/app/backend/server.py"
+--+    stuck_count: 0
+--+    priority: "high"
+--+    needs_retesting: false
+--+    status_history:
+--+        - working: true
+--+          agent: "testing"
+--+          comment: "Chat system working correctly. POST /api/chat/room (create/get room), GET /api/chat/rooms (list user rooms), GET /api/chat/messages/{room_id} (get messages) all functional. Proper authorization and room access controls implemented."
+--+
+--+frontend:
+--+  # No frontend testing performed as per instructions
+--+
+--+metadata:
+--+  created_by: "testing_agent"
+--+  version: "1.0"
+--+  test_sequence: 1
+--+  run_ui: false
+--+
+--+test_plan:
+--+  current_focus:
+--+    - "All backend API endpoints tested and verified"
+--+  stuck_tasks: []
+--+  test_all: true
+--+  test_priority: "high_first"
+--+
+--+agent_communication:
+--+    - agent: "testing"
+--+      message: "Comprehensive backend API testing completed. All 8 major backend components tested successfully: Authentication (register/login/me), Artists management, Partners management, Reviews system, Wishlist management, and Chat rooms. All endpoints responding correctly with proper authentication, authorization, and data handling. Test users confirmed working: test.artist@raya.com, premium.water@raya.com, venue.manager@raya.com. Backend is fully functional and ready for production use."
+--\ No newline at end of file
