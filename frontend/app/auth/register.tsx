@@ -227,12 +227,14 @@ export default function RegisterScreen() {
 
             <TouchableOpacity
               style={[styles.button, loading && styles.buttonDisabled]}
-              onPress={handleRegister}
+              onPress={handleSendOTP}
               disabled={loading}
             >
-              <Text style={styles.buttonText}>
-                {loading ? 'Creating Account...' : 'Create Account'}
-              </Text>
+              {loading ? (
+                <ActivityIndicator color={theme.colors.primaryDark} />
+              ) : (
+                <Text style={styles.buttonText}>Continue with OTP Verification</Text>
+              )}
             </TouchableOpacity>
 
             <View style={styles.footer}>
