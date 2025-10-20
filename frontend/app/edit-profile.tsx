@@ -463,7 +463,7 @@ export default function EditProfileScreen() {
                 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaGallery}>
                   {mediaGallery.map((media, index) => {
-                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov') || media.includes(';uri,');
                     
                     return (
                       <View key={index} style={styles.mediaItem}>
@@ -471,6 +471,7 @@ export default function EditProfileScreen() {
                           <View style={styles.videoPlaceholder}>
                             <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
                             <Text style={styles.videoLabel}>Video {index + 1}</Text>
+                            <Text style={styles.videoSubLabel}>Tap to play</Text>
                           </View>
                         ) : (
                           <Image source={{ uri: media }} style={styles.mediaImage} />
@@ -547,7 +548,7 @@ export default function EditProfileScreen() {
                 
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaGallery}>
                   {mediaGallery.map((media, index) => {
-                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov') || media.includes(';uri,');
                     
                     return (
                       <View key={index} style={styles.mediaItem}>
@@ -555,6 +556,7 @@ export default function EditProfileScreen() {
                           <View style={styles.videoPlaceholder}>
                             <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
                             <Text style={styles.videoLabel}>Video {index + 1}</Text>
+                            <Text style={styles.videoSubLabel}>Tap to play</Text>
                           </View>
                         ) : (
                           <Image source={{ uri: media }} style={styles.mediaImage} />
