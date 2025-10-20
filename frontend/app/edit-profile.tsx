@@ -82,16 +82,36 @@ export default function EditProfileScreen() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images', 'videos'],
         allowsMultipleSelection: false,
-        quality: 0.8,
-        base64: true,
+        quality: 0.5,
+        videoMaxDuration: 60, // Max 60 seconds for videos
       });
 
-      if (!result.canceled && result.assets[0].base64) {
-        const base64 = `data:${result.assets[0].mimeType};base64,${result.assets[0].base64}`;
-        setMediaGallery([...mediaGallery, base64]);
+      if (!result.canceled && result.assets[0]) {
+        const asset = result.assets[0];
+        const isVideo = asset.type === 'video';
+        
+        if (isVideo) {
+          // For videos, use URI directly (no base64 due to size)
+          const videoUri = `data:video/mp4;uri,${asset.uri}`;
+          setMediaGallery([...mediaGallery, videoUri]);
+          Alert.alert('Success', 'Video added! (Videos are stored as references)');
+        } else {
+          // For images, convert to base64
+          const response = await fetch(asset.uri);
+          const blob = await response.blob();
+          const reader = new FileReader();
+          
+          reader.onloadend = () => {
+            const base64 = reader.result as string;
+            setMediaGallery([...mediaGallery, base64]);
+          };
+          
+          reader.readAsDataURL(blob);
+        }
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to pick media');
+      console.error('Media picker error:', error);
+      Alert.alert('Error', 'Failed to pick media. Please try again.');
     }
   };
 
