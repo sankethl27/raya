@@ -435,23 +435,42 @@ export default function EditProfileScreen() {
               
               {/* MEDIA GALLERY SECTION */}
               <View style={styles.mediaSection}>
-                <Text style={styles.label}>Photos & Videos</Text>
+                <View style={styles.mediaHeader}>
+                  <Ionicons name="images" size={24} color={theme.colors.secondary} />
+                  <Text style={styles.label}>Photos & Videos</Text>
+                </View>
+                <Text style={styles.helperText}>Upload images and videos (max 10)</Text>
+                
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaGallery}>
-                  {mediaGallery.map((media, index) => (
-                    <View key={index} style={styles.mediaItem}>
-                      <Image source={{ uri: media }} style={styles.mediaImage} />
-                      <TouchableOpacity
-                        style={styles.removeMediaButton}
-                        onPress={() => removeMedia(index)}
-                      >
-                        <Ionicons name="close-circle" size={24} color={theme.colors.error} />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                  <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia}>
-                    <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
-                    <Text style={styles.addMediaText}>Add Photo/Video</Text>
-                  </TouchableOpacity>
+                  {mediaGallery.map((media, index) => {
+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
+                    
+                    return (
+                      <View key={index} style={styles.mediaItem}>
+                        {isVideo ? (
+                          <View style={styles.videoPlaceholder}>
+                            <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
+                            <Text style={styles.videoLabel}>Video {index + 1}</Text>
+                          </View>
+                        ) : (
+                          <Image source={{ uri: media }} style={styles.mediaImage} />
+                        )}
+                        <TouchableOpacity
+                          style={styles.removeMediaButton}
+                          onPress={() => removeMedia(index)}
+                        >
+                          <Ionicons name="close-circle" size={24} color={theme.colors.error} />
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
+                  
+                  {mediaGallery.length < 10 && (
+                    <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia} disabled={loading}>
+                      <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
+                      <Text style={styles.addMediaText}>Add Photo/Video</Text>
+                    </TouchableOpacity>
+                  )}
                 </ScrollView>
               </View>
             </>
@@ -500,23 +519,42 @@ export default function EditProfileScreen() {
 
               {/* MEDIA GALLERY SECTION */}
               <View style={styles.mediaSection}>
-                <Text style={styles.label}>Photos & Videos</Text>
+                <View style={styles.mediaHeader}>
+                  <Ionicons name="images" size={24} color={theme.colors.secondary} />
+                  <Text style={styles.label}>Photos & Videos</Text>
+                </View>
+                <Text style={styles.helperText}>Upload images and videos (max 10)</Text>
+                
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaGallery}>
-                  {mediaGallery.map((media, index) => (
-                    <View key={index} style={styles.mediaItem}>
-                      <Image source={{ uri: media }} style={styles.mediaImage} />
-                      <TouchableOpacity
-                        style={styles.removeMediaButton}
-                        onPress={() => removeMedia(index)}
-                      >
-                        <Ionicons name="close-circle" size={24} color={theme.colors.error} />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                  <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia}>
-                    <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
-                    <Text style={styles.addMediaText}>Add Photo/Video</Text>
-                  </TouchableOpacity>
+                  {mediaGallery.map((media, index) => {
+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
+                    
+                    return (
+                      <View key={index} style={styles.mediaItem}>
+                        {isVideo ? (
+                          <View style={styles.videoPlaceholder}>
+                            <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
+                            <Text style={styles.videoLabel}>Video {index + 1}</Text>
+                          </View>
+                        ) : (
+                          <Image source={{ uri: media }} style={styles.mediaImage} />
+                        )}
+                        <TouchableOpacity
+                          style={styles.removeMediaButton}
+                          onPress={() => removeMedia(index)}
+                        >
+                          <Ionicons name="close-circle" size={24} color={theme.colors.error} />
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
+                  
+                  {mediaGallery.length < 10 && (
+                    <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia} disabled={loading}>
+                      <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
+                      <Text style={styles.addMediaText}>Add Photo/Video</Text>
+                    </TouchableOpacity>
+                  )}
                 </ScrollView>
               </View>
             </>
