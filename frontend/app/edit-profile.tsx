@@ -953,4 +953,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: theme.spacing.xs,
   },
+  videoSubLabel: {
+    fontSize: theme.fontSize.xs,
+    color: theme.colors.textSecondary,
+    fontWeight: '400',
+    marginTop: theme.spacing.xs / 2,
+  },
 });
