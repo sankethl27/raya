@@ -886,4 +886,26 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: theme.spacing.xs,
   },
+  mediaHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.xs,
+  },
+  videoPlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: theme.colors.surfaceLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  videoLabel: {
+    fontSize: theme.fontSize.xs,
+    color: theme.colors.white,
+    fontWeight: '600',
+    marginTop: theme.spacing.xs,
+  },
 });
