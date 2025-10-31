@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import SubscriptionPopup from '../../components/SubscriptionPopup';
+import { ArtistProModal } from '../../components/ArtistProModal';
 
 const { width } = Dimensions.get('window');
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
@@ -31,10 +32,18 @@ export default function ArtistDetailScreen() {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
+  const [showProModal, setShowProModal] = useState(false);
+  const [subscription, setSubscription] = useState<any>(null);
+
+  const isArtist = user?.user_type === 'artist';
+  const isMyProfile = user?.id && artist?.user_id === user?.id;
 
   useEffect(() => {
     if (user?.user_type === 'venue') {
       trackView();
+    } else if (user?.user_type === 'artist') {
+      trackArtistView();
+      fetchArtistSubscription();
     }
     fetchArtistDetails();
     fetchReviews();
@@ -43,7 +52,51 @@ export default function ArtistDetailScreen() {
     }
   }, [id]);
 
-  const trackView = async () => {
+  const fetchArtistSubscription = async () => {
+    if (!token || !isArtist) return;
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/artist/subscription/status`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSubscription(response.data);
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
+    }
+  };
+
+  const trackArtistView = async () => {
+    if (!token || !isArtist) return;
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/artist/subscription/track-view`,
+        { profile_id: id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (!response.data.allowed) {
+        // Show Go Pro modal
+        setShowProModal(true);
+        // Optionally navigate back
+        setTimeout(() => router.back(), 500);
+        return;
+      }
+      
+      // Update subscription state
+      setSubscription((prev: any) => ({
+        ...prev,
+        profile_views_remaining: response.data.views_remaining,
+      }));
+    } catch (error) {
+      console.error('Error tracking artist view:', error);
+    }
+  };
+
+  const handleUpgradeToPro = async () => {
+    setShowProModal(false);
+    Alert.alert('Go Pro', 'Razorpay payment integration coming soon! ₹499/month for unlimited access.');
+  };
+
+  const trackView = async () {
     try {
       const response = await axios.post(
         `${BACKEND_URL}/api/subscription/track-view`,
