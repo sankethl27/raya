@@ -862,4 +862,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.colors.secondary,
   },
+  artistChatButton: {
+    backgroundColor: 'rgba(184, 165, 227, 0.2)',
+    borderColor: 'rgba(184, 165, 227, 0.5)',
+    borderWidth: 2,
+  },
+  artistChatButtonText: {
+    color: '#B8A5E3',
+  },
 });
