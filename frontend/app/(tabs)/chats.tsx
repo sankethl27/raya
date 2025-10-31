@@ -100,22 +100,34 @@ export default function MyChatsScreen() {
   const renderChatRoom = ({ item }: any) => {
     const otherParty = getOtherPartyInfo(item);
     const lastMessage = item.last_message;
+    const isArtistChat = otherParty.isArtistChat;
 
     return (
       <TouchableOpacity
-        style={styles.chatCard}
+        style={[
+          styles.chatCard,
+          isArtistChat && styles.artistChatCard
+        ]}
         onPress={() => router.push(`/chat/${item.id}`)}
       >
         <View style={styles.avatarContainer}>
           {otherParty.image ? (
             <Image source={{ uri: otherParty.image }} style={styles.avatar} />
           ) : (
-            <View style={styles.avatarPlaceholder}>
+            <View style={[
+              styles.avatarPlaceholder,
+              isArtistChat && styles.artistAvatarPlaceholder
+            ]}>
               <Ionicons
                 name={otherParty.type === 'venue' ? 'location' : otherParty.type === 'artist' ? 'brush' : 'briefcase'}
                 size={28}
-                color={theme.colors.textSecondary}
+                color={isArtistChat ? '#B8A5E3' : theme.colors.textSecondary}
               />
+            </View>
+          )}
+          {isArtistChat && (
+            <View style={styles.artistBadge}>
+              <Ionicons name="people" size={12} color="#B8A5E3" />
             </View>
           )}
         </View>
