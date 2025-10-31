@@ -171,6 +171,13 @@ export default function ChatScreen() {
       return otherArtist?.stage_name || 'Artist';
     }
     
+    // Partner-to-partner chat
+    if (roomInfo.chat_type === 'partner_partner') {
+      const isParticipant1 = roomInfo.participant1_id === user?.id;
+      const otherPartner = isParticipant1 ? roomInfo.partner2_profile : roomInfo.partner1_profile;
+      return otherPartner?.brand_name || 'Partner';
+    }
+    
     // Venue chat
     if (user?.user_type === 'venue') {
       const profile = roomInfo.provider_profile;
@@ -182,6 +189,7 @@ export default function ChatScreen() {
   };
 
   const isArtistChat = roomInfo?.chat_type === 'artist_artist';
+  const isPartnerChat = roomInfo?.chat_type === 'partner_partner';
 
   const renderMessage = ({ item }: any) => {
     const isMyMessage = item.sender_id === user?.id;
@@ -193,6 +201,8 @@ export default function ChatScreen() {
           isMyMessage ? styles.myBubble : styles.theirBubble,
           isArtistChat && isMyMessage && styles.artistMyBubble,
           isArtistChat && !isMyMessage && styles.artistTheirBubble,
+          isPartnerChat && isMyMessage && styles.artistMyBubble,  // Same lavender for partners
+          isPartnerChat && !isMyMessage && styles.artistTheirBubble,
         ]}>
           <Text style={[styles.messageText, isMyMessage ? styles.myText : styles.theirText]}>
             {item.message}
