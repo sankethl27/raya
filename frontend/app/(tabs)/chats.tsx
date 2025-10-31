@@ -59,6 +59,22 @@ export default function MyChatsScreen() {
         image: otherArtistProfile?.profile_image,
         type: 'artist',
         isArtistChat: true,
+        isPartnerChat: false,
+      };
+    }
+    
+    // Partner-to-partner chat
+    if (room.chat_type === 'partner_partner') {
+      // Determine which partner is the "other" participant
+      const isParticipant1 = room.participant1_id === user?.id;
+      const otherPartnerProfile = isParticipant1 ? room.partner2_profile : room.partner1_profile;
+      
+      return {
+        name: otherPartnerProfile?.brand_name || 'Partner',
+        image: otherPartnerProfile?.profile_image,
+        type: 'partner',
+        isArtistChat: false,
+        isPartnerChat: true,
       };
     }
     
@@ -70,6 +86,7 @@ export default function MyChatsScreen() {
         image: profile?.profile_image,
         type: room.provider_type,
         isArtistChat: false,
+        isPartnerChat: false,
       };
     } else {
       const profile = room.venue_profile;
@@ -78,6 +95,7 @@ export default function MyChatsScreen() {
         image: profile?.profile_image,
         type: 'venue',
         isArtistChat: false,
+        isPartnerChat: false,
       };
     }
   };
