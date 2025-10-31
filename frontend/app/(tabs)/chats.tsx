@@ -234,9 +234,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.colors.borderLight,
   },
+  artistChatCard: {
+    backgroundColor: 'rgba(184, 165, 227, 0.08)', // Lavender tint
+    borderColor: 'rgba(184, 165, 227, 0.2)',
+  },
   avatarContainer: {
     width: 56,
     height: 56,
+    position: 'relative',
   },
   avatar: {
     width: 56,
@@ -250,6 +255,22 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surfaceLight,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  artistAvatarPlaceholder: {
+    backgroundColor: 'rgba(184, 165, 227, 0.15)',
+  },
+  artistBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    backgroundColor: 'rgba(184, 165, 227, 0.25)',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: theme.colors.surface,
   },
   chatInfo: {
     flex: 1,
