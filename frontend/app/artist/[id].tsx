@@ -200,6 +200,27 @@ export default function ArtistDetailScreen() {
   };
 
   const startChat = async () => {
+    if (!user) {
+      Alert.alert('Login Required', 'Please login to start a chat');
+      return;
+    }
+
+    // Artist-to-Artist chat
+    if (user?.user_type === 'artist' && !isMyProfile) {
+      try {
+        const response = await axios.post(
+          `${BACKEND_URL}/api/chat/room`,
+          { other_artist_id: artist?.user_id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        router.push(`/chat/${response.data.id}`);
+      } catch (error: any) {
+        Alert.alert('Error', error.response?.data?.detail || 'Failed to start chat');
+      }
+      return;
+    }
+
+    // Venue chat (existing logic)
     if (user?.user_type !== 'venue') {
       Alert.alert('Info', 'Only venues can start chats');
       return;
