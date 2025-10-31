@@ -10,21 +10,27 @@ import {
   Image,
   Modal,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme, BANGALORE_LOCATIONS } from '../../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from '../../contexts/AuthContext';
+import { ArtistProModal } from '../../components/ArtistProModal';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
 export default function ArtistsScreen() {
+  const { user, token } = useAuth();
   const [artists, setArtists] = useState([]);
   const [filteredArtists, setFilteredArtists] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showProModal, setShowProModal] = useState(false);
+  const [subscription, setSubscription] = useState<any>(null);
   
   // Filter states
   const [minRating, setMinRating] = useState<number | null>(null);
@@ -33,14 +39,87 @@ export default function ArtistsScreen() {
   const [availableOnly, setAvailableOnly] = useState(false);
   
   const router = useRouter();
+  const isArtist = user?.user_type === 'artist';
 
   useEffect(() => {
     fetchArtists();
+    if (isArtist) {
+      fetchArtistSubscription();
+    }
   }, []);
 
   useEffect(() => {
     applyFilters();
   }, [searchQuery, artists, minRating, selectedLocation, selectedArtType, availableOnly]);
+
+  const fetchArtistSubscription = async () => {
+    if (!token || !isArtist) return;
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/artist/subscription/status`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSubscription(response.data);
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
+    }
+  };
+
+  const handleChatPress = async (artistId: string) => {
+    if (!token) {
+      Alert.alert('Login Required', 'Please login to chat with artists');
+      return;
+    }
+
+    try {
+      // Create or get chat room
+      const response = await axios.post(
+        `${BACKEND_URL}/api/chat/room`,
+        { other_artist_id: artistId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      router.push(`/chat/${response.data.id}`);
+    } catch (error: any) {
+      console.error('Error creating chat:', error);
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to start chat');
+    }
+  };
+
+  const handleArtistPress = async (artistId: string) => {
+    // If artist viewing another artist, track the view
+    if (isArtist && token) {
+      try {
+        const response = await axios.post(
+          `${BACKEND_URL}/api/artist/subscription/track-view`,
+          { profile_id: artistId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        if (!response.data.allowed) {
+          // Show Go Pro modal
+          setShowProModal(true);
+          return;
+        }
+        
+        // Update subscription state
+        setSubscription((prev: any) => ({
+          ...prev,
+          profile_views_remaining: response.data.views_remaining,
+        }));
+      } catch (error) {
+        console.error('Error tracking view:', error);
+      }
+    }
+    
+    // Navigate to artist detail
+    router.push(`/artist/${artistId}`);
+  };
+
+  const handleUpgradeToPro = async () => {
+    // Navigate to payment screen or handle Razorpay
+    setShowProModal(false);
+    Alert.alert('Go Pro', 'Razorpay payment integration coming soon! ₹499/month for unlimited access.');
+  };
 
   const fetchArtists = async () => {
     try {
