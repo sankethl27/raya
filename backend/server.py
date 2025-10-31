@@ -1278,6 +1278,189 @@ async def verify_razorpay_payment(data: dict, current_user: dict = Depends(get_c
     
     return {"message": "Payment verified and subscription activated", "status": "active"}
 
+# ==================== ARTIST SUBSCRIPTION ENDPOINTS ====================
+
+@api_router.post("/artist/subscription/initialize")
+async def initialize_artist_subscription(current_user: dict = Depends(get_current_user)):
+    """Initialize free tier for new artist users"""
+    if current_user["user_type"] != "artist":
+        raise HTTPException(status_code=403, detail="Only artists can have artist subscriptions")
+    
+    # Check if subscription already exists
+    existing = await db.artist_subscriptions.find_one({"artist_user_id": current_user["id"]})
+    if existing:
+        existing.pop("_id", None)
+        return existing
+    
+    # Create free tier subscription
+    subscription = {
+        "id": str(uuid.uuid4()),
+        "artist_user_id": current_user["id"],
+        "subscription_type": "free",
+        "profile_views_remaining": 5,
+        "subscription_status": "active",
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.artist_subscriptions.insert_one(subscription)
+    subscription.pop("_id", None)
+    return subscription
+
+@api_router.get("/artist/subscription/status")
+async def get_artist_subscription_status(current_user: dict = Depends(get_current_user)):
+    if current_user["user_type"] != "artist":
+        raise HTTPException(status_code=403, detail="Only artists can check subscription")
+    
+    subscription = await db.artist_subscriptions.find_one({"artist_user_id": current_user["id"]})
+    if not subscription:
+        # Auto-initialize
+        return await initialize_artist_subscription(current_user)
+    
+    subscription.pop("_id", None)
+    return subscription
+
+@api_router.post("/artist/subscription/track-view")
+async def track_artist_profile_view(data: dict, current_user: dict = Depends(get_current_user)):
+    """Track when artist views another artist's profile"""
+    if current_user["user_type"] != "artist":
+        raise HTTPException(status_code=403, detail="Only artists can track views")
+    
+    profile_id = data.get("profile_id")
+    if not profile_id:
+        raise HTTPException(status_code=400, detail="profile_id is required")
+    
+    subscription = await db.artist_subscriptions.find_one({"artist_user_id": current_user["id"]})
+    if not subscription:
+        subscription_obj = await initialize_artist_subscription(current_user)
+        subscription = await db.artist_subscriptions.find_one({"artist_user_id": current_user["id"]})
+    
+    # Check if Pro (unlimited views)
+    if subscription["profile_views_remaining"] == -1:
+        return {"allowed": True, "views_remaining": -1, "subscription_type": subscription["subscription_type"]}
+    
+    # Check if free views exhausted
+    if subscription["profile_views_remaining"] <= 0:
+        return {
+            "allowed": False,
+            "views_remaining": 0,
+            "subscription_type": subscription["subscription_type"],
+            "message": "Free views exhausted. Upgrade to Pro for unlimited access."
+        }
+    
+    # Deduct one view
+    await db.artist_subscriptions.update_one(
+        {"artist_user_id": current_user["id"]},
+        {"$inc": {"profile_views_remaining": -1}}
+    )
+    
+    return {
+        "allowed": True,
+        "views_remaining": subscription["profile_views_remaining"] - 1,
+        "subscription_type": subscription["subscription_type"]
+    }
+
+@api_router.post("/artist/subscription/create-razorpay-order")
+async def create_artist_pro_order(current_user: dict = Depends(get_current_user)):
+    """Create Razorpay order for Artist Pro subscription (₹499/month)"""
+    if current_user["user_type"] != "artist":
+        raise HTTPException(status_code=403, detail="Only artists can subscribe to Pro")
+    
+    amount = 49900  # ₹499 in paise
+    description = "Artist Pro - Monthly Subscription"
+    
+    if not razorpay_client:
+        # For testing without Razorpay keys
+        return {
+            "order_id": f"test_artist_pro_{uuid.uuid4()}",
+            "amount": amount,
+            "currency": "INR",
+            "test_mode": True
+        }
+    
+    # Create Razorpay order
+    order_data = {
+        "amount": amount,
+        "currency": "INR",
+        "receipt": f"artist_pro_{current_user['id']}_{datetime.utcnow().timestamp()}",
+        "notes": {
+            "artist_user_id": current_user["id"],
+            "subscription_type": "pro"
+        }
+    }
+    
+    order = razorpay_client.order.create(data=order_data)
+    return order
+
+@api_router.post("/artist/subscription/verify-payment")
+async def verify_artist_pro_payment(data: dict, current_user: dict = Depends(get_current_user)):
+    """Verify Razorpay payment and activate Artist Pro subscription"""
+    if current_user["user_type"] != "artist":
+        raise HTTPException(status_code=403, detail="Only artists can subscribe to Pro")
+    
+    razorpay_order_id = data.get("razorpay_order_id")
+    razorpay_payment_id = data.get("razorpay_payment_id")
+    razorpay_signature = data.get("razorpay_signature")
+    
+    # In test mode (no Razorpay keys), accept any payment
+    if not razorpay_client:
+        # Update subscription to Pro
+        await db.artist_subscriptions.update_one(
+            {"artist_user_id": current_user["id"]},
+            {
+                "$set": {
+                    "subscription_type": "pro",
+                    "profile_views_remaining": -1,  # Unlimited
+                    "subscription_status": "active",
+                    "subscription_start": datetime.utcnow(),
+                    "subscription_end": datetime.utcnow() + timedelta(days=30),
+                    "amount_paid": 499.0
+                }
+            }
+        )
+        
+        # Update user's is_artist_pro flag
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {"$set": {"is_artist_pro": True}}
+        )
+        
+        return {"message": "Payment verified successfully (test mode)", "status": "active"}
+    
+    # Verify signature (production)
+    try:
+        params_dict = {
+            "razorpay_order_id": razorpay_order_id,
+            "razorpay_payment_id": razorpay_payment_id,
+            "razorpay_signature": razorpay_signature
+        }
+        razorpay_client.utility.verify_payment_signature(params_dict)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Payment verification failed")
+    
+    # Update subscription to Pro
+    await db.artist_subscriptions.update_one(
+        {"artist_user_id": current_user["id"]},
+        {
+            "$set": {
+                "subscription_type": "pro",
+                "profile_views_remaining": -1,  # Unlimited
+                "subscription_status": "active",
+                "razorpay_payment_id": razorpay_payment_id,
+                "subscription_start": datetime.utcnow(),
+                "subscription_end": datetime.utcnow() + timedelta(days=30),
+                "amount_paid": 499.0
+            }
+        }
+    )
+    
+    # Update user's is_artist_pro flag
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": {"is_artist_pro": True}}
+    )
+    
+    return {"message": "Payment verified and Artist Pro subscription activated", "status": "active"}
+
 # ADMIN ENDPOINTS FOR ADD/DELETE
 @api_router.post("/admin/artists")
 async def admin_add_artist(artist_data: dict, current_user: dict = Depends(get_current_user)):
