@@ -3,10 +3,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from '../../utils/theme';
 
 import { useAuth } from '../../contexts/AuthContext';
+import { useRouter } from 'expo-router';
 
 export default function TabLayout() {
   const { user } = useAuth();
   const isVenue = user?.user_type === 'venue';
+  const isArtist = user?.user_type === 'artist';
 
   return (
     <Tabs
@@ -56,6 +58,15 @@ export default function TabLayout() {
           title: 'Partners',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? "briefcase" : "briefcase-outline"} size={26} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="chats"
+        options={{
+          title: 'Chats',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? "chatbubbles" : "chatbubbles-outline"} size={26} color={color} />
           ),
         }}
       />
