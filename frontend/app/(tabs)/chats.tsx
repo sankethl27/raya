@@ -9,8 +9,8 @@ import {
   Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../contexts/AuthContext';
-import { theme } from '../utils/theme';
+import { useAuth } from '../../contexts/AuthContext';
+import { theme } from '../../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
