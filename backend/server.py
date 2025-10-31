@@ -80,6 +80,9 @@ class User(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = True
     is_paused: bool = False  # For pausing profile (hidden but data saved)
+    is_artist_pro: bool = False  # Artist Pro subscription status
+    is_venue_pro: bool = False  # Venue Pro subscription status
+    artist_profile_views_count: int = 0  # Track artist profile views (5 free)
     last_login: Optional[datetime] = None
 
 class UserRegister(BaseModel):
