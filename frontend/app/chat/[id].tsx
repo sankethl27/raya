@@ -323,6 +323,12 @@ const styles = StyleSheet.create({
   theirBubble: {
     backgroundColor: theme.colors.surface,
   },
+  artistMyBubble: {
+    backgroundColor: 'rgba(184, 165, 227, 0.3)', // Lavender tint for artist chats
+  },
+  artistTheirBubble: {
+    backgroundColor: 'rgba(184, 165, 227, 0.15)', // Lighter lavender for received
+  },
   messageText: {
     fontSize: theme.fontSize.md,
     lineHeight: 20,
