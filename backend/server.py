@@ -738,6 +738,7 @@ async def create_chat_room(data: dict, current_user: dict = Depends(get_current_
     provider_user_id = data.get("provider_user_id")
     provider_type = data.get("provider_type")
     other_artist_id = data.get("other_artist_id")  # For artist-to-artist chat
+    other_partner_id = data.get("other_partner_id")  # For partner-to-partner chat
     
     # Artist-to-artist chat
     if current_user["user_type"] == "artist" and other_artist_id:
@@ -763,9 +764,33 @@ async def create_chat_room(data: dict, current_user: dict = Depends(get_current_
         await db.chat_rooms.insert_one(room.dict())
         return room.dict()
     
+    # Partner-to-partner chat
+    if current_user["user_type"] == "partner" and other_partner_id:
+        # Check if room already exists (either direction)
+        existing_room = await db.chat_rooms.find_one({
+            "$or": [
+                {"participant1_id": current_user["id"], "participant2_id": other_partner_id},
+                {"participant1_id": other_partner_id, "participant2_id": current_user["id"]}
+            ],
+            "chat_type": "partner_partner"
+        })
+        
+        if existing_room:
+            existing_room.pop("_id", None)
+            return existing_room
+        
+        # Create new partner-to-partner room
+        room = ChatRoom(
+            participant1_id=current_user["id"],
+            participant2_id=other_partner_id,
+            chat_type="partner_partner"
+        )
+        await db.chat_rooms.insert_one(room.dict())
+        return room.dict()
+    
     # Venue chat (existing logic)
     if current_user["user_type"] != "venue":
-        raise HTTPException(status_code=403, detail="Only venues and artists can start chats")
+        raise HTTPException(status_code=403, detail="Only venues, artists, and partners can start chats")
     
     # Check if room already exists
     existing_room = await db.chat_rooms.find_one({
@@ -781,7 +806,8 @@ async def create_chat_room(data: dict, current_user: dict = Depends(get_current_
     room = ChatRoom(
         venue_user_id=current_user["id"],
         provider_user_id=provider_user_id,
-        provider_type=provider_type
+        provider_type=provider_type,
+        chat_type=f"venue_{provider_type}"  # "venue_artist" or "venue_partner"
     )
     await db.chat_rooms.insert_one(room.dict())
     return room.dict()
