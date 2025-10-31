@@ -480,6 +480,12 @@ export default function ArtistDetailScreen() {
         onClose={() => setShowSubscriptionPopup(false)}
         onSubscribe={handleSubscribe}
       />
+
+      <ArtistProModal
+        visible={showProModal}
+        onClose={() => setShowProModal(false)}
+        onUpgrade={handleUpgradeToPro}
+      />
     </View>
   );
 }
