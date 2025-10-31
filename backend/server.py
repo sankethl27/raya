@@ -790,28 +790,52 @@ async def create_chat_room(data: dict, current_user: dict = Depends(get_current_
 async def get_chat_rooms(current_user: dict = Depends(get_current_user)):
     if current_user["user_type"] == "venue":
         rooms = await db.chat_rooms.find({"venue_user_id": current_user["id"]}).to_list(1000)
+    elif current_user["user_type"] == "artist":
+        # Get both venue chats and artist-to-artist chats
+        rooms = await db.chat_rooms.find({
+            "$or": [
+                {"provider_user_id": current_user["id"]},  # Venue chats as provider
+                {"participant1_id": current_user["id"]},   # Artist-to-artist chats
+                {"participant2_id": current_user["id"]}    # Artist-to-artist chats
+            ]
+        }).to_list(1000)
     else:
+        # Partner
         rooms = await db.chat_rooms.find({"provider_user_id": current_user["id"]}).to_list(1000)
     
     # Enrich with profile data
     for room in rooms:
         room.pop("_id", None)
         
-        # Get venue profile
-        venue_profile = await db.venue_profiles.find_one({"user_id": room["venue_user_id"]})
-        if venue_profile:
-            venue_profile.pop("_id", None)
-            room["venue_profile"] = venue_profile
-        
-        # Get provider profile
-        if room["provider_type"] == "artist":
-            provider_profile = await db.artist_profiles.find_one({"user_id": room["provider_user_id"]})
+        # Artist-to-artist chat
+        if room.get("chat_type") == "artist_artist":
+            # Get both artist profiles
+            artist1_profile = await db.artist_profiles.find_one({"user_id": room["participant1_id"]})
+            artist2_profile = await db.artist_profiles.find_one({"user_id": room["participant2_id"]})
+            
+            if artist1_profile:
+                artist1_profile.pop("_id", None)
+                room["artist1_profile"] = artist1_profile
+            if artist2_profile:
+                artist2_profile.pop("_id", None)
+                room["artist2_profile"] = artist2_profile
         else:
-            provider_profile = await db.partner_profiles.find_one({"user_id": room["provider_user_id"]})
-        
-        if provider_profile:
-            provider_profile.pop("_id", None)
-            room["provider_profile"] = provider_profile
+            # Venue chat (existing logic)
+            # Get venue profile
+            venue_profile = await db.venue_profiles.find_one({"user_id": room.get("venue_user_id")})
+            if venue_profile:
+                venue_profile.pop("_id", None)
+                room["venue_profile"] = venue_profile
+            
+            # Get provider profile
+            if room.get("provider_type") == "artist":
+                provider_profile = await db.artist_profiles.find_one({"user_id": room.get("provider_user_id")})
+            else:
+                provider_profile = await db.partner_profiles.find_one({"user_id": room.get("provider_user_id")})
+            
+            if provider_profile:
+                provider_profile.pop("_id", None)
+                room["provider_profile"] = provider_profile
         
         # Get last message
         last_message = await db.messages.find_one(
