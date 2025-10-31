@@ -190,77 +190,95 @@ export default function ArtistsScreen() {
     setRefreshing(false);
   };
 
-  const renderArtist = ({ item }: any) => (
-    <TouchableOpacity
-      style={styles.artistCard}
-      onPress={() => router.push(`/artist/${item.id}`)}
-    >
-      {item.is_featured && (
-        <LinearGradient
-          colors={['#E8D4A8', '#C9A865']}
-          style={styles.featuredBadge}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-        >
-          <Ionicons name="star" size={12} color={theme.colors.primaryDark} />
-          <Text style={styles.featuredText}>Featured</Text>
-        </LinearGradient>
-      )}
-      
-      <View style={styles.cardContent}>
-        <View style={styles.avatarContainer}>
-          {item.media_gallery && item.media_gallery[0] ? (
-            <Image
-              source={{ uri: item.media_gallery[0] }}
-              style={styles.avatar}
-            />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Ionicons name="person" size={32} color={theme.colors.textSecondary} />
-            </View>
-          )}
-        </View>
+  const renderArtist = ({ item }: any) => {
+    const isMyProfile = user?.id && item.user_id === user.id;
+    
+    return (
+      <TouchableOpacity
+        style={styles.artistCard}
+        onPress={() => handleArtistPress(item.id)}
+        disabled={isMyProfile}
+      >
+        {item.is_featured && (
+          <LinearGradient
+            colors={['#E8D4A8', '#C9A865']}
+            style={styles.featuredBadge}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            <Ionicons name="star" size={12} color={theme.colors.primaryDark} />
+            <Text style={styles.featuredText}>Featured</Text>
+          </LinearGradient>
+        )}
         
-        <View style={styles.artistInfo}>
-          <Text style={styles.artistName}>{item.stage_name}</Text>
-          <Text style={styles.artType}>{item.art_type}</Text>
-          
-          <View style={styles.statsRow}>
-            <View style={styles.stat}>
-              <Ionicons name="star" size={16} color={theme.colors.secondary} />
-              <Text style={styles.statText}>{item.rating.toFixed(1)}</Text>
-              <Text style={styles.statLabel}>({item.review_count})</Text>
-            </View>
-            
-            <View style={styles.stat}>
-              <Ionicons name="mic" size={16} color={theme.colors.secondary} />
-              <Text style={styles.statText}>{item.experience_gigs}</Text>
-              <Text style={styles.statLabel}>gigs</Text>
-            </View>
+        <View style={styles.cardContent}>
+          <View style={styles.avatarContainer}>
+            {item.media_gallery && item.media_gallery[0] ? (
+              <Image
+                source={{ uri: item.media_gallery[0] }}
+                style={styles.avatar}
+              />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="person" size={32} color={theme.colors.textSecondary} />
+              </View>
+            )}
           </View>
           
-          {item.locations && item.locations.length > 0 && (
-            <View style={styles.locationChip}>
-              <Ionicons name="location" size={12} color={theme.colors.secondary} />
-              <Text style={styles.locationText}>{item.locations[0]}</Text>
-              {item.locations.length > 1 && (
-                <Text style={styles.locationText}>+{item.locations.length - 1}</Text>
-              )}
+          <View style={styles.artistInfo}>
+            <Text style={styles.artistName}>{item.stage_name}</Text>
+            <Text style={styles.artType}>{item.art_type}</Text>
+            
+            <View style={styles.statsRow}>
+              <View style={styles.stat}>
+                <Ionicons name="star" size={16} color={theme.colors.secondary} />
+                <Text style={styles.statText}>{item.rating.toFixed(1)}</Text>
+                <Text style={styles.statLabel}>({item.review_count})</Text>
+              </View>
+              
+              <View style={styles.stat}>
+                <Ionicons name="mic" size={16} color={theme.colors.secondary} />
+                <Text style={styles.statText}>{item.experience_gigs}</Text>
+                <Text style={styles.statLabel}>gigs</Text>
+              </View>
             </View>
-          )}
+            
+            {item.locations && item.locations.length > 0 && (
+              <View style={styles.locationChip}>
+                <Ionicons name="location" size={12} color={theme.colors.secondary} />
+                <Text style={styles.locationText}>{item.locations[0]}</Text>
+                {item.locations.length > 1 && (
+                  <Text style={styles.locationText}>+{item.locations.length - 1}</Text>
+                )}
+              </View>
+            )}
+            
+            {item.availability && item.availability.length > 0 && (
+              <View style={styles.availabilityChip}>
+                <Ionicons name="calendar" size={12} color={theme.colors.success} />
+                <Text style={styles.availabilityText}>Available</Text>
+              </View>
+            )}
+          </View>
           
-          {item.availability && item.availability.length > 0 && (
-            <View style={styles.availabilityChip}>
-              <Ionicons name="calendar" size={12} color={theme.colors.success} />
-              <Text style={styles.availabilityText}>Available</Text>
-            </View>
+          {/* Show Chat button only for artists viewing other artists */}
+          {isArtist && !isMyProfile ? (
+            <TouchableOpacity
+              style={styles.chatButton}
+              onPress={(e) => {
+                e.stopPropagation();
+                handleChatPress(item.user_id);
+              }}
+            >
+              <Ionicons name="chatbubbles" size={20} color="#B8A5E3" />
+            </TouchableOpacity>
+          ) : (
+            <Ionicons name="chevron-forward" size={24} color={theme.colors.textSecondary} />
           )}
         </View>
-        
-        <Ionicons name="chevron-forward" size={24} color={theme.colors.textSecondary} />
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   const activeFiltersCount = [minRating, selectedLocation, selectedArtType, availableOnly].filter(Boolean).length;
 
