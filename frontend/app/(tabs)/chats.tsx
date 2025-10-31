@@ -48,12 +48,28 @@ export default function MyChatsScreen() {
   };
 
   const getOtherPartyInfo = (room: any) => {
+    // Artist-to-artist chat
+    if (room.chat_type === 'artist_artist') {
+      // Determine which artist is the "other" participant
+      const isParticipant1 = room.participant1_id === user?.id;
+      const otherArtistProfile = isParticipant1 ? room.artist2_profile : room.artist1_profile;
+      
+      return {
+        name: otherArtistProfile?.stage_name || 'Artist',
+        image: otherArtistProfile?.profile_image,
+        type: 'artist',
+        isArtistChat: true,
+      };
+    }
+    
+    // Venue chat (existing logic)
     if (user?.user_type === 'venue') {
       const profile = room.provider_profile;
       return {
         name: profile?.stage_name || profile?.brand_name || 'Provider',
         image: profile?.profile_image,
         type: room.provider_type,
+        isArtistChat: false,
       };
     } else {
       const profile = room.venue_profile;
@@ -61,6 +77,7 @@ export default function MyChatsScreen() {
         name: profile?.venue_name || 'Venue',
         image: profile?.profile_image,
         type: 'venue',
+        isArtistChat: false,
       };
     }
   };
