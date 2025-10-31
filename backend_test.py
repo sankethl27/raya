@@ -19,7 +19,7 @@ def get_backend_url():
                     return line.split('=', 1)[1].strip()
     except:
         pass
-    return "https://talent-nexus-25.preview.emergentagent.com"
+    return "https://venuemate-18.preview.emergentagent.com"
 
 BASE_URL = get_backend_url()
 API_BASE = f"{BASE_URL}/api"
