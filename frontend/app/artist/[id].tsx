@@ -96,7 +96,7 @@ export default function ArtistDetailScreen() {
     Alert.alert('Go Pro', 'Razorpay payment integration coming soon! ₹499/month for unlimited access.');
   };
 
-  const trackView = async () {
+  const trackView = async () => {
     try {
       const response = await axios.post(
         `${BACKEND_URL}/api/subscription/track-view`,
