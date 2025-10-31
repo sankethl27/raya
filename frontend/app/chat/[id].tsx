@@ -164,6 +164,14 @@ export default function ChatScreen() {
   const getOtherPartyName = () => {
     if (!roomInfo) return 'Chat';
     
+    // Artist-to-artist chat
+    if (roomInfo.chat_type === 'artist_artist') {
+      const isParticipant1 = roomInfo.participant1_id === user?.id;
+      const otherArtist = isParticipant1 ? roomInfo.artist2_profile : roomInfo.artist1_profile;
+      return otherArtist?.stage_name || 'Artist';
+    }
+    
+    // Venue chat
     if (user?.user_type === 'venue') {
       const profile = roomInfo.provider_profile;
       return profile?.stage_name || profile?.brand_name || 'Provider';
@@ -173,12 +181,19 @@ export default function ChatScreen() {
     }
   };
 
+  const isArtistChat = roomInfo?.chat_type === 'artist_artist';
+
   const renderMessage = ({ item }: any) => {
     const isMyMessage = item.sender_id === user?.id;
 
     return (
       <View style={[styles.messageContainer, isMyMessage ? styles.myMessage : styles.theirMessage]}>
-        <View style={[styles.messageBubble, isMyMessage ? styles.myBubble : styles.theirBubble]}>
+        <View style={[
+          styles.messageBubble,
+          isMyMessage ? styles.myBubble : styles.theirBubble,
+          isArtistChat && isMyMessage && styles.artistMyBubble,
+          isArtistChat && !isMyMessage && styles.artistTheirBubble,
+        ]}>
           <Text style={[styles.messageText, isMyMessage ? styles.myText : styles.theirText]}>
             {item.message}
           </Text>
