@@ -737,9 +737,35 @@ async def get_wishlist(current_user: dict = Depends(get_current_user)):
 async def create_chat_room(data: dict, current_user: dict = Depends(get_current_user)):
     provider_user_id = data.get("provider_user_id")
     provider_type = data.get("provider_type")
+    other_artist_id = data.get("other_artist_id")  # For artist-to-artist chat
     
+    # Artist-to-artist chat
+    if current_user["user_type"] == "artist" and other_artist_id:
+        # Check if room already exists (either direction)
+        existing_room = await db.chat_rooms.find_one({
+            "$or": [
+                {"participant1_id": current_user["id"], "participant2_id": other_artist_id},
+                {"participant1_id": other_artist_id, "participant2_id": current_user["id"]}
+            ],
+            "chat_type": "artist_artist"
+        })
+        
+        if existing_room:
+            existing_room.pop("_id", None)
+            return existing_room
+        
+        # Create new artist-to-artist room
+        room = ChatRoom(
+            participant1_id=current_user["id"],
+            participant2_id=other_artist_id,
+            chat_type="artist_artist"
+        )
+        await db.chat_rooms.insert_one(room.dict())
+        return room.dict()
+    
+    # Venue chat (existing logic)
     if current_user["user_type"] != "venue":
-        raise HTTPException(status_code=403, detail="Only venues can start chats")
+        raise HTTPException(status_code=403, detail="Only venues and artists can start chats")
     
     # Check if room already exists
     existing_room = await db.chat_rooms.find_one({
