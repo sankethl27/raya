@@ -462,6 +462,16 @@ export default function ArtistDetailScreen() {
               </TouchableOpacity>
             </View>
           )}
+
+          {/* Artist-to-Artist Chat Button */}
+          {isArtist && !isMyProfile && (
+            <View style={styles.actionButtons}>
+              <TouchableOpacity style={[styles.primaryButton, styles.artistChatButton]} onPress={startChat}>
+                <Ionicons name="chatbubbles" size={20} color="#B8A5E3" />
+                <Text style={[styles.primaryButtonText, styles.artistChatButtonText]}>Chat with Artist</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </ScrollView>
       
