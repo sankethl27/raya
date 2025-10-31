@@ -173,9 +173,13 @@ class Wishlist(BaseModel):
 
 class ChatRoom(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    venue_user_id: str
-    provider_user_id: str  # artist or partner user id
-    provider_type: str  # artist or partner
+    venue_user_id: Optional[str] = None  # For venue chats
+    provider_user_id: Optional[str] = None  # For venue chats (artist or partner user id)
+    provider_type: Optional[str] = None  # artist or partner (for venue chats)
+    # For artist-to-artist chats
+    participant1_id: Optional[str] = None  # First artist user_id
+    participant2_id: Optional[str] = None  # Second artist user_id
+    chat_type: str = "venue_artist"  # "venue_artist", "venue_partner", or "artist_artist"
     created_at: datetime = Field(default_factory=datetime.utcnow)
     last_message_at: Optional[datetime] = None
 
