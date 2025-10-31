@@ -420,6 +420,13 @@ export default function ArtistsScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Artist Pro Modal */}
+      <ArtistProModal
+        visible={showProModal}
+        onClose={() => setShowProModal(false)}
+        onUpgrade={handleUpgradeToPro}
+      />
     </View>
   );
 }
