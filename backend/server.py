@@ -825,9 +825,17 @@ async def get_chat_rooms(current_user: dict = Depends(get_current_user)):
                 {"participant2_id": current_user["id"]}    # Artist-to-artist chats
             ]
         }).to_list(1000)
+    elif current_user["user_type"] == "partner":
+        # Get both venue chats and partner-to-partner chats
+        rooms = await db.chat_rooms.find({
+            "$or": [
+                {"provider_user_id": current_user["id"]},  # Venue chats as provider
+                {"participant1_id": current_user["id"]},   # Partner-to-partner chats
+                {"participant2_id": current_user["id"]}    # Partner-to-partner chats
+            ]
+        }).to_list(1000)
     else:
-        # Partner
-        rooms = await db.chat_rooms.find({"provider_user_id": current_user["id"]}).to_list(1000)
+        rooms = []
     
     # Enrich with profile data
     for room in rooms:
@@ -845,6 +853,18 @@ async def get_chat_rooms(current_user: dict = Depends(get_current_user)):
             if artist2_profile:
                 artist2_profile.pop("_id", None)
                 room["artist2_profile"] = artist2_profile
+        # Partner-to-partner chat
+        elif room.get("chat_type") == "partner_partner":
+            # Get both partner profiles
+            partner1_profile = await db.partner_profiles.find_one({"user_id": room["participant1_id"]})
+            partner2_profile = await db.partner_profiles.find_one({"user_id": room["participant2_id"]})
+            
+            if partner1_profile:
+                partner1_profile.pop("_id", None)
+                room["partner1_profile"] = partner1_profile
+            if partner2_profile:
+                partner2_profile.pop("_id", None)
+                room["partner2_profile"] = partner2_profile
         else:
             # Venue chat (existing logic)
             # Get venue profile
