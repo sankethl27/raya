@@ -163,6 +163,131 @@ export default function ChatScreen() {
     }
   };
 
+  const getOtherUserId = () => {
+    if (!roomInfo) return null;
+    
+    if (roomInfo.chat_type === 'artist_artist' || roomInfo.chat_type === 'partner_partner') {
+      const isParticipant1 = roomInfo.participant1_id === user?.id;
+      return isParticipant1 ? roomInfo.participant2_id : roomInfo.participant1_id;
+    }
+    
+    if (user?.user_type === 'venue') {
+      return roomInfo.provider_user_id;
+    } else {
+      return roomInfo.venue_user_id;
+    }
+  };
+
+  const handleReport = () => {
+    setShowMenu(false);
+    Alert.prompt(
+      'Report User',
+      'Please describe the reason for reporting this user:',
+      async (reason) => {
+        if (!reason || !reason.trim()) {
+          Alert.alert('Error', 'Please provide a reason');
+          return;
+        }
+
+        try {
+          await axios.post(
+            `${BACKEND_URL}/api/users/report`,
+            {
+              reported_user_id: getOtherUserId(),
+              reason: reason.trim(),
+            },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          Alert.alert('Success', 'User reported successfully');
+        } catch (error: any) {
+          Alert.alert('Error', error.response?.data?.detail || 'Failed to report user');
+        }
+      }
+    );
+  };
+
+  const handleBlock = () => {
+    setShowMenu(false);
+    Alert.alert(
+      'Block User',
+      'Are you sure you want to block this user? They will not be able to chat with you.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Block',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await axios.post(
+                `${BACKEND_URL}/api/users/block/${getOtherUserId()}`,
+                {},
+                { headers: { Authorization: `Bearer ${token}` } }
+              );
+              Alert.alert('Success', 'User blocked successfully', [
+                { text: 'OK', onPress: () => router.back() }
+              ]);
+            } catch (error: any) {
+              Alert.alert('Error', error.response?.data?.detail || 'Failed to block user');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleProposeCollaboration = async () => {
+    if (collaboration) {
+      Alert.alert('Info', 'Collaboration already proposed for this chat');
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/collaborations/propose`,
+        { chat_room_id: id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Fetch updated collaboration
+      fetchCollaboration();
+      Alert.alert('Success', 'Collaboration proposed! Waiting for approval from both parties.');
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to propose collaboration');
+    }
+  };
+
+  const handleApproveCollaboration = async () => {
+    if (!collaboration) return;
+
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/collaborations/${collaboration.id}/approve`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      fetchCollaboration();
+      Alert.alert('Success', response.data.message);
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to approve collaboration');
+    }
+  };
+
+  const fetchCollaboration = async () => {
+    try {
+      const response = await axios.get(
+        `${BACKEND_URL}/api/collaborations`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Find collaboration for this chat room
+      const collab = response.data.find((c: any) => c.chat_room_id === id);
+      setCollaboration(collab || null);
+    } catch (error) {
+      console.log('Error fetching collaboration:', error);
+    }
+  };
+
   const getOtherPartyName = () => {
     if (!roomInfo) return 'Chat';
     
