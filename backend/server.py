@@ -83,6 +83,8 @@ class User(BaseModel):
     is_artist_pro: bool = False  # Artist Pro subscription status
     is_venue_pro: bool = False  # Venue Pro subscription status
     artist_profile_views_count: int = 0  # Track artist profile views (5 free)
+    partner_chat_settings: str = "all"  # For partners: "all", "partners_only", "off"
+    blocked_users: list = []  # List of blocked user IDs
     last_login: Optional[datetime] = None
 
 class UserRegister(BaseModel):
