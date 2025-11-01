@@ -221,6 +221,28 @@ class ArtistSubscription(BaseModel):
     subscription_end: Optional[datetime] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+class UserReport(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    reporter_user_id: str
+    reported_user_id: str
+    reason: str  # Description of why user is being reported
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    status: str = "pending"  # "pending", "reviewed", "resolved"
+
+class Collaboration(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    chat_room_id: str
+    initiator_user_id: str  # Who proposed the collaboration
+    participant1_id: str  # First party
+    participant2_id: str  # Second party
+    participant1_approved: bool = False
+    participant2_approved: bool = False
+    shared_on_home: bool = False  # Shared on Raaya home page
+    shared_on_instagram: bool = False  # Shared on Instagram
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    approved_at: Optional[datetime] = None
+    description: Optional[str] = None  # Optional collaboration description
+
 class OTPVerification(BaseModel):
     email: EmailStr
     otp: str
