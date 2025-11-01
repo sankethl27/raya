@@ -1531,6 +1531,209 @@ async def verify_artist_pro_payment(data: dict, current_user: dict = Depends(get
     
     return {"message": "Payment verified and Artist Pro subscription activated", "status": "active"}
 
+# ==================== BLOCK & REPORT ENDPOINTS ====================
+
+@api_router.post("/users/block/{user_id}")
+async def block_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Block a user"""
+    if user_id == current_user["id"]:
+        raise HTTPException(status_code=400, detail="Cannot block yourself")
+    
+    # Add to blocked users list
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$addToSet": {"blocked_users": user_id}}
+    )
+    
+    return {"message": "User blocked successfully"}
+
+@api_router.delete("/users/unblock/{user_id}")
+async def unblock_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Unblock a user"""
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$pull": {"blocked_users": user_id}}
+    )
+    
+    return {"message": "User unblocked successfully"}
+
+@api_router.get("/users/blocked-list")
+async def get_blocked_users(current_user: dict = Depends(get_current_user)):
+    """Get list of blocked users"""
+    user = await db.users.find_one({"id": current_user["id"]})
+    blocked_users = user.get("blocked_users", []) if user else []
+    
+    return {"blocked_users": blocked_users}
+
+@api_router.post("/users/report")
+async def report_user(data: dict, current_user: dict = Depends(get_current_user)):
+    """Report a user with description"""
+    reported_user_id = data.get("reported_user_id")
+    reason = data.get("reason", "")
+    
+    if not reported_user_id:
+        raise HTTPException(status_code=400, detail="reported_user_id is required")
+    
+    if reported_user_id == current_user["id"]:
+        raise HTTPException(status_code=400, detail="Cannot report yourself")
+    
+    report = UserReport(
+        reporter_user_id=current_user["id"],
+        reported_user_id=reported_user_id,
+        reason=reason
+    )
+    
+    await db.user_reports.insert_one(report.dict())
+    
+    return {"message": "User reported successfully", "report_id": report.id}
+
+# ==================== PARTNER CHAT SETTINGS ====================
+
+@api_router.patch("/users/chat-settings")
+async def update_chat_settings(data: dict, current_user: dict = Depends(get_current_user)):
+    """Update partner chat settings"""
+    if current_user["user_type"] != "partner":
+        raise HTTPException(status_code=403, detail="Only partners can update chat settings")
+    
+    chat_settings = data.get("chat_settings")  # "all", "partners_only", "off"
+    
+    if chat_settings not in ["all", "partners_only", "off"]:
+        raise HTTPException(status_code=400, detail="Invalid chat_settings value")
+    
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": {"partner_chat_settings": chat_settings}}
+    )
+    
+    return {"message": "Chat settings updated", "chat_settings": chat_settings}
+
+@api_router.get("/users/chat-settings")
+async def get_chat_settings(current_user: dict = Depends(get_current_user)):
+    """Get current chat settings"""
+    user = await db.users.find_one({"id": current_user["id"]})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"chat_settings": user.get("partner_chat_settings", "all")}
+
+# ==================== COLLABORATION ENDPOINTS ====================
+
+@api_router.post("/collaborations/propose")
+async def propose_collaboration(data: dict, current_user: dict = Depends(get_current_user)):
+    """Propose a collaboration from within a chat"""
+    chat_room_id = data.get("chat_room_id")
+    description = data.get("description", "")
+    
+    if not chat_room_id:
+        raise HTTPException(status_code=400, detail="chat_room_id is required")
+    
+    # Get chat room
+    chat_room = await db.chat_rooms.find_one({"id": chat_room_id})
+    if not chat_room:
+        raise HTTPException(status_code=404, detail="Chat room not found")
+    
+    # Determine participants based on chat type
+    if chat_room.get("chat_type") in ["artist_artist", "partner_partner"]:
+        participant1_id = chat_room["participant1_id"]
+        participant2_id = chat_room["participant2_id"]
+    else:
+        # Venue chat
+        participant1_id = chat_room.get("venue_user_id")
+        participant2_id = chat_room.get("provider_user_id")
+    
+    # Check if collaboration already exists for this chat
+    existing = await db.collaborations.find_one({"chat_room_id": chat_room_id})
+    if existing:
+        raise HTTPException(status_code=400, detail="Collaboration already proposed for this chat")
+    
+    # Create collaboration
+    collaboration = Collaboration(
+        chat_room_id=chat_room_id,
+        initiator_user_id=current_user["id"],
+        participant1_id=participant1_id,
+        participant2_id=participant2_id,
+        description=description
+    )
+    
+    # Auto-approve for initiator
+    if current_user["id"] == participant1_id:
+        collaboration.participant1_approved = True
+    elif current_user["id"] == participant2_id:
+        collaboration.participant2_approved = True
+    
+    await db.collaborations.insert_one(collaboration.dict())
+    
+    return {"message": "Collaboration proposed", "collaboration_id": collaboration.id}
+
+@api_router.post("/collaborations/{collaboration_id}/approve")
+async def approve_collaboration(collaboration_id: str, current_user: dict = Depends(get_current_user)):
+    """Approve a collaboration"""
+    collaboration = await db.collaborations.find_one({"id": collaboration_id})
+    if not collaboration:
+        raise HTTPException(status_code=404, detail="Collaboration not found")
+    
+    # Check if user is a participant
+    if current_user["id"] not in [collaboration["participant1_id"], collaboration["participant2_id"]]:
+        raise HTTPException(status_code=403, detail="You are not a participant in this collaboration")
+    
+    # Update approval status
+    update_data = {}
+    if current_user["id"] == collaboration["participant1_id"]:
+        update_data["participant1_approved"] = True
+    elif current_user["id"] == collaboration["participant2_id"]:
+        update_data["participant2_approved"] = True
+    
+    # Check if both approved
+    collaboration_updated = await db.collaborations.find_one({"id": collaboration_id})
+    if current_user["id"] == collaboration["participant1_id"]:
+        both_approved = True and collaboration.get("participant2_approved", False)
+    else:
+        both_approved = collaboration.get("participant1_approved", False) and True
+    
+    if both_approved:
+        update_data["approved_at"] = datetime.utcnow()
+        update_data["shared_on_home"] = True
+        update_data["shared_on_instagram"] = True
+    
+    await db.collaborations.update_one(
+        {"id": collaboration_id},
+        {"$set": update_data}
+    )
+    
+    message = "Collaboration approved"
+    if both_approved:
+        message = "Collaboration fully approved! Will be shared on Raaya home and Instagram."
+    
+    return {"message": message, "both_approved": both_approved}
+
+@api_router.get("/collaborations")
+async def get_collaborations(current_user: dict = Depends(get_current_user)):
+    """Get collaborations for current user"""
+    collaborations = await db.collaborations.find({
+        "$or": [
+            {"participant1_id": current_user["id"]},
+            {"participant2_id": current_user["id"]}
+        ]
+    }).to_list(1000)
+    
+    for collab in collaborations:
+        collab.pop("_id", None)
+    
+    return collaborations
+
+@api_router.get("/collaborations/approved")
+async def get_approved_collaborations():
+    """Get all approved collaborations for home page display"""
+    collaborations = await db.collaborations.find({
+        "participant1_approved": True,
+        "participant2_approved": True
+    }).to_list(1000)
+    
+    for collab in collaborations:
+        collab.pop("_id", None)
+    
+    return collaborations
+
 # ADMIN ENDPOINTS FOR ADD/DELETE
 @api_router.post("/admin/artists")
 async def admin_add_artist(artist_data: dict, current_user: dict = Depends(get_current_user)):
