@@ -188,6 +188,59 @@ export default function ProfileScreen() {
                   <Ionicons name="create" size={20} color={theme.colors.primaryDark} />
                   <Text style={styles.editButtonText}>Edit Profile</Text>
                 </TouchableOpacity>
+
+                {/* Partner Chat Settings */}
+                {user?.user_type === 'partner' && (
+                  <View style={styles.chatSettingsContainer}>
+                    <Text style={styles.chatSettingsTitle}>Chat Settings</Text>
+                    <Text style={styles.chatSettingsSubtitle}>Who can send you chat requests?</Text>
+                    
+                    <TouchableOpacity
+                      style={[styles.chatSettingOption, chatSettings === 'all' && styles.chatSettingActive]}
+                      onPress={() => updateChatSettings('all')}
+                    >
+                      <Ionicons 
+                        name={chatSettings === 'all' ? 'checkmark-circle' : 'radio-button-off'} 
+                        size={24} 
+                        color={chatSettings === 'all' ? theme.colors.secondary : theme.colors.textSecondary} 
+                      />
+                      <View style={styles.chatSettingText}>
+                        <Text style={styles.chatSettingLabel}>Artists + Partners</Text>
+                        <Text style={styles.chatSettingDescription}>Receive requests from everyone</Text>
+                      </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.chatSettingOption, chatSettings === 'partners_only' && styles.chatSettingActive]}
+                      onPress={() => updateChatSettings('partners_only')}
+                    >
+                      <Ionicons 
+                        name={chatSettings === 'partners_only' ? 'checkmark-circle' : 'radio-button-off'} 
+                        size={24} 
+                        color={chatSettings === 'partners_only' ? theme.colors.secondary : theme.colors.textSecondary} 
+                      />
+                      <View style={styles.chatSettingText}>
+                        <Text style={styles.chatSettingLabel}>Partners Only</Text>
+                        <Text style={styles.chatSettingDescription}>Only receive from other partners</Text>
+                      </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.chatSettingOption, chatSettings === 'off' && styles.chatSettingActive]}
+                      onPress={() => updateChatSettings('off')}
+                    >
+                      <Ionicons 
+                        name={chatSettings === 'off' ? 'checkmark-circle' : 'radio-button-off'} 
+                        size={24} 
+                        color={chatSettings === 'off' ? theme.colors.secondary : theme.colors.textSecondary} 
+                      />
+                      <View style={styles.chatSettingText}>
+                        <Text style={styles.chatSettingLabel}>Turn Off</Text>
+                        <Text style={styles.chatSettingDescription}>Don't receive any chat requests</Text>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </>
             )}
           </View>
