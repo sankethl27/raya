@@ -356,12 +356,65 @@ export default function ChatScreen() {
           <Ionicons name="arrow-back" size={24} color={theme.colors.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{getOtherPartyName()}</Text>
-        <View style={styles.headerSpacer} />
+        
+        {/* 3-Dot Menu */}
+        <TouchableOpacity style={styles.menuButton} onPress={() => setShowMenu(!showMenu)}>
+          <Ionicons name="ellipsis-vertical" size={24} color={theme.colors.white} />
+        </TouchableOpacity>
       </LinearGradient>
+
+      {/* Menu Dropdown */}
+      {showMenu && (
+        <View style={styles.menuDropdown}>
+          <TouchableOpacity style={styles.menuItem} onPress={handleReport}>
+            <Ionicons name="flag" size={20} color={theme.colors.error} />
+            <Text style={styles.menuItemText}>Report User</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.menuItem} onPress={handleBlock}>
+            <Ionicons name="ban" size={20} color={theme.colors.error} />
+            <Text style={styles.menuItemText}>Block User</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <Text style={styles.monitoringNotice}>
         🔒 This chat is monitored for security and safety purposes
       </Text>
+
+      {/* Collaboration Section */}
+      {collaboration ? (
+        <View style={styles.collaborationBanner}>
+          {collaboration.participant1_approved && collaboration.participant2_approved ? (
+            <View style={styles.collaborationApproved}>
+              <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
+              <Text style={styles.collaborationText}>
+                ✨ Collaboration approved! Will be shared on Raaya.
+              </Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.collaborationPending}
+              onPress={handleApproveCollaboration}
+            >
+              <Ionicons name="people" size={20} color={theme.colors.secondary} />
+              <Text style={styles.collaborationText}>
+                {(user?.id === collaboration.participant1_id && collaboration.participant1_approved) ||
+                 (user?.id === collaboration.participant2_id && collaboration.participant2_approved)
+                  ? '⏳ Waiting for other party to approve collaboration'
+                  : '✋ Tap to approve collaboration'}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={styles.proposeCollaborationButton}
+          onPress={handleProposeCollaboration}
+        >
+          <Ionicons name="add-circle-outline" size={18} color={theme.colors.secondary} />
+          <Text style={styles.proposeCollaborationText}>Mark as Successful Collaboration</Text>
+        </TouchableOpacity>
+      )}
 
       <FlatList
         ref={flatListRef}
