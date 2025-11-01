@@ -36,6 +36,7 @@ export default function ChatScreen() {
   useEffect(() => {
     fetchChatRoom();
     fetchMessages();
+    fetchCollaboration();
     initializeSocket();
 
     // Poll for new messages every 3 seconds
