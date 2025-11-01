@@ -772,4 +772,51 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.colors.primaryDark,
   },
+  chatSettingsContainer: {
+    marginTop: theme.spacing.xl,
+    padding: theme.spacing.lg,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  chatSettingsTitle: {
+    fontSize: theme.fontSize.lg,
+    fontFamily: theme.fonts.heading,
+    color: theme.colors.text,
+    marginBottom: theme.spacing.xs,
+  },
+  chatSettingsSubtitle: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+    marginBottom: theme.spacing.lg,
+  },
+  chatSettingOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background,
+    marginBottom: theme.spacing.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  chatSettingActive: {
+    borderColor: theme.colors.secondary,
+    backgroundColor: 'rgba(212, 175, 55, 0.08)',
+  },
+  chatSettingText: {
+    flex: 1,
+  },
+  chatSettingLabel: {
+    fontSize: theme.fontSize.md,
+    fontWeight: '600',
+    color: theme.colors.text,
+    marginBottom: 2,
+  },
+  chatSettingDescription: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+  },
 });
