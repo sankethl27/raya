@@ -114,6 +114,7 @@ export default function RegisterScreen() {
           <View style={styles.form}>
             <Text style={styles.sectionTitle}>Select Account Type</Text>
             <View style={styles.userTypeContainer}>
+              {/* Artist Card */}
               <TouchableOpacity
                 style={[
                   styles.userTypeCard,
@@ -121,21 +122,27 @@ export default function RegisterScreen() {
                 ]}
                 onPress={() => setUserType('artist')}
               >
-                <Ionicons
-                  name="brush"
-                  size={32}
-                  color={userType === 'artist' ? theme.colors.secondary : theme.colors.textSecondary}
-                />
-                <Text
-                  style={[
-                    styles.userTypeText,
-                    userType === 'artist' && styles.userTypeTextSelected,
-                  ]}
-                >
-                  Artist
+                <View style={styles.userTypeHeader}>
+                  <Ionicons
+                    name="brush"
+                    size={28}
+                    color={userType === 'artist' ? theme.colors.secondary : theme.colors.textSecondary}
+                  />
+                  <Text
+                    style={[
+                      styles.userTypeTitle,
+                      userType === 'artist' && styles.userTypeTitleSelected,
+                    ]}
+                  >
+                    🎨 Artists
+                  </Text>
+                </View>
+                <Text style={styles.userTypeDescription}>
+                  {userTypeDescriptions.artist}
                 </Text>
               </TouchableOpacity>
 
+              {/* Partner Card */}
               <TouchableOpacity
                 style={[
                   styles.userTypeCard,
@@ -143,21 +150,27 @@ export default function RegisterScreen() {
                 ]}
                 onPress={() => setUserType('partner')}
               >
-                <Ionicons
-                  name="briefcase"
-                  size={32}
-                  color={userType === 'partner' ? theme.colors.secondary : theme.colors.textSecondary}
-                />
-                <Text
-                  style={[
-                    styles.userTypeText,
-                    userType === 'partner' && styles.userTypeTextSelected,
-                  ]}
-                >
-                  Partner
+                <View style={styles.userTypeHeader}>
+                  <Ionicons
+                    name="briefcase"
+                    size={28}
+                    color={userType === 'partner' ? theme.colors.secondary : theme.colors.textSecondary}
+                  />
+                  <Text
+                    style={[
+                      styles.userTypeTitle,
+                      userType === 'partner' && styles.userTypeTitleSelected,
+                    ]}
+                  >
+                    🟢 Partners
+                  </Text>
+                </View>
+                <Text style={styles.userTypeDescription}>
+                  {userTypeDescriptions.partner}
                 </Text>
               </TouchableOpacity>
 
+              {/* Host Card (formerly Venue) */}
               <TouchableOpacity
                 style={[
                   styles.userTypeCard,
@@ -165,18 +178,23 @@ export default function RegisterScreen() {
                 ]}
                 onPress={() => setUserType('venue')}
               >
-                <Ionicons
-                  name="location"
-                  size={32}
-                  color={userType === 'venue' ? theme.colors.secondary : theme.colors.textSecondary}
-                />
-                <Text
-                  style={[
-                    styles.userTypeText,
-                    userType === 'venue' && styles.userTypeTextSelected,
-                  ]}
-                >
-                  Venue
+                <View style={styles.userTypeHeader}>
+                  <Ionicons
+                    name="calendar"
+                    size={28}
+                    color={userType === 'venue' ? theme.colors.secondary : theme.colors.textSecondary}
+                  />
+                  <Text
+                    style={[
+                      styles.userTypeTitle,
+                      userType === 'venue' && styles.userTypeTitleSelected,
+                    ]}
+                  >
+                    🟡 Hosts
+                  </Text>
+                </View>
+                <Text style={styles.userTypeDescription}>
+                  {userTypeDescriptions.venue}
                 </Text>
               </TouchableOpacity>
             </View>
