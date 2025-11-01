@@ -19,6 +19,38 @@ const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 export default function ProfileScreen() {
   const { user, profile, logout, token } = useAuth();
   const router = useRouter();
+  const [chatSettings, setChatSettings] = React.useState<string>('all');
+
+  React.useEffect(() => {
+    if (user?.user_type === 'partner') {
+      fetchChatSettings();
+    }
+  }, []);
+
+  const fetchChatSettings = async () => {
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/users/chat-settings`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setChatSettings(response.data.chat_settings);
+    } catch (error) {
+      console.log('Error fetching chat settings:', error);
+    }
+  };
+
+  const updateChatSettings = async (setting: string) => {
+    try {
+      await axios.patch(
+        `${BACKEND_URL}/api/users/chat-settings`,
+        { chat_settings: setting },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setChatSettings(setting);
+      Alert.alert('Success', 'Chat settings updated');
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to update settings');
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(
