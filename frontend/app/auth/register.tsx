@@ -319,22 +319,41 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.sm,
   },
   userTypeContainer: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    marginBottom: theme.spacing.md,
+    flexDirection: 'column',
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
   },
   userTypeCard: {
-    flex: 1,
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
-    alignItems: 'center',
+    padding: theme.spacing.lg,
     borderWidth: 2,
     borderColor: theme.colors.border,
   },
   userTypeCardSelected: {
     borderColor: theme.colors.secondary,
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    backgroundColor: 'rgba(255, 215, 0, 0.08)',
+  },
+  userTypeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
+  },
+  userTypeTitle: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSize.lg,
+    fontFamily: theme.fonts.bodyBold,
+    fontWeight: '700',
+  },
+  userTypeTitleSelected: {
+    color: theme.colors.secondary,
+  },
+  userTypeDescription: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSize.sm,
+    lineHeight: 20,
+    opacity: 0.8,
   },
   userTypeText: {
     color: theme.colors.textSecondary,
