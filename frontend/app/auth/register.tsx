@@ -28,6 +28,12 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
+  const userTypeDescriptions = {
+    artist: "You're an Artist if you love performing, creating, or showcasing your talent — and want to connect with hosts, brands, or communities for gigs and collaborations.",
+    partner: "You're a Partner if you run a venue, brand, or creative space — like a café, restaurant, clothing label, or beverage brand — and want to collaborate with artists or other brands to host unique events and experiences.",
+    venue: "You're a Host if you're planning a private, corporate, or community event and want to hire artists to make it unforgettable.",
+  };
+
   const handleSendOTP = async () => {
     if (!email || !password || !confirmPassword || !userType) {
       Alert.alert('Error', 'Please fill in all fields');
