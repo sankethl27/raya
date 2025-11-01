@@ -964,7 +964,18 @@ async def send_message(message_data: dict, current_user: dict = Depends(get_curr
     if not room:
         raise HTTPException(status_code=404, detail="Chat room not found")
     
-    if room["venue_user_id"] != current_user["id"] and room["provider_user_id"] != current_user["id"]:
+    # Check if user is authorized for this chat
+    is_authorized = False
+    
+    # Artist-to-artist or partner-to-partner chat
+    if room.get("chat_type") in ["artist_artist", "partner_partner"]:
+        if current_user["id"] in [room.get("participant1_id"), room.get("participant2_id")]:
+            is_authorized = True
+    # Venue chat
+    elif room.get("venue_user_id") == current_user["id"] or room.get("provider_user_id") == current_user["id"]:
+        is_authorized = True
+    
+    if not is_authorized:
         raise HTTPException(status_code=403, detail="Not authorized")
     
     # Create new message
