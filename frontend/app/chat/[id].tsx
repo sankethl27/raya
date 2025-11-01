@@ -28,6 +28,8 @@ export default function ChatScreen() {
   const [inputText, setInputText] = useState('');
   const [roomInfo, setRoomInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
+  const [collaboration, setCollaboration] = useState<any>(null);
   const socketRef = useRef<any>(null);
   const flatListRef = useRef<any>(null);
 
