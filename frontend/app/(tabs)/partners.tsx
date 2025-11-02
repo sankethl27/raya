@@ -136,10 +136,24 @@ export default function PartnersScreen() {
           </View>
         </View>
         
-        <Ionicons name="chevron-forward" size={24} color={theme.colors.textSecondary} />
+        {/* Show Chat button for artists and partners viewing other partners */}
+        {(isArtist || isPartner) && !isMyProfile ? (
+          <TouchableOpacity
+            style={styles.chatButton}
+            onPress={(e) => {
+              e.stopPropagation();
+              handleChatPress(item.user_id);
+            }}
+          >
+            <Ionicons name="chatbubbles" size={20} color="#B8A5E3" />
+          </TouchableOpacity>
+        ) : (
+          <Ionicons name="chevron-forward" size={24} color={theme.colors.textSecondary} />
+        )}
       </View>
     </TouchableOpacity>
   );
+};
 
   return (
     <View style={styles.container}>
