@@ -72,11 +72,36 @@ export default function PartnersScreen() {
     setRefreshing(false);
   };
 
-  const renderPartner = ({ item }: any) => (
-    <TouchableOpacity
-      style={styles.partnerCard}
-      onPress={() => router.push(`/partner/${item.id}`)}
-    >
+  const handleChatPress = async (partnerUserId: string) => {
+    if (!token) {
+      Alert.alert('Login Required', 'Please login to chat');
+      return;
+    }
+
+    try {
+      // Create or get chat room
+      const response = await axios.post(
+        `${BACKEND_URL}/api/chat/room`,
+        { other_partner_id: partnerUserId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      router.push(`/chat/${response.data.id}`);
+    } catch (error: any) {
+      console.error('Error creating chat:', error);
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to start chat');
+    }
+  };
+
+  const renderPartner = ({ item }: any) => {
+    const isMyProfile = user?.id && item.user_id === user?.id;
+    
+    return (
+      <TouchableOpacity
+        style={styles.partnerCard}
+        onPress={() => router.push(`/partner/${item.id}`)}
+        disabled={isMyProfile}
+      >
       {item.is_featured && (
         <View style={styles.featuredBadge}>
           <Ionicons name="star" size={12} color={theme.colors.primaryDark} />
