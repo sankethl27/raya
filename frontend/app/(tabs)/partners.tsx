@@ -8,21 +8,27 @@ import {
   TextInput,
   RefreshControl,
   Image,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '../../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from '../../contexts/AuthContext';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
 export default function PartnersScreen() {
+  const { user, token } = useAuth();
   const [partners, setPartners] = useState([]);
   const [filteredPartners, setFilteredPartners] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
+
+  const isArtist = user?.user_type === 'artist';
+  const isPartner = user?.user_type === 'partner';
 
   useEffect(() => {
     fetchPartners();
