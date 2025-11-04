@@ -79,10 +79,20 @@ export default function PartnersScreen() {
     }
 
     try {
-      // Create or get chat room
+      // Determine the chat type based on current user
+      let chatData = {};
+      
+      if (isPartner) {
+        // Partner chatting with partner
+        chatData = { other_partner_id: partnerUserId };
+      } else if (isArtist) {
+        // Artist chatting with partner (cross-type)
+        chatData = { provider_user_id: partnerUserId, provider_type: 'partner' };
+      }
+      
       const response = await axios.post(
         `${BACKEND_URL}/api/chat/room`,
-        { other_partner_id: partnerUserId },
+        chatData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
