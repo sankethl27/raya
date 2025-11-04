@@ -262,8 +262,8 @@ export default function ArtistsScreen() {
             )}
           </View>
           
-          {/* Show Chat button only for artists viewing other artists */}
-          {isArtist && !isMyProfile ? (
+          {/* Show Chat button for artists viewing other artists AND partners viewing artists */}
+          {(isArtist || isPartner) && !isMyProfile ? (
             <TouchableOpacity
               style={styles.chatButton}
               onPress={(e) => {
