@@ -790,6 +790,16 @@ async def create_chat_room(data: dict, current_user: dict = Depends(get_current_
     
     # Partner-to-partner chat
     if current_user["user_type"] == "partner" and other_partner_id:
+        # Check partner's chat settings
+        partner_user = await db.users.find_one({"id": other_partner_id})
+        if partner_user:
+            chat_settings = partner_user.get("partner_chat_settings", "all")
+            if chat_settings == "off":
+                raise HTTPException(status_code=403, detail="This partner has chat turned off")
+            elif chat_settings == "partners_only":
+                # Allow only if current user is also a partner (which they are)
+                pass
+        
         # Check if room already exists (either direction)
         existing_room = await db.chat_rooms.find_one({
             "$or": [
@@ -812,29 +822,53 @@ async def create_chat_room(data: dict, current_user: dict = Depends(get_current_
         await db.chat_rooms.insert_one(room.dict())
         return room.dict()
     
-    # Venue chat (existing logic)
-    if current_user["user_type"] != "venue":
-        raise HTTPException(status_code=403, detail="Only venues, artists, and partners can start chats")
+    # Cross-type chats: Artist <-> Partner or Partner <-> Artist
+    # When frontend sends provider_user_id and provider_type
+    if provider_user_id and provider_type:
+        # Determine the other party's user type
+        other_user = await db.users.find_one({"id": provider_user_id})
+        if not other_user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        other_user_type = other_user["user_type"]
+        
+        # Check if partner has chat settings restrictions
+        if other_user_type == "partner":
+            chat_settings = other_user.get("partner_chat_settings", "all")
+            if chat_settings == "off":
+                raise HTTPException(status_code=403, detail="This partner has chat turned off")
+            elif chat_settings == "partners_only" and current_user["user_type"] != "partner":
+                raise HTTPException(status_code=403, detail="This partner only accepts chats from other partners")
+        
+        # For cross-type, use venue chat model (provider_user_id/venue_user_id)
+        # Check existing room (handle both directions for artist-partner chats)
+        existing_room = await db.chat_rooms.find_one({
+            "$or": [
+                {"venue_user_id": current_user["id"], "provider_user_id": provider_user_id},
+                {"venue_user_id": provider_user_id, "provider_user_id": current_user["id"]}
+            ]
+        })
+        
+        if existing_room:
+            existing_room.pop("_id", None)
+            return existing_room
+        
+        # Create new cross-type room
+        chat_type = f"venue_{provider_type}" if current_user["user_type"] == "venue" else "cross_type"
+        room = ChatRoom(
+            venue_user_id=current_user["id"],
+            provider_user_id=provider_user_id,
+            provider_type=provider_type,
+            chat_type=chat_type
+        )
+        await db.chat_rooms.insert_one(room.dict())
+        return room.dict()
     
-    # Check if room already exists
-    existing_room = await db.chat_rooms.find_one({
-        "venue_user_id": current_user["id"],
-        "provider_user_id": provider_user_id
-    })
+    # Venue chat (existing logic for venues only)
+    if current_user["user_type"] == "venue":
+        raise HTTPException(status_code=400, detail="Missing provider_user_id and provider_type")
     
-    if existing_room:
-        existing_room.pop("_id", None)
-        return existing_room
-    
-    # Create new room
-    room = ChatRoom(
-        venue_user_id=current_user["id"],
-        provider_user_id=provider_user_id,
-        provider_type=provider_type,
-        chat_type=f"venue_{provider_type}"  # "venue_artist" or "venue_partner"
-    )
-    await db.chat_rooms.insert_one(room.dict())
-    return room.dict()
+    raise HTTPException(status_code=403, detail="Invalid chat request")
 
 @api_router.get("/chat/rooms")
 async def get_chat_rooms(current_user: dict = Depends(get_current_user)):
