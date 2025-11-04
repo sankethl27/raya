@@ -40,6 +40,7 @@ export default function ArtistsScreen() {
   
   const router = useRouter();
   const isArtist = user?.user_type === 'artist';
+  const isPartner = user?.user_type === 'partner';
 
   useEffect(() => {
     fetchArtists();
