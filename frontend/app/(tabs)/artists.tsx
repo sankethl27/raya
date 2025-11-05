@@ -761,6 +761,32 @@ const styles = StyleSheet.create({
   locationChipButtonTextActive: {
     color: theme.colors.primaryDark,
   },
+  filterSubLabel: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+    marginTop: theme.spacing.xs,
+    marginBottom: theme.spacing.md,
+  },
+  filterCalendar: {
+    borderRadius: theme.borderRadius.lg,
+    marginTop: theme.spacing.sm,
+  },
+  selectedDateInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    backgroundColor: 'rgba(0, 200, 100, 0.1)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    marginTop: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.success,
+  },
+  selectedDateText: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.success,
+    fontWeight: '600',
+  },
   checkboxRow: {
     flexDirection: 'row',
     alignItems: 'center',
