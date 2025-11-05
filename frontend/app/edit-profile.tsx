@@ -160,38 +160,6 @@ export default function EditProfileScreen() {
     setMediaGallery(mediaGallery.filter((_, i) => i !== index));
   };
 
-  const addAvailabilityDay = () => {
-    setAvailability([...availability, { day: 'Monday', time_slots: ['9:00 AM - 12:00 PM'] }]);
-  };
-
-  const removeAvailabilityDay = (index: number) => {
-    setAvailability(availability.filter((_, i) => i !== index));
-  };
-
-  const updateAvailabilityDay = (index: number, day: string) => {
-    const updated = [...availability];
-    updated[index].day = day;
-    setAvailability(updated);
-  };
-
-  const addTimeSlot = (dayIndex: number) => {
-    const updated = [...availability];
-    updated[dayIndex].time_slots.push('12:00 PM - 3:00 PM');
-    setAvailability(updated);
-  };
-
-  const removeTimeSlot = (dayIndex: number, slotIndex: number) => {
-    const updated = [...availability];
-    updated[dayIndex].time_slots = updated[dayIndex].time_slots.filter((_: any, i: number) => i !== slotIndex);
-    setAvailability(updated);
-  };
-
-  const updateTimeSlot = (dayIndex: number, slotIndex: number, value: string) => {
-    const updated = [...availability];
-    updated[dayIndex].time_slots[slotIndex] = value;
-    setAvailability(updated);
-  };
-
   const handleSave = async () => {
     setLoading(true);
     try {
