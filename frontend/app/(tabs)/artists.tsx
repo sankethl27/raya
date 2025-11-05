@@ -19,6 +19,7 @@ import axios from 'axios';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
 import { ArtistProModal } from '../../components/ArtistProModal';
+import { Calendar } from 'react-native-calendars';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
