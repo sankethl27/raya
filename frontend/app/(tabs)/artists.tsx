@@ -38,6 +38,7 @@ export default function ArtistsScreen() {
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedArtType, setSelectedArtType] = useState<string | null>(null);
   const [availableOnly, setAvailableOnly] = useState(false);
+  const [selectedAvailabilityDate, setSelectedAvailabilityDate] = useState<string | null>(null);
   
   const router = useRouter();
   const isArtist = user?.user_type === 'artist';
