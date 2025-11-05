@@ -104,8 +104,8 @@ class Token(BaseModel):
     user_id: str
 
 class Availability(BaseModel):
-    day: str  # Monday, Tuesday, etc.
-    time_slots: List[str]  # ["10:00 AM - 2:00 PM", "6:00 PM - 10:00 PM"]
+    date: str  # Format: "YYYY-MM-DD"
+    is_available: bool = True  # True = available, False = blocked/unavailable
 
 class PricingInfo(BaseModel):
     price_per_hour: Optional[float] = None  # None means "for promotion"
