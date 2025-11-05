@@ -875,21 +875,23 @@ async def get_chat_rooms(current_user: dict = Depends(get_current_user)):
     if current_user["user_type"] == "venue":
         rooms = await db.chat_rooms.find({"venue_user_id": current_user["id"]}).to_list(1000)
     elif current_user["user_type"] == "artist":
-        # Get both venue chats and artist-to-artist chats
+        # Get venue chats, artist-to-artist chats, AND cross-type chats
         rooms = await db.chat_rooms.find({
             "$or": [
                 {"provider_user_id": current_user["id"]},  # Venue chats as provider
                 {"participant1_id": current_user["id"]},   # Artist-to-artist chats
-                {"participant2_id": current_user["id"]}    # Artist-to-artist chats
+                {"participant2_id": current_user["id"]},   # Artist-to-artist chats
+                {"venue_user_id": current_user["id"]}      # Cross-type chats (artist as initiator)
             ]
         }).to_list(1000)
     elif current_user["user_type"] == "partner":
-        # Get both venue chats and partner-to-partner chats
+        # Get venue chats, partner-to-partner chats, AND cross-type chats
         rooms = await db.chat_rooms.find({
             "$or": [
-                {"provider_user_id": current_user["id"]},  # Venue chats as provider
+                {"provider_user_id": current_user["id"]},  # Venue/cross-type chats as provider
                 {"participant1_id": current_user["id"]},   # Partner-to-partner chats
-                {"participant2_id": current_user["id"]}    # Partner-to-partner chats
+                {"participant2_id": current_user["id"]},   # Partner-to-partner chats
+                {"venue_user_id": current_user["id"]}      # Cross-type chats (partner as initiator)
             ]
         }).to_list(1000)
     else:
@@ -924,12 +926,25 @@ async def get_chat_rooms(current_user: dict = Depends(get_current_user)):
                 partner2_profile.pop("_id", None)
                 room["partner2_profile"] = partner2_profile
         else:
-            # Venue chat (existing logic)
-            # Get venue profile
-            venue_profile = await db.venue_profiles.find_one({"user_id": room.get("venue_user_id")})
-            if venue_profile:
-                venue_profile.pop("_id", None)
-                room["venue_profile"] = venue_profile
+            # Venue chat or cross-type chat (existing logic)
+            # Get venue/initiator user
+            venue_user_id = room.get("venue_user_id")
+            if venue_user_id:
+                venue_user = await db.users.find_one({"id": venue_user_id})
+                if venue_user and venue_user["user_type"] == "venue":
+                    venue_profile = await db.venue_profiles.find_one({"user_id": venue_user_id})
+                    if venue_profile:
+                        venue_profile.pop("_id", None)
+                        room["venue_profile"] = venue_profile
+                else:
+                    # Initiator is artist or partner (cross-type chat)
+                    if venue_user["user_type"] == "artist":
+                        initiator_profile = await db.artist_profiles.find_one({"user_id": venue_user_id})
+                    else:
+                        initiator_profile = await db.partner_profiles.find_one({"user_id": venue_user_id})
+                    if initiator_profile:
+                        initiator_profile.pop("_id", None)
+                        room["initiator_profile"] = initiator_profile
             
             # Get provider profile
             if room.get("provider_type") == "artist":
