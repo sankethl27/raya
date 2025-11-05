@@ -179,10 +179,11 @@ export default function ArtistsScreen() {
       );
     }
     
-    // Availability filter
-    if (availableOnly) {
+    // Availability date filter
+    if (selectedAvailabilityDate) {
       filtered = filtered.filter((artist: any) => 
-        artist.availability && artist.availability.length > 0
+        artist.availability && 
+        artist.availability.some((av: any) => av.date === selectedAvailabilityDate && av.is_available)
       );
     }
     
@@ -194,6 +195,7 @@ export default function ArtistsScreen() {
     setSelectedLocation(null);
     setSelectedArtType(null);
     setAvailableOnly(false);
+    setSelectedAvailabilityDate(null);
     setSearchQuery('');
   };
 
