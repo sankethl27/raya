@@ -306,9 +306,8 @@ export default function ProfileScreen() {
                       await axios.post(`${BACKEND_URL}/api/profile/unpause`, {}, {
                         headers: { Authorization: `Bearer ${token}` },
                       });
-                      Alert.alert('Success', 'Profile is now visible again!', [
-                        { text: 'OK', onPress: () => router.replace('/(tabs)/profile') }
-                      ]);
+                      await refreshProfile();
+                      Alert.alert('Success', 'Profile is now visible again!');
                     } catch (error) {
                       Alert.alert('Error', 'Failed to unpause profile');
                     }
@@ -334,9 +333,8 @@ export default function ProfileScreen() {
                               await axios.post(`${BACKEND_URL}/api/profile/pause`, {}, {
                                 headers: { Authorization: `Bearer ${token}` },
                               });
-                              Alert.alert('Success', 'Profile paused', [
-                                { text: 'OK', onPress: () => router.replace('/(tabs)/profile') }
-                              ]);
+                              await refreshProfile();
+                              Alert.alert('Success', 'Profile paused');
                             } catch (error) {
                               Alert.alert('Error', 'Failed to pause profile');
                             }
