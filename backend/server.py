@@ -2065,15 +2065,6 @@ async def pause_profile(current_user: dict = Depends(get_current_user)):
     )
     return {"message": "Profile paused successfully"}
 
-@api_router.post("/profile/unpause")
-async def unpause_profile(current_user: dict = Depends(get_current_user)):
-    """Unpause profile - visible again to venues"""
-    await db.users.update_one(
-        {"id": current_user["id"]},
-        {"$set": {"is_paused": False}}
-    )
-    return {"message": "Profile unpaused successfully"}
-
 @api_router.delete("/profile/delete")
 async def delete_profile(current_user: dict = Depends(get_current_user)):
     """Permanently delete user profile and all associated data"""
