@@ -306,13 +306,25 @@ export default function ChatScreen() {
       return otherPartner?.brand_name || 'Partner';
     }
     
-    // Venue chat
+    // Cross-type or venue chat
     if (user?.user_type === 'venue') {
       const profile = roomInfo.provider_profile;
       return profile?.stage_name || profile?.brand_name || 'Provider';
     } else {
-      const profile = roomInfo.venue_profile;
-      return profile?.venue_name || 'Venue';
+      // Check if cross-type chat where user is initiator
+      if (roomInfo.venue_user_id === user?.id) {
+        // User initiated chat
+        const profile = roomInfo.provider_profile;
+        return profile?.stage_name || profile?.brand_name || 'User';
+      } else if (roomInfo.provider_user_id === user?.id) {
+        // User received chat from artist/partner  
+        const profile = roomInfo.initiator_profile;
+        return profile?.stage_name || profile?.brand_name || 'User';
+      } else {
+        // Standard venue chat
+        const profile = roomInfo.venue_profile;
+        return profile?.venue_name || 'Venue';
+      }
     }
   };
 
