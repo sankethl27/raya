@@ -59,7 +59,22 @@ export default function EditProfileScreen() {
         setStageName(profile.stage_name || '');
         setArtType(profile.art_type || '');
         setExperienceGigs(profile.experience_gigs?.toString() || '0');
-        setAvailability(profile.availability || []);
+        
+        // Convert availability array to calendar marked dates
+        const availabilityArray = profile.availability || [];
+        setAvailability(availabilityArray);
+        
+        const markedDates: any = {};
+        availabilityArray.forEach((item: any) => {
+          if (item.date && item.is_available) {
+            markedDates[item.date] = {
+              selected: true,
+              selectedColor: theme.colors.success,
+            };
+          }
+        });
+        setSelectedDates(markedDates);
+        
         setLocations(profile.locations || []);
         setPressKit(profile.press_kit || '');
         setMediaGallery(profile.media_gallery || []);
@@ -72,6 +87,30 @@ export default function EditProfileScreen() {
       }
     }
   }, [profile, user]);
+
+  const toggleDateAvailability = (dateString: string) => {
+    const newSelectedDates = { ...selectedDates };
+    
+    if (newSelectedDates[dateString]) {
+      // Remove date
+      delete newSelectedDates[dateString];
+    } else {
+      // Add date
+      newSelectedDates[dateString] = {
+        selected: true,
+        selectedColor: theme.colors.success,
+      };
+    }
+    
+    setSelectedDates(newSelectedDates);
+    
+    // Convert to availability array
+    const availabilityArray = Object.keys(newSelectedDates).map(date => ({
+      date,
+      is_available: true,
+    }));
+    setAvailability(availabilityArray);
+  };
 
   const pickMedia = async () => {
     try {
