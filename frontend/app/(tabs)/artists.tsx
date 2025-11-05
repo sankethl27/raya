@@ -409,16 +409,56 @@ export default function ArtistsScreen() {
                 ))}
               </ScrollView>
               
-              {/* Availability Filter */}
-              <TouchableOpacity
-                style={styles.checkboxRow}
-                onPress={() => setAvailableOnly(!availableOnly)}
-              >
-                <View style={[styles.checkbox, availableOnly && styles.checkboxActive]}>
-                  {availableOnly && <Ionicons name="checkmark" size={18} color={theme.colors.primaryDark} />}
+              {/* Availability Date Filter */}
+              <Text style={styles.filterLabel}>Filter by Availability Date</Text>
+              <Text style={styles.filterSubLabel}>Select a date to see artists available on that day</Text>
+              
+              <Calendar
+                markedDates={
+                  selectedAvailabilityDate 
+                    ? { 
+                        [selectedAvailabilityDate]: { 
+                          selected: true, 
+                          selectedColor: theme.colors.success 
+                        } 
+                      }
+                    : {}
+                }
+                onDayPress={(day) => {
+                  if (selectedAvailabilityDate === day.dateString) {
+                    setSelectedAvailabilityDate(null); // Deselect
+                  } else {
+                    setSelectedAvailabilityDate(day.dateString);
+                  }
+                }}
+                minDate={new Date().toISOString().split('T')[0]}
+                theme={{
+                  backgroundColor: theme.colors.surface,
+                  calendarBackground: theme.colors.surface,
+                  textSectionTitleColor: theme.colors.text,
+                  selectedDayBackgroundColor: theme.colors.success,
+                  selectedDayTextColor: theme.colors.white,
+                  todayTextColor: theme.colors.secondary,
+                  dayTextColor: theme.colors.text,
+                  textDisabledColor: theme.colors.textSecondary,
+                  monthTextColor: theme.colors.text,
+                  arrowColor: theme.colors.secondary,
+                }}
+                style={styles.filterCalendar}
+              />
+
+              {selectedAvailabilityDate && (
+                <View style={styles.selectedDateInfo}>
+                  <Ionicons name="calendar" size={16} color={theme.colors.success} />
+                  <Text style={styles.selectedDateText}>
+                    Filtering by: {new Date(selectedAvailabilityDate).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </Text>
                 </View>
-                <Text style={styles.checkboxLabel}>Show only available artists</Text>
-              </TouchableOpacity>
+              )}
             </ScrollView>
             
             <View style={styles.modalFooter}>
