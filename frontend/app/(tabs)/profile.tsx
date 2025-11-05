@@ -17,7 +17,7 @@ import axios from 'axios';
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
 export default function ProfileScreen() {
-  const { user, profile, logout, token } = useAuth();
+  const { user, profile, logout, token, refreshProfile } = useAuth();
   const router = useRouter();
   const [chatSettings, setChatSettings] = React.useState<string>('all');
 
