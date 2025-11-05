@@ -374,66 +374,6 @@ export default function EditProfileScreen() {
                   </View>
                 )}
               </View>
-                        <TouchableOpacity
-                          style={styles.dayButton}
-                          onPress={() => {
-                            const currentIndex = DAYS_OF_WEEK.indexOf(slot.day);
-                            const nextIndex = (currentIndex + 1) % DAYS_OF_WEEK.length;
-                            updateAvailabilityDay(dayIndex, DAYS_OF_WEEK[nextIndex]);
-                          }}
-                        >
-                          <Text style={styles.dayButtonText}>{slot.day}</Text>
-                          <Ionicons name="chevron-down" size={16} color={theme.colors.secondary} />
-                        </TouchableOpacity>
-                      </View>
-
-                      <TouchableOpacity
-                        style={styles.removeButton}
-                        onPress={() => removeAvailabilityDay(dayIndex)}
-                      >
-                        <Ionicons name="trash" size={20} color={theme.colors.error} />
-                      </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.timeSlotsContainer}>
-                      {slot.time_slots.map((timeSlot: string, slotIndex: number) => (
-                        <View key={slotIndex} style={styles.timeSlotRow}>
-                          <TextInput
-                            style={styles.timeSlotInput}
-                            value={timeSlot}
-                            onChangeText={(value) => updateTimeSlot(dayIndex, slotIndex, value)}
-                            placeholder="E.g., 9:00 AM - 12:00 PM"
-                            placeholderTextColor={theme.colors.textSecondary}
-                            editable={!loading}
-                          />
-                          <TouchableOpacity
-                            style={styles.removeSlotButton}
-                            onPress={() => removeTimeSlot(dayIndex, slotIndex)}
-                          >
-                            <Ionicons name="close-circle" size={20} color={theme.colors.textSecondary} />
-                          </TouchableOpacity>
-                        </View>
-                      ))}
-
-                      <TouchableOpacity
-                        style={styles.addSlotButton}
-                        onPress={() => addTimeSlot(dayIndex)}
-                      >
-                        <Ionicons name="add-circle" size={20} color={theme.colors.secondary} />
-                        <Text style={styles.addSlotText}>Add Time Slot</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ))}
-
-                <TouchableOpacity
-                  style={styles.addDayButton}
-                  onPress={addAvailabilityDay}
-                >
-                  <Ionicons name="add-circle" size={24} color={theme.colors.secondary} />
-                  <Text style={styles.addDayText}>Add Available Day</Text>
-                </TouchableOpacity>
-              </View>
               
               {/* LOCATIONS SECTION */}
               <View style={styles.locationsSection}>
