@@ -78,7 +78,7 @@ export default function MyChatsScreen() {
       };
     }
     
-    // Venue chat (existing logic)
+    // Venue chat or cross-type chat
     if (user?.user_type === 'venue') {
       const profile = room.provider_profile;
       return {
@@ -89,14 +89,38 @@ export default function MyChatsScreen() {
         isPartnerChat: false,
       };
     } else {
-      const profile = room.venue_profile;
-      return {
-        name: profile?.venue_name || 'Venue',
-        image: profile?.profile_image,
-        type: 'venue',
-        isArtistChat: false,
-        isPartnerChat: false,
-      };
+      // Check if it's a cross-type chat where user is the initiator (venue_user_id)
+      if (room.venue_user_id === user?.id) {
+        // User initiated chat with artist/partner
+        const profile = room.provider_profile;
+        return {
+          name: profile?.stage_name || profile?.brand_name || 'User',
+          image: profile?.profile_image,
+          type: room.provider_type,
+          isArtistChat: false,
+          isPartnerChat: false,
+        };
+      } else if (room.provider_user_id === user?.id) {
+        // User received chat from artist/partner
+        const profile = room.initiator_profile;
+        return {
+          name: profile?.stage_name || profile?.brand_name || 'User',
+          image: profile?.profile_image,
+          type: profile?.stage_name ? 'artist' : 'partner',
+          isArtistChat: false,
+          isPartnerChat: false,
+        };
+      } else {
+        // Standard venue chat
+        const profile = room.venue_profile;
+        return {
+          name: profile?.venue_name || 'Venue',
+          image: profile?.profile_image,
+          type: 'venue',
+          isArtistChat: false,
+          isPartnerChat: false,
+        };
+      }
     }
   };
 
