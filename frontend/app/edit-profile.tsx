@@ -934,4 +934,28 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginTop: theme.spacing.xs / 2,
   },
+  calendar: {
+    borderRadius: theme.borderRadius.lg,
+    marginTop: theme.spacing.md,
+  },
+  availabilitySubtitle: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+    marginTop: theme.spacing.xs,
+    marginBottom: theme.spacing.md,
+  },
+  selectedDatesInfo: {
+    backgroundColor: 'rgba(0, 200, 100, 0.1)',
+    padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    marginTop: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.success,
+  },
+  selectedDatesText: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.success,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
 });
