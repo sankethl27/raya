@@ -337,17 +337,43 @@ export default function EditProfileScreen() {
                 />
               </View>
 
-              {/* AVAILABILITY SECTION */}
+              {/* AVAILABILITY CALENDAR */}
               <View style={styles.availabilitySection}>
                 <View style={styles.availabilityHeader}>
                   <Ionicons name="calendar" size={24} color={theme.colors.secondary} />
-                  <Text style={styles.availabilityTitle}>Availability Schedule</Text>
+                  <Text style={styles.availabilityTitle}>Mark Your Available Dates</Text>
                 </View>
+                <Text style={styles.availabilitySubtitle}>
+                  Tap dates to mark when you're available for gigs
+                </Text>
 
-                {availability.map((slot, dayIndex) => (
-                  <View key={dayIndex} style={styles.availabilityCard}>
-                    <View style={styles.dayRow}>
-                      <View style={styles.daySelectContainer}>
+                <Calendar
+                  markedDates={selectedDates}
+                  onDayPress={(day) => toggleDateAvailability(day.dateString)}
+                  minDate={new Date().toISOString().split('T')[0]}
+                  theme={{
+                    backgroundColor: theme.colors.surface,
+                    calendarBackground: theme.colors.surface,
+                    textSectionTitleColor: theme.colors.text,
+                    selectedDayBackgroundColor: theme.colors.success,
+                    selectedDayTextColor: theme.colors.white,
+                    todayTextColor: theme.colors.secondary,
+                    dayTextColor: theme.colors.text,
+                    textDisabledColor: theme.colors.textSecondary,
+                    monthTextColor: theme.colors.text,
+                    arrowColor: theme.colors.secondary,
+                  }}
+                  style={styles.calendar}
+                />
+
+                {Object.keys(selectedDates).length > 0 && (
+                  <View style={styles.selectedDatesInfo}>
+                    <Text style={styles.selectedDatesText}>
+                      {Object.keys(selectedDates).length} date(s) marked as available
+                    </Text>
+                  </View>
+                )}
+              </View>
                         <TouchableOpacity
                           style={styles.dayButton}
                           onPress={() => {
