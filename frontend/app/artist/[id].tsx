@@ -395,22 +395,41 @@ export default function ArtistDetailScreen() {
               <Text style={styles.availabilityTitle}>Availability</Text>
             </View>
 
-            {artist.availability && artist.availability.length > 0 ? (
+            {artist?.availability && artist.availability.length > 0 ? (
               <View style={styles.availabilityGrid}>
                 {artist.availability.map((slot: any, index: number) => (
                   <View key={index} style={styles.availabilityCard}>
-                    <View style={styles.dayHeader}>
-                      <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
-                      <Text style={styles.dayName}>{slot.day}</Text>
-                    </View>
-                    <View style={styles.timeSlotsContainer}>
-                      {slot.time_slots.map((timeSlot: string, idx: number) => (
-                        <View key={idx} style={styles.timeSlot}>
-                          <Ionicons name="time" size={16} color={theme.colors.secondary} />
-                          <Text style={styles.timeSlotText}>{timeSlot}</Text>
+                    {slot.date ? (
+                      // New calendar format
+                      <View style={styles.dateAvailability}>
+                        <Ionicons name="calendar" size={20} color={theme.colors.success} />
+                        <Text style={styles.availabilityDate}>
+                          {new Date(slot.date).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </Text>
+                      </View>
+                    ) : (
+                      // Old day/time_slots format (backward compatibility)
+                      <>
+                        <View style={styles.dayHeader}>
+                          <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
+                          <Text style={styles.dayName}>{slot.day}</Text>
                         </View>
-                      ))}
-                    </View>
+                        {slot.time_slots && slot.time_slots.length > 0 && (
+                          <View style={styles.timeSlotsContainer}>
+                            {slot.time_slots.map((timeSlot: string, idx: number) => (
+                              <View key={idx} style={styles.timeSlot}>
+                                <Ionicons name="time" size={16} color={theme.colors.secondary} />
+                                <Text style={styles.timeSlotText}>{timeSlot}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        )}
+                      </>
+                    )}
                   </View>
                 ))}
               </View>
