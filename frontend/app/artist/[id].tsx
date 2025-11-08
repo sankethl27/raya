@@ -889,4 +889,14 @@ const styles = StyleSheet.create({
   artistChatButtonText: {
     color: '#B8A5E3',
   },
+  dateAvailability: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  availabilityDate: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.text,
+    fontWeight: '500',
+  },
 });
