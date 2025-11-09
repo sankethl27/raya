@@ -703,6 +703,15 @@ def main():
     test_wishlist()
     test_chat_rooms()
     
+    # Test NEW Razorpay Go Pro subscription endpoints
+    print("\n" + "="*60)
+    print("🎯 TESTING NEW RAZORPAY GO PRO SUBSCRIPTION ENDPOINTS")
+    print("="*60)
+    test_artist_subscription_endpoints()
+    test_partner_subscription_endpoints()
+    test_venue_subscription_endpoints()
+    test_universal_subscription_endpoint()
+    
     # Print final results
     success = results.summary()
     
