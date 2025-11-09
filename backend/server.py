@@ -212,7 +212,7 @@ class ArtistSubscription(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     artist_user_id: str
     subscription_type: str  # "free", "pro"
-    profile_views_remaining: int = 5  # 5 for free, unlimited for pro (-1)
+    profile_views_remaining: int = 10  # 10 for free, unlimited for pro (-1)
     subscription_status: str  # "active", "expired", "cancelled"
     razorpay_subscription_id: Optional[str] = None
     razorpay_payment_id: Optional[str] = None
