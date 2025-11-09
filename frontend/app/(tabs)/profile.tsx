@@ -29,7 +29,22 @@ export default function ProfileScreen() {
     if (user?.user_type === 'partner') {
       fetchChatSettings();
     }
+    if (user?.user_type === 'artist' || user?.user_type === 'partner' || user?.user_type === 'venue') {
+      fetchSubscription();
+    }
   }, []);
+
+  const fetchSubscription = async () => {
+    if (!token) return;
+    try {
+      const response = await axios.get(`${BACKEND_URL}/api/subscription/status`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSubscription(response.data);
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
+    }
+  };
 
   const fetchChatSettings = async () => {
     try {
