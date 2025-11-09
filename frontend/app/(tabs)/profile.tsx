@@ -13,6 +13,8 @@ import { theme } from '../../utils/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
+import { ArtistProModal } from '../../components/ArtistProModal';
+import { showPaymentOptions } from '../../services/paymentService';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
@@ -20,6 +22,8 @@ export default function ProfileScreen() {
   const { user, profile, logout, token, refreshProfile } = useAuth();
   const router = useRouter();
   const [chatSettings, setChatSettings] = React.useState<string>('all');
+  const [subscription, setSubscription] = React.useState<any>(null);
+  const [showProModal, setShowProModal] = React.useState(false);
 
   React.useEffect(() => {
     if (user?.user_type === 'partner') {
