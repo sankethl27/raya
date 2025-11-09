@@ -407,6 +407,283 @@ def test_chat_rooms():
         error_msg = response.text if response else "No response"
         results.failure("Get chat rooms", f"Status: {response.status_code if response else 'None'}")
 
+def test_artist_subscription_endpoints():
+    """Test Artist subscription endpoints for Razorpay Go Pro"""
+    print("\n🎨 Testing Artist Subscription Endpoints")
+    
+    if "artist" not in tokens:
+        results.failure("Artist subscription tests", "No artist token available")
+        return
+    
+    # Test 1: Initialize free subscription
+    response = make_request("POST", "/artist/subscription/initialize", auth_token=tokens["artist"])
+    if response and response.status_code == 200:
+        data = response.json()
+        if data.get('subscription_type') == 'free' and data.get('profile_views_remaining') == 10:
+            results.success("Artist initialize subscription")
+        else:
+            results.failure("Artist initialize subscription", f"Unexpected data: {data}")
+    else:
+        error_msg = response.text if response else "No response"
+        results.failure("Artist initialize subscription", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+    
+    # Test 2: Get subscription status
+    response = make_request("GET", "/artist/subscription/status", auth_token=tokens["artist"])
+    if response and response.status_code == 200:
+        data = response.json()
+        if 'subscription_type' in data and 'profile_views_remaining' in data:
+            results.success("Artist get subscription status")
+        else:
+            results.failure("Artist get subscription status", f"Missing required fields: {data}")
+    else:
+        error_msg = response.text if response else "No response"
+        results.failure("Artist get subscription status", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+    
+    # Test 3: Track profile views (test 10 views + 1 blocked)
+    views_working = True
+    for i in range(11):
+        view_data = {"profile_id": f"test_profile_{i}"}
+        response = make_request("POST", "/artist/subscription/track-view", view_data, auth_token=tokens["artist"])
+        if response and response.status_code == 200:
+            data = response.json()
+            if i < 10:  # First 10 should be allowed
+                if not data.get("allowed"):
+                    results.failure(f"Artist track view {i+1}", "View should be allowed but was blocked")
+                    views_working = False
+                    break
+            else:  # 11th view should be blocked
+                if data.get("allowed"):
+                    results.failure("Artist track view 11 (block test)", "11th view should be blocked but was allowed")
+                    views_working = False
+                    break
+        else:
+            error_msg = response.text if response else "No response"
+            results.failure(f"Artist track view {i+1}", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+            views_working = False
+            break
+    
+    if views_working:
+        results.success("Artist track views (free tier limit enforcement)")
+    
+    # Test 4: Create Razorpay order (test mode)
+    response = make_request("POST", "/artist/subscription/create-razorpay-order", auth_token=tokens["artist"])
+    order_id = None
+    if response and response.status_code == 200:
+        data = response.json()
+        if 'order_id' in data and data.get('amount') == 49900:
+            order_id = data['order_id']
+            results.success("Artist create Razorpay order")
+        else:
+            results.failure("Artist create Razorpay order", f"Unexpected order data: {data}")
+    else:
+        error_msg = response.text if response else "No response"
+        results.failure("Artist create Razorpay order", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+    
+    # Test 5: Verify payment (test mode)
+    if order_id:
+        payment_data = {
+            "razorpay_order_id": order_id,
+            "razorpay_payment_id": "test_payment_123",
+            "razorpay_signature": "test_signature_123"
+        }
+        response = make_request("POST", "/artist/subscription/verify-payment", payment_data, auth_token=tokens["artist"])
+        if response and response.status_code == 200:
+            data = response.json()
+            if 'message' in data and data.get('status') == 'active':
+                results.success("Artist verify payment")
+                
+                # Test 6: Verify Pro status after payment
+                response = make_request("GET", "/artist/subscription/status", auth_token=tokens["artist"])
+                if response and response.status_code == 200:
+                    data = response.json()
+                    if data.get('subscription_type') == 'pro' and data.get('profile_views_remaining') == -1:
+                        results.success("Artist Pro status verification")
+                        
+                        # Test 7: Test unlimited views after Pro upgrade
+                        view_data = {"profile_id": "test_pro_profile"}
+                        response = make_request("POST", "/artist/subscription/track-view", view_data, auth_token=tokens["artist"])
+                        if response and response.status_code == 200:
+                            data = response.json()
+                            if data.get("allowed") and data.get("views_remaining") == -1:
+                                results.success("Artist Pro unlimited views")
+                            else:
+                                results.failure("Artist Pro unlimited views", f"Expected unlimited views, got: {data}")
+                        else:
+                            error_msg = response.text if response else "No response"
+                            results.failure("Artist Pro unlimited views", f"Status: {response.status_code if response else 'None'}")
+                    else:
+                        results.failure("Artist Pro status verification", f"Expected Pro with unlimited views, got: {data}")
+                else:
+                    error_msg = response.text if response else "No response"
+                    results.failure("Artist Pro status verification", f"Status: {response.status_code if response else 'None'}")
+            else:
+                results.failure("Artist verify payment", f"Unexpected payment response: {data}")
+        else:
+            error_msg = response.text if response else "No response"
+            results.failure("Artist verify payment", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+
+def test_partner_subscription_endpoints():
+    """Test Partner subscription endpoints for Razorpay Go Pro"""
+    print("\n🤝 Testing Partner Subscription Endpoints")
+    
+    if "partner" not in tokens:
+        results.failure("Partner subscription tests", "No partner token available")
+        return
+    
+    # Test 1: Initialize free subscription
+    response = make_request("POST", "/partner/subscription/initialize", auth_token=tokens["partner"])
+    if response and response.status_code == 200:
+        data = response.json()
+        if data.get('subscription_type') == 'free' and data.get('profile_views_remaining') == 10:
+            results.success("Partner initialize subscription")
+        else:
+            results.failure("Partner initialize subscription", f"Unexpected data: {data}")
+    else:
+        error_msg = response.text if response else "No response"
+        results.failure("Partner initialize subscription", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+    
+    # Test 2: Get subscription status
+    response = make_request("GET", "/partner/subscription/status", auth_token=tokens["partner"])
+    if response and response.status_code == 200:
+        data = response.json()
+        if 'subscription_type' in data and 'profile_views_remaining' in data:
+            results.success("Partner get subscription status")
+        else:
+            results.failure("Partner get subscription status", f"Missing required fields: {data}")
+    else:
+        error_msg = response.text if response else "No response"
+        results.failure("Partner get subscription status", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+    
+    # Test 3: Track profile views (test 10 views + 1 blocked)
+    views_working = True
+    for i in range(11):
+        view_data = {"profile_id": f"test_partner_profile_{i}"}
+        response = make_request("POST", "/partner/subscription/track-view", view_data, auth_token=tokens["partner"])
+        if response and response.status_code == 200:
+            data = response.json()
+            if i < 10:  # First 10 should be allowed
+                if not data.get("allowed"):
+                    results.failure(f"Partner track view {i+1}", "View should be allowed but was blocked")
+                    views_working = False
+                    break
+            else:  # 11th view should be blocked
+                if data.get("allowed"):
+                    results.failure("Partner track view 11 (block test)", "11th view should be blocked but was allowed")
+                    views_working = False
+                    break
+        else:
+            error_msg = response.text if response else "No response"
+            results.failure(f"Partner track view {i+1}", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+            views_working = False
+            break
+    
+    if views_working:
+        results.success("Partner track views (free tier limit enforcement)")
+    
+    # Test 4: Create Razorpay order (test mode)
+    response = make_request("POST", "/partner/subscription/create-razorpay-order", auth_token=tokens["partner"])
+    order_id = None
+    if response and response.status_code == 200:
+        data = response.json()
+        if 'order_id' in data and data.get('amount') == 49900:
+            order_id = data['order_id']
+            results.success("Partner create Razorpay order")
+        else:
+            results.failure("Partner create Razorpay order", f"Unexpected order data: {data}")
+    else:
+        error_msg = response.text if response else "No response"
+        results.failure("Partner create Razorpay order", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+    
+    # Test 5: Verify payment (test mode)
+    if order_id:
+        payment_data = {
+            "razorpay_order_id": order_id,
+            "razorpay_payment_id": "test_payment_456",
+            "razorpay_signature": "test_signature_456"
+        }
+        response = make_request("POST", "/partner/subscription/verify-payment", payment_data, auth_token=tokens["partner"])
+        if response and response.status_code == 200:
+            data = response.json()
+            if 'message' in data and data.get('status') == 'active':
+                results.success("Partner verify payment")
+                
+                # Test 6: Verify Pro status after payment
+                response = make_request("GET", "/partner/subscription/status", auth_token=tokens["partner"])
+                if response and response.status_code == 200:
+                    data = response.json()
+                    if data.get('subscription_type') == 'pro' and data.get('profile_views_remaining') == -1:
+                        results.success("Partner Pro status verification")
+                    else:
+                        results.failure("Partner Pro status verification", f"Expected Pro with unlimited views, got: {data}")
+                else:
+                    error_msg = response.text if response else "No response"
+                    results.failure("Partner Pro status verification", f"Status: {response.status_code if response else 'None'}")
+            else:
+                results.failure("Partner verify payment", f"Unexpected payment response: {data}")
+        else:
+            error_msg = response.text if response else "No response"
+            results.failure("Partner verify payment", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+
+def test_venue_subscription_endpoints():
+    """Test Venue/Host subscription endpoints for Razorpay Go Pro"""
+    print("\n🏢 Testing Venue/Host Subscription Endpoints")
+    
+    if "venue" not in tokens:
+        results.failure("Venue subscription tests", "No venue token available")
+        return
+    
+    # Test 1: Create Razorpay order (test mode)
+    response = make_request("POST", "/venue/subscription/create-razorpay-order", auth_token=tokens["venue"])
+    order_id = None
+    if response and response.status_code == 200:
+        data = response.json()
+        if 'order_id' in data and data.get('amount') == 49900:
+            order_id = data['order_id']
+            results.success("Venue create Razorpay order")
+        else:
+            results.failure("Venue create Razorpay order", f"Unexpected order data: {data}")
+    else:
+        error_msg = response.text if response else "No response"
+        results.failure("Venue create Razorpay order", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+    
+    # Test 2: Verify payment (test mode)
+    if order_id:
+        payment_data = {
+            "razorpay_order_id": order_id,
+            "razorpay_payment_id": "test_payment_789",
+            "razorpay_signature": "test_signature_789"
+        }
+        response = make_request("POST", "/venue/subscription/verify-payment", payment_data, auth_token=tokens["venue"])
+        if response and response.status_code == 200:
+            data = response.json()
+            if 'message' in data and data.get('status') == 'active':
+                results.success("Venue verify payment")
+            else:
+                results.failure("Venue verify payment", f"Unexpected payment response: {data}")
+        else:
+            error_msg = response.text if response else "No response"
+            results.failure("Venue verify payment", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+
+def test_universal_subscription_endpoint():
+    """Test universal subscription status endpoint for all user types"""
+    print("\n🌐 Testing Universal Subscription Status Endpoint")
+    
+    for user_type in ["artist", "partner", "venue"]:
+        if user_type not in tokens:
+            results.failure(f"Universal subscription status - {user_type}", f"No {user_type} token available")
+            continue
+        
+        response = make_request("GET", "/subscription/status", auth_token=tokens[user_type])
+        if response and response.status_code == 200:
+            data = response.json()
+            if 'subscription_type' in data and 'profile_views_remaining' in data:
+                results.success(f"Universal subscription status - {user_type}")
+            else:
+                results.failure(f"Universal subscription status - {user_type}", f"Missing required fields: {data}")
+        else:
+            error_msg = response.text if response else "No response"
+            results.failure(f"Universal subscription status - {user_type}", f"Status: {response.status_code if response else 'None'}, Error: {error_msg}")
+
 def main():
     """Run all tests"""
     print("🚀 Starting Raya Backend API Tests")
