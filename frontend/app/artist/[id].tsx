@@ -708,6 +708,12 @@ const styles = StyleSheet.create({
     height: 360,
     borderRadius: theme.borderRadius.lg,
   },
+  mediaVideo: {
+    width: 280,
+    height: 360,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: theme.colors.background,
+  },
   videoPlaceholder: {
     width: 280,
     height: 360,
