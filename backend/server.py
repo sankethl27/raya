@@ -1438,7 +1438,7 @@ async def initialize_artist_subscription(current_user: dict = Depends(get_curren
         "id": str(uuid.uuid4()),
         "artist_user_id": current_user["id"],
         "subscription_type": "free",
-        "profile_views_remaining": 5,
+        "profile_views_remaining": 10,
         "subscription_status": "active",
         "created_at": datetime.utcnow()
     }
