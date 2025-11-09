@@ -786,15 +786,36 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.colors.secondary,
   },
-  availabilityGrid: {
-    gap: theme.spacing.md,
-  },
-  availabilityCard: {
+  calendarContainer: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.md,
-    borderWidth: 1,
-    borderColor: theme.colors.borderLight,
+    overflow: 'hidden',
+  },
+  calendar: {
+    borderRadius: theme.borderRadius.lg,
+  },
+  calendarLegend: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
+    gap: theme.spacing.lg,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+  legendDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  legendText: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+    fontWeight: '500',
   },
   dayHeader: {
     flexDirection: 'row',
