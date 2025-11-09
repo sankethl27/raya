@@ -105,6 +105,18 @@
 user_problem_statement: "Test the Raya mobile app backend APIs including authentication, artists, partners, reviews, wishlist, and chat endpoints"
 
 backend:
+  - task: "Razorpay Go Pro Payment Integration - Backend"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented complete subscription payment backend for all user types. Added models: PartnerSubscription, HostSubscription. Added is_partner_pro flag to User model. Created endpoints: POST /api/artist/subscription/create-razorpay-order, POST /api/artist/subscription/verify-payment, GET /api/artist/subscription/status, POST /api/artist/subscription/track-view (similar for partner and venue). Added universal GET /api/subscription/status endpoint. System works in test mode without Razorpay keys. Production requires RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in .env."
+
   - task: "Authentication - User Registration"
     implemented: true
     working: true
