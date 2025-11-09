@@ -1629,6 +1629,282 @@ async def verify_artist_pro_payment(data: dict, current_user: dict = Depends(get
     
     return {"message": "Payment verified and Artist Pro subscription activated", "status": "active"}
 
+# ==================== PARTNER SUBSCRIPTION ENDPOINTS ====================
+
+@api_router.post("/partner/subscription/create-razorpay-order")
+async def create_partner_pro_order(current_user: dict = Depends(get_current_user)):
+    """Create Razorpay order for Partner Pro subscription (₹499/month)"""
+    if current_user["user_type"] != "partner":
+        raise HTTPException(status_code=403, detail="Only partners can subscribe to Pro")
+    
+    amount = 49900  # ₹499 in paise
+    description = "Partner Pro - Monthly Subscription"
+    
+    if not razorpay_client:
+        # For testing without Razorpay keys
+        return {
+            "order_id": f"test_partner_pro_{uuid.uuid4()}",
+            "amount": amount,
+            "currency": "INR",
+            "test_mode": True
+        }
+    
+    # Create Razorpay order
+    order_data = {
+        "amount": amount,
+        "currency": "INR",
+        "receipt": f"partner_pro_{current_user['id']}_{datetime.utcnow().timestamp()}",
+        "notes": {
+            "partner_user_id": current_user["id"],
+            "subscription_type": "pro"
+        }
+    }
+    
+    order = razorpay_client.order.create(data=order_data)
+    return order
+
+@api_router.post("/partner/subscription/verify-payment")
+async def verify_partner_pro_payment(data: dict, current_user: dict = Depends(get_current_user)):
+    """Verify Razorpay payment and activate Partner Pro subscription"""
+    if current_user["user_type"] != "partner":
+        raise HTTPException(status_code=403, detail="Only partners can subscribe to Pro")
+    
+    razorpay_order_id = data.get("razorpay_order_id")
+    razorpay_payment_id = data.get("razorpay_payment_id")
+    razorpay_signature = data.get("razorpay_signature")
+    
+    # In test mode (no Razorpay keys), accept any payment
+    if not razorpay_client:
+        # Check if subscription exists
+        existing_sub = await db.partner_subscriptions.find_one({"partner_user_id": current_user["id"]})
+        
+        if existing_sub:
+            # Update existing subscription
+            await db.partner_subscriptions.update_one(
+                {"partner_user_id": current_user["id"]},
+                {
+                    "$set": {
+                        "subscription_type": "pro",
+                        "profile_views_remaining": -1,  # Unlimited
+                        "subscription_status": "active",
+                        "subscription_start": datetime.utcnow(),
+                        "subscription_end": datetime.utcnow() + timedelta(days=30),
+                        "amount_paid": 499.0
+                    }
+                }
+            )
+        else:
+            # Create new subscription
+            new_sub = {
+                "id": str(uuid.uuid4()),
+                "partner_user_id": current_user["id"],
+                "subscription_type": "pro",
+                "profile_views_remaining": -1,
+                "subscription_status": "active",
+                "subscription_start": datetime.utcnow(),
+                "subscription_end": datetime.utcnow() + timedelta(days=30),
+                "amount_paid": 499.0,
+                "created_at": datetime.utcnow()
+            }
+            await db.partner_subscriptions.insert_one(new_sub)
+        
+        # Update user's is_partner_pro flag
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {"$set": {"is_partner_pro": True}}
+        )
+        
+        return {"message": "Payment verified successfully (test mode)", "status": "active"}
+    
+    # Verify signature (production)
+    try:
+        params_dict = {
+            "razorpay_order_id": razorpay_order_id,
+            "razorpay_payment_id": razorpay_payment_id,
+            "razorpay_signature": razorpay_signature
+        }
+        razorpay_client.utility.verify_payment_signature(params_dict)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Payment verification failed")
+    
+    # Check if subscription exists
+    existing_sub = await db.partner_subscriptions.find_one({"partner_user_id": current_user["id"]})
+    
+    if existing_sub:
+        # Update existing subscription
+        await db.partner_subscriptions.update_one(
+            {"partner_user_id": current_user["id"]},
+            {
+                "$set": {
+                    "subscription_type": "pro",
+                    "profile_views_remaining": -1,  # Unlimited
+                    "subscription_status": "active",
+                    "razorpay_payment_id": razorpay_payment_id,
+                    "subscription_start": datetime.utcnow(),
+                    "subscription_end": datetime.utcnow() + timedelta(days=30),
+                    "amount_paid": 499.0
+                }
+            }
+        )
+    else:
+        # Create new subscription
+        new_sub = {
+            "id": str(uuid.uuid4()),
+            "partner_user_id": current_user["id"],
+            "subscription_type": "pro",
+            "profile_views_remaining": -1,
+            "subscription_status": "active",
+            "razorpay_payment_id": razorpay_payment_id,
+            "subscription_start": datetime.utcnow(),
+            "subscription_end": datetime.utcnow() + timedelta(days=30),
+            "amount_paid": 499.0,
+            "created_at": datetime.utcnow()
+        }
+        await db.partner_subscriptions.insert_one(new_sub)
+    
+    # Update user's is_partner_pro flag
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": {"is_partner_pro": True}}
+    )
+    
+    return {"message": "Payment verified and Partner Pro subscription activated", "status": "active"}
+
+# ==================== HOST/VENUE SUBSCRIPTION ENDPOINTS ====================
+
+@api_router.post("/venue/subscription/create-razorpay-order")
+async def create_venue_pro_order(current_user: dict = Depends(get_current_user)):
+    """Create Razorpay order for Host Pro subscription (₹499/month)"""
+    if current_user["user_type"] != "venue":
+        raise HTTPException(status_code=403, detail="Only hosts can subscribe to Pro")
+    
+    amount = 49900  # ₹499 in paise
+    description = "Host Pro - Monthly Subscription"
+    
+    if not razorpay_client:
+        # For testing without Razorpay keys
+        return {
+            "order_id": f"test_venue_pro_{uuid.uuid4()}",
+            "amount": amount,
+            "currency": "INR",
+            "test_mode": True
+        }
+    
+    # Create Razorpay order
+    order_data = {
+        "amount": amount,
+        "currency": "INR",
+        "receipt": f"venue_pro_{current_user['id']}_{datetime.utcnow().timestamp()}",
+        "notes": {
+            "venue_user_id": current_user["id"],
+            "subscription_type": "pro"
+        }
+    }
+    
+    order = razorpay_client.order.create(data=order_data)
+    return order
+
+@api_router.post("/venue/subscription/verify-payment")
+async def verify_venue_pro_payment(data: dict, current_user: dict = Depends(get_current_user)):
+    """Verify Razorpay payment and activate Host Pro subscription"""
+    if current_user["user_type"] != "venue":
+        raise HTTPException(status_code=403, detail="Only hosts can subscribe to Pro")
+    
+    razorpay_order_id = data.get("razorpay_order_id")
+    razorpay_payment_id = data.get("razorpay_payment_id")
+    razorpay_signature = data.get("razorpay_signature")
+    
+    # In test mode (no Razorpay keys), accept any payment
+    if not razorpay_client:
+        # Update existing venue subscription
+        await db.venue_subscriptions.update_one(
+            {"venue_user_id": current_user["id"]},
+            {
+                "$set": {
+                    "subscription_type": "pro",
+                    "profile_views_remaining": -1,  # Unlimited
+                    "subscription_status": "active",
+                    "subscription_start": datetime.utcnow(),
+                    "subscription_end": datetime.utcnow() + timedelta(days=30),
+                    "amount_paid": 499.0
+                }
+            }
+        )
+        
+        # Update user's is_venue_pro flag
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {"$set": {"is_venue_pro": True}}
+        )
+        
+        return {"message": "Payment verified successfully (test mode)", "status": "active"}
+    
+    # Verify signature (production)
+    try:
+        params_dict = {
+            "razorpay_order_id": razorpay_order_id,
+            "razorpay_payment_id": razorpay_payment_id,
+            "razorpay_signature": razorpay_signature
+        }
+        razorpay_client.utility.verify_payment_signature(params_dict)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Payment verification failed")
+    
+    # Update existing venue subscription
+    await db.venue_subscriptions.update_one(
+        {"venue_user_id": current_user["id"]},
+        {
+            "$set": {
+                "subscription_type": "pro",
+                "profile_views_remaining": -1,  # Unlimited
+                "subscription_status": "active",
+                "razorpay_payment_id": razorpay_payment_id,
+                "subscription_start": datetime.utcnow(),
+                "subscription_end": datetime.utcnow() + timedelta(days=30),
+                "amount_paid": 499.0
+            }
+        }
+    )
+    
+    # Update user's is_venue_pro flag
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": {"is_venue_pro": True}}
+    )
+    
+    return {"message": "Payment verified and Host Pro subscription activated", "status": "active"}
+
+# ==================== GET SUBSCRIPTION STATUS ENDPOINT ====================
+
+@api_router.get("/subscription/status")
+async def get_subscription_status(current_user: dict = Depends(get_current_user)):
+    """Get subscription status for current user (works for all user types)"""
+    user_type = current_user["user_type"]
+    
+    if user_type == "artist":
+        subscription = await db.artist_subscriptions.find_one({"artist_user_id": current_user["id"]})
+        return {
+            "user_type": "artist",
+            "is_pro": current_user.get("is_artist_pro", False),
+            "subscription": subscription if subscription else None
+        }
+    elif user_type == "partner":
+        subscription = await db.partner_subscriptions.find_one({"partner_user_id": current_user["id"]})
+        return {
+            "user_type": "partner",
+            "is_pro": current_user.get("is_partner_pro", False),
+            "subscription": subscription if subscription else None
+        }
+    elif user_type == "venue":
+        subscription = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
+        return {
+            "user_type": "venue",
+            "is_pro": current_user.get("is_venue_pro", False),
+            "subscription": subscription if subscription else None
+        }
+    else:
+        raise HTTPException(status_code=400, detail="Invalid user type")
+
 # ==================== BLOCK & REPORT ENDPOINTS ====================
 
 @api_router.post("/users/block/{user_id}")
