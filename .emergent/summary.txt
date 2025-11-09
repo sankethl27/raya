@@ -1,99 +1,89 @@
 <analysis>
-The AI engineer successfully built the Raya mobile application from scratch, focusing on connecting artists, partners, and venues. The project progressed iteratively, addressing initial requirements for authentication, chat, and admin functionalities. The core full-stack architecture, utilizing Expo (React Native), FastAPI, and MongoDB, was established early on. Significant work involved refining the app's dark blue and gold luxe theme, implementing complex features like artist/partner profile management with media uploads, payment integration via Razorpay for Get Featured and subscriptions, OTP-based authentication flows, and a comprehensive admin dashboard.
-
-Challenges included resolving conflicts with animation libraries (React Native Animated was adopted over Reanimated), fixing numerous backend API issues (405 Method Not Allowed, 422 Unprocessable Entity) by adding missing endpoints and refining Pydantic models, and rectifying frontend routing and display bugs. Despite extensive efforts, the video upload functionality for artist/partner profiles remained a persistent issue, with the user explicitly reporting it as unresolved. The engineer demonstrated a systematic approach to debugging and implementing features, often using bulk updates for efficiency, and provided detailed summaries and status updates throughout the process.
+The AI engineer's work on the Raya application has been comprehensive and iterative, successfully taking the project from an initial state to a feature-rich platform. The trajectory highlights a methodical approach to problem-solving, starting with critical infrastructure issues like frontend-backend connectivity. Key features like a refined, cross-user-type chat system with specific UI elements (lavender bubbles for artist chats), a Go Pro subscription model (with profile view tracking updated from 5 to 10), and calendar-based availability management for artists and filtering have been implemented. The application's user roles were also updated, rebranding Venues to Hosts with new signup descriptions. Debugging efforts were evident, particularly in resolving a persistent profile viewing error and chat permission issues. The work consistently addressed user feedback and followed a phased implementation strategy, ensuring a stable and functional application, with the video upload issue noted as a pending task from the initial problem statement, but not addressed in this trajectory.
 </analysis>
 
 <product_requirements>
-The Raya mobile app aims to connect artists, partners, and venues. Users can sign in as artists, partners, or venues via email/password. Artists and partners upload detailed profiles (stage name, experience, availability, multiple cities, pricing, photos/videos, optional press kit). Venues can view artists/partners, wishlist favorites, filter by rating, experience, price, and availability, and engage in real-time chat. The app features a Book. Collaborate. Get noticed. home banner and a Get Featured section (paid placements via Razorpay: ₹199/week for artists, ₹999/month for brands). Admin users monitor chats, manage users (add/remove/edit), and track activity. The app's aesthetic is a modern, high-contrast minimalist, luxe dark blue (#000e27) and gold (#D4AF37, etc.) theme, with a custom 'R' logo, Cormorant Garamond headings, and Poppins/Montserrat body text. All images are to be saved in base-64 format. Later additions include OTP verification for signup/forgot password, a subscription model for venues (10 free views, then ₹499/month or ₹99/10 unlocks), and smooth video uploads.
+The Raya app aims to connect Artists, Partners, and Hosts (formerly Venues).
+**Artists** can view, chat, and connect with other Artists, Hosts, and Partners. They receive 10 free profile views, after which a Go Pro subscription is required. Artists can mark successful collaborations to share on Raya's home page and Instagram (with consent).
+**Hosts** (Private Hirers) can view and hire Artists only, also with 10 free views before a subscription. They can chat with artists they interact with and can report/block users.
+**Partners** (Brands + Cafes/Collaborators) can chat with Artists and other Partners. They have configurable chat settings: Receive from Artists + Partners, Receive only from Partners, or Turn receiving off. Partners can report/block users and can be featured in collaborations.
+The app's aesthetic is a modern, high-contrast minimalist, luxe dark blue and gold theme. Key features include OTP authentication, Razorpay payments for Get Featured and subscriptions, calendar-based availability for artists, and calendar-based filtering.
 </product_requirements>
 
 <key_technical_concepts>
--   **Frontend:** Expo (React Native), Expo Router (file-based routing), React Navigation, React Native's  API, Zustand (state management), , .
--   **Backend:** FastAPI (Python), MongoDB, JWT (authentication), Pydantic (data validation), Razorpay (payment gateway), HTTP polling (for chat).
--   **Styling:** Custom theming (), .
+-   **Frontend:** Expo (React Native), Expo Router, React Navigation, React Native  API, Zustand, , , .
+-   **Backend:** FastAPI (Python), MongoDB, JWT, Pydantic, Razorpay, HTTP polling.
+-   **Styling:** Custom theming ().
 -   **Data:** Base64 for image storage, OTP verification.
 </key_technical_concepts>
 
 <code_architecture>
-The application follows a full-stack architecture with an Expo (React Native) frontend and a FastAPI (Python) backend using MongoDB.
+The application uses a full-stack architecture with an Expo (React Native) frontend and a FastAPI (Python) backend using MongoDB.
 
 **Directory Structure:**
 
 
 -   ****: The central FastAPI backend.
     -   **Importance**: Defines all API endpoints and database interactions.
-    -   **Changes Made**: Added POST endpoints for artist/partner profile creation. Modified  and  Pydantic models for correct data handling. Implemented  filtering for artist/partner listings. Added ,  and  endpoints. Implemented OTP (send/verify), password reset, Razorpay subscription, and admin (add/delete users, get chats) endpoints. Added  endpoint for sending chat messages.
--   ****: Initial welcome screen for the app.
-    -   **Importance**: First impression screen.
-    -   **Changes Made**: Updated to display a transparent Raya logo prominently with dark blue background and luxe transitions.
--   ****: The main home screen.
-    -   **Importance**: Displays main interactive content, including banners.
-    -   **Changes Made**: Redesigned with a large transparent Raya logo, sliding banners, and animations. Vertical scroll for the banner was restored.
--   ****: User profile management screen.
-    -   **Importance**: Allows users to manage their profiles, pause/delete, and access admin features.
-    -   **Changes Made**: Implemented Pause, Unpause, and Delete Profile functionalities, connecting to backend APIs. Redirects to Create Profile after deletion.
--   ****: Screen for creating and updating artist/partner profiles.
-    -   **Importance**: Core functionality for content providers.
-    -   **Changes Made**: Fixed profile creation (POST) and update (PUT) logic. Added UI and state for  (multi-city dropdown) and  (optional upload). Enhanced  to handle both images (base64) and videos (URI), and updated media gallery display.
--   ** and **: Dynamic pages for displaying individual profiles.
-    -   **Importance**: Public-facing profiles for talent.
-    -   **Changes Made**: Enhanced to display multiple images and videos in a gallery format. Integrated  logic to track profile views for venue users.
--   ****: Individual chat conversation screen.
+    -   **Changes Made**: Enhanced User model with subscription flags (, , ),  (all, partners_only, off), and . Added  and  models. Refined  model for cross-type chats. Implemented new API endpoints for user blocking/reporting, partner chat settings management, and collaboration marking. Corrected chat message fetching/sending permissions (403 errors) by extending logic to cover artist-artist and partner-partner chats. Removed a duplicate  endpoint and updated the default  to 10.
+-   ****: Defines the application's main tab-based navigation.
+    -   **Importance**: Provides consistent global navigation.
+    -   **Changes Made**: Added a Chats tab to the bottom navigation bar for quick access to all conversations.
+-   ****: Displays a list of artist profiles.
+    -   **Importance**: Primary screen for discovering artists.
+    -   **Changes Made**: Integrated chat buttons for artists/partners to chat with other artists, respecting user types. Added Go Pro modal display logic and profile view tracking. Replaced the available only filter with a  component for date-based availability filtering.
+-   ****: Displays a list of partner profiles.
+    -   **Importance**: Primary screen for discovering partners.
+    -   **Changes Made**: Added chat buttons for artists/partners to chat with other partners, similar to artist profiles.
+-   ****: Manages the authenticated user's profile and settings.
+    -   **Importance**: Allows users to manage their account, subscriptions, and profile status.
+    -   **Changes Made**: Integrated  from  to ensure immediate UI updates after pausing/unpausing a profile. Added a dedicated Partner Chat Settings section for  to configure incoming chat preferences.
+-   ****: Lists all active chat conversations. (Renamed from )
+    -   **Importance**: Central access point for all user communications.
+    -   **Changes Made**: Relocated and renamed from . Updated to correctly display all cross-type chats, differentiate artist-to-artist chats with lavender styling, and accurately display partner names instead of Venue.
+-   ****: Displays a single artist's detailed profile.
+    -   **Importance**: Provides a comprehensive view of an artist's portfolio.
+    -   **Changes Made**: Added a conditional Chat button for artists/partners to initiate conversations. Integrated the Go Pro modal. Resolved a Cannot read property map of undefined error by implementing robust null checks and updating the availability display logic to support the new calendar-based date format.
+-   ****: Displays a single partner's detailed profile.
+    -   **Importance**: Provides a comprehensive view of a partner's details.
+    -   **Changes Made**: Enabled partner-to-partner chat initiation.
+-   ****: The screen for an individual chat conversation.
     -   **Importance**: Enables one-on-one communication.
-    -   **Changes Made**: Refactored to use HTTP polling for message fetching/sending. Added  function and automatic message polling.
--   ****: Dedicated admin interface.
-    -   **Importance**: Central control panel for administrators.
-    -   **Changes Made**: Created to display tables of artists/partners (name, email, status), with add/delete functionality, and a chat viewer section.
--   ****: User login screen.
-    -   **Importance**: User authentication entry.
-    -   **Changes Made**: Redesigned for high-contrast minimalism. Added a Forgot Password link integrated with the OTP flow.
--   ****: User registration screen.
-    -   **Importance**: New user account creation.
-    -   **Changes Made**: Modified to include an OTP verification step before final account creation, routing through .
--   ****: Generic OTP verification screen.
-    -   **Importance**: Reusable component for OTP input and verification.
-    -   **Changes Made**: Created.
--   ****: Forgot password flow screen.
-    -   **Importance**: Enables password reset.
-    -   **Changes Made**: Created, implementing the OTP-based password reset flow.
--   ****: OTP verification for signup.
-    -   **Importance**: Specific OTP flow to finalize new user registration.
-    -   **Changes Made**: Created.
--   ****: Component for subscription offer.
-    -   **Importance**: Monetization mechanism.
-    -   **Changes Made**: Created and integrated into artist/partner detail screens, triggered after initial free views.
--   ****: Centralized design system.
-    -   **Importance**: Defines application-wide styling.
-    -   **Changes Made**: Updated with new hex codes for dark blue/gold palette and specified font families.
--   ****: Babel configuration.
-    -   **Importance**: Handles JavaScript compilation, particularly for animation libraries.
-    -   **Changes Made**: Created and later simplified/removed during debugging  conflicts, settling on React Native's  API.
+    -   **Changes Made**: Implemented logic to apply lavender-tinted bubbles for artist-to-artist chats. Added a 3-dot menu in the header containing Report and Block options. Introduced a collaboration approval UI element within the chat. Ensured accurate display of participant names in cross-type chats.
+-   ****: The user registration screen.
+    -   **Importance**: First point of contact for new users to select their role.
+    -   **Changes Made**: Renamed Venue to Host in the UI. Redesigned the user type selection with full-width descriptive cards for Artists, Partners, and Hosts to improve clarity and user experience.
+-   ****: Screen for artists/partners to create or update their profiles.
+    -   **Importance**: Core functionality for content providers to manage their details.
+    -   **Changes Made**: Replaced the old day-of-week availability input with a  component, allowing artists to select specific dates for their availability. Updated all related state management and API integration to support this new date-based availability format.
+-   ****: A new modal component for Go Pro subscription.
+    -   **Importance**: A key monetization and feature-gating mechanism.
+    -   **Changes Made**: Created to present subscription benefits (featured visibility, unlimited profile views/chats) with a modern design and a Go Pro button linked to Razorpay payment.
+-   ****: Manages user authentication and profile state across the application.
+    -   **Importance**: Provides global access to user-specific data and authentication tokens.
+    -   **Changes Made**: Exposed the  function, allowing other components (like the  screen) to programmatically refresh the user's profile data, ensuring UI consistency.
+-   ****: Frontend dependency manifest.
+    -   **Importance**: Tracks and manages all third-party libraries used in the frontend.
+    -   **Changes Made**: Added  for the new availability features.
 </code_architecture>
 
 <pending_tasks>
--   **Video Upload Fix:** The user explicitly reported that videos are still not getting uploaded, indicating an unresolved bug despite previous attempts.
--   **Partners Filter:** Frontend integration for filtering partners (by rating, experience, price, and availability) is still needed to match the functionality implemented for artists.
--   **Loading Speed Optimization:** A general requirement for artist/brand profiles to load faster was mentioned but not explicitly addressed or marked as complete.
--   **Chat Real-time (Socket.IO):** While HTTP polling is implemented, the original request for full real-time chat functionality that implies Socket.IO features like typing indicators and read receipts may still be pending.
+-   **Video Upload Fix:** The user explicitly reported that videos are still not getting uploaded (from original problem statement).
+-   **Razorpay Integration:** Fully implement the Razorpay payment flow for the Go Pro modal (linking the payment page URL).
+-   **Collaboration Sharing:** Implement frontend UI and logic for sharing successful collaborations on Raaya's homepage and Instagram.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was addressing a user's explicit request to provide a comprehensive description of the Raya platform. This description was intended for artists asking about the platform and needed to communicate its value proposition, features, and launch status (launching this week).
+Immediately before this summary request, the AI engineer was implementing the Go Pro popup feature, which is triggered after 10 profile views for Artists, Partners, and Hosts. This feature involves a visually appealing modal detailing benefits (featured visibility, unlimited profile views/chats) and a Go Pro button that will redirect to a Razorpay payment page.
 
-The engineer delivered a detailed, marketing-oriented description (Chat Message 509) covering:
--   **General overview:** Raya's purpose and target audience (artists, brands, venues).
--   **Features for Artists:** Digital portfolio, discovery mechanisms (get featured, reviews), direct communication (chat), smart management (pause/update profile), and professional growth.
--   **Pricing:** Free features for artists, optional paid boosts (Get Featured).
--   **For Brand Partners:** Overview of services.
--   **For Venues:** Free trial, subscription options, and pay-as-you-go.
--   **Trust & Security:** OTP verification, secure profiles, transparent reviews, admin moderation.
--   **Launch & Coverage:** Launching this week in Bangalore, including specific areas.
--   **Call to action:** Download Raya.
+The work completed includes:
+-   **Backend update ():** The  was changed from 5 to 10 in both the  model and the subscription initialization endpoint to align with the new requirement.
+-   **Frontend component creation/update ():** The modal component was designed with the specified benefits and aesthetic, ready for payment integration.
+-   **Frontend styling:** New styles were added to support the updated modal design.
 
-This action fulfilled a direct informational request from the user, shifting temporarily from direct code development. Prior to this, the engineer was actively debugging and implementing the video upload functionality and the unpause profile feature. While the unpause functionality was successfully completed, the video upload issue was explicitly reported by the user as still not getting uploaded in Chat Message 501, making it the last unresolved development task.
+The current task halted with the explicit statement: Perfect! Now let me update the upgrade handler in the Artists tab to actually initiate Razorpay payment. Let me update it with proper Razorpay integration logic: (Chat Message 650). This indicates the next step is to wire up the Go Pro button to initiate a Razorpay payment flow within the  tab.
 </current_work>
 
 <optional_next_step>
-Thoroughly debug and fix the persistent issue preventing video uploads for artist/partner profiles, ensuring smooth and functional video media handling.
+Integrate the Razorpay payment initiation logic into the  function in .
 </optional_next_step>
