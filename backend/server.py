@@ -1952,6 +1952,8 @@ async def get_subscription_status(current_user: dict = Depends(get_current_user)
     
     if user_type == "artist":
         subscription = await db.artist_subscriptions.find_one({"artist_user_id": current_user["id"]})
+        if subscription:
+            subscription.pop("_id", None)
         return {
             "user_type": "artist",
             "is_pro": current_user.get("is_artist_pro", False),
@@ -1959,6 +1961,8 @@ async def get_subscription_status(current_user: dict = Depends(get_current_user)
         }
     elif user_type == "partner":
         subscription = await db.partner_subscriptions.find_one({"partner_user_id": current_user["id"]})
+        if subscription:
+            subscription.pop("_id", None)
         return {
             "user_type": "partner",
             "is_pro": current_user.get("is_partner_pro", False),
@@ -1966,6 +1970,8 @@ async def get_subscription_status(current_user: dict = Depends(get_current_user)
         }
     elif user_type == "venue":
         subscription = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
+        if subscription:
+            subscription.pop("_id", None)
         return {
             "user_type": "venue",
             "is_pro": current_user.get("is_venue_pro", False),
