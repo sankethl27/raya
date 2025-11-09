@@ -310,6 +310,59 @@ export default function ProfileScreen() {
           </View>
         )}
 
+        {/* SUBSCRIPTION SECTION */}
+        {(user?.user_type === 'artist' || user?.user_type === 'partner' || user?.user_type === 'venue') && subscription && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Subscription</Text>
+            
+            {subscription.is_pro ? (
+              <View style={styles.proContainer}>
+                <View style={styles.proHeader}>
+                  <Ionicons name="star" size={32} color={theme.colors.secondary} />
+                  <Text style={styles.proTitle}>Pro Member ✨</Text>
+                </View>
+                <View style={styles.proBenefits}>
+                  <View style={styles.proBenefitRow}>
+                    <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
+                    <Text style={styles.proBenefitText}>Unlimited profile views</Text>
+                  </View>
+                  <View style={styles.proBenefitRow}>
+                    <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
+                    <Text style={styles.proBenefitText}>Unlimited chats</Text>
+                  </View>
+                  <View style={styles.proBenefitRow}>
+                    <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
+                    <Text style={styles.proBenefitText}>Featured visibility</Text>
+                  </View>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.freeContainer}>
+                <View style={styles.viewsRemaining}>
+                  <Ionicons name="eye-outline" size={24} color={theme.colors.textSecondary} />
+                  <Text style={styles.viewsText}>
+                    {subscription.subscription?.profile_views_remaining || 0} profile views remaining
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.upgradeButton}
+                  onPress={() => setShowProModal(true)}
+                >
+                  <LinearGradient
+                    colors={[theme.colors.secondary, '#C9A865']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.upgradeGradient}
+                  >
+                    <Ionicons name="flash" size={20} color={theme.colors.primaryDark} />
+                    <Text style={styles.upgradeButtonText}>Upgrade to Pro - ₹499/month</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
+
         {(user?.user_type === 'artist' || user?.user_type === 'partner') && (
           <>
             {/* PROFILE MANAGEMENT */}
