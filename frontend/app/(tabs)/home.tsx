@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   content: {
-    flex: 1,
+    paddingBottom: theme.spacing.xl,
   },
   section: {
     padding: theme.spacing.lg,
