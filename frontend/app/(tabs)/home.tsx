@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   heroContent: {
-    padding: theme.spacing.xl,
+    padding: theme.spacing.lg,
   },
   heroIconRow: {
     flexDirection: 'row',
