@@ -19,6 +19,7 @@ import SubscriptionPopup from '../../components/SubscriptionPopup';
 import { ArtistProModal } from '../../components/ArtistProModal';
 import { showPaymentOptions } from '../../services/paymentService';
 import { Calendar } from 'react-native-calendars';
+import { Video, ResizeMode } from 'expo-av';
 
 const { width } = Dimensions.get('window');
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
