@@ -585,6 +585,33 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Go Pro Modal */}
+      <ArtistProModal
+        visible={showProModal}
+        onClose={() => setShowProModal(false)}
+        onUpgrade={async () => {
+          setShowProModal(false);
+          
+          if (!token || !user) {
+            Alert.alert('Error', 'Please login to upgrade');
+            return;
+          }
+
+          showPaymentOptions(
+            user.user_type as 'artist' | 'partner' | 'venue',
+            token,
+            async () => {
+              await fetchSubscription();
+              await refreshProfile();
+              Alert.alert(
+                '🎉 Welcome to Pro!',
+                'You now have unlimited profile views and chats. Enjoy increased visibility across the app!'
+              );
+            }
+          );
+        }}
+      />
     </View>
   );
 }
