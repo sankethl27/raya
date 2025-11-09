@@ -364,6 +364,7 @@ export default function HomeScreen() {
             <Ionicons name="chevron-forward" size={20} color={theme.colors.textSecondary} />
           </TouchableOpacity>
         </View>
+        </View>
       </ScrollView>
     </View>
   );
