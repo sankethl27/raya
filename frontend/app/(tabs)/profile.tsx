@@ -916,4 +916,71 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.sm,
     color: theme.colors.textSecondary,
   },
+  proContainer: {
+    padding: theme.spacing.xl,
+    backgroundColor: 'rgba(212, 175, 55, 0.08)',
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 2,
+    borderColor: theme.colors.secondary,
+  },
+  proHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+  },
+  proTitle: {
+    fontSize: theme.fontSize.xl,
+    fontFamily: theme.fonts.heading,
+    color: theme.colors.secondary,
+    fontWeight: '700',
+  },
+  proBenefits: {
+    gap: theme.spacing.md,
+  },
+  proBenefitRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+  },
+  proBenefitText: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.text,
+    fontWeight: '500',
+  },
+  freeContainer: {
+    padding: theme.spacing.lg,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  viewsRemaining: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+  },
+  viewsText: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.textSecondary,
+    fontWeight: '500',
+  },
+  upgradeButton: {
+    borderRadius: theme.borderRadius.lg,
+    overflow: 'hidden',
+  },
+  upgradeGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+  },
+  upgradeButtonText: {
+    color: theme.colors.primaryDark,
+    fontSize: theme.fontSize.md,
+    fontWeight: '700',
+  },
 });
