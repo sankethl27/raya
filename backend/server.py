@@ -1270,18 +1270,7 @@ async def initialize_subscription(current_user: dict = Depends(get_current_user)
     subscription.pop("_id", None)
     return subscription
 
-@api_router.get("/subscription/status")
-async def get_subscription_status(current_user: dict = Depends(get_current_user)):
-    if current_user["user_type"] != "venue":
-        raise HTTPException(status_code=403, detail="Only venues can check subscription")
-    
-    subscription = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
-    if not subscription:
-        # Auto-initialize
-        return await initialize_subscription(current_user)
-    
-    subscription.pop("_id", None)
-    return subscription
+# Removed duplicate venue-only subscription status endpoint - using universal one below
 
 @api_router.post("/subscription/track-view")
 async def track_profile_view(data: dict, current_user: dict = Depends(get_current_user)):
