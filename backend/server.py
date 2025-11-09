@@ -222,6 +222,32 @@ class ArtistSubscription(BaseModel):
     subscription_end: Optional[datetime] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+class PartnerSubscription(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    partner_user_id: str
+    subscription_type: str  # "free", "pro"
+    profile_views_remaining: int = 10  # 10 for free, unlimited for pro (-1)
+    subscription_status: str  # "active", "expired", "cancelled"
+    razorpay_subscription_id: Optional[str] = None
+    razorpay_payment_id: Optional[str] = None
+    amount_paid: Optional[float] = None  # ₹499 for pro
+    subscription_start: datetime = Field(default_factory=datetime.utcnow)
+    subscription_end: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class HostSubscription(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    host_user_id: str
+    subscription_type: str  # "free", "pro"
+    profile_views_remaining: int = 10  # 10 for free, unlimited for pro (-1)
+    subscription_status: str  # "active", "expired", "cancelled"
+    razorpay_subscription_id: Optional[str] = None
+    razorpay_payment_id: Optional[str] = None
+    amount_paid: Optional[float] = None  # ₹499 for pro
+    subscription_start: datetime = Field(default_factory=datetime.utcnow)
+    subscription_end: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
 class UserReport(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     reporter_user_id: str
