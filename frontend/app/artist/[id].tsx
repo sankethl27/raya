@@ -94,7 +94,26 @@ export default function ArtistDetailScreen() {
 
   const handleUpgradeToPro = async () => {
     setShowProModal(false);
-    Alert.alert('Go Pro', 'Razorpay payment integration coming soon! ₹499/month for unlimited access.');
+    
+    if (!token || !user) {
+      Alert.alert('Error', 'Please login to upgrade');
+      return;
+    }
+
+    // Show payment options
+    showPaymentOptions(
+      user.user_type as 'artist' | 'partner' | 'venue',
+      token,
+      async () => {
+        // On success, refresh subscription data and profile
+        await fetchArtistSubscription();
+        Alert.alert(
+          '🎉 Welcome to Pro!',
+          'You now have unlimited profile views and chats. Enjoy increased visibility across the app!',
+          [{ text: 'Awesome!', onPress: () => fetchArtistDetails() }]
+        );
+      }
+    );
   };
 
   const trackView = async () => {
