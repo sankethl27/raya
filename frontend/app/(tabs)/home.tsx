@@ -122,100 +122,102 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={[theme.colors.primaryDark, theme.colors.background]}
-        style={styles.header}
-      >
-        <View style={styles.headerContent}>
-          <View style={styles.headerLeft}>
-            <Animated.View style={{
-              transform: [{ scale: logoScale }],
-              opacity: logoOpacity,
-            }}>
-              <Image 
-                source={{ uri: 'https://customer-assets.emergentagent.com/job_talent-nexus-25/artifacts/qp2elcj3_logo%20with%20transparent%20bcakg.png' }}
-                style={styles.logoImage}
-                resizeMode="contain"
-              />
-            </Animated.View>
-            <Animated.Text style={[styles.tagline, {
-              transform: [{ scale: logoScale }],
-              opacity: logoOpacity,
-            }]}>
-              One platform. Endless connections.
-            </Animated.Text>
-          </View>
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={async () => {
-              await logout();
-              router.replace('/auth/welcome');
-            }}
-          >
-            <Ionicons name="log-out-outline" size={24} color={theme.colors.secondary} />
-          </TouchableOpacity>
-        </View>
-        
-        <Animated.View style={{
-          transform: [{ scale: bannerScale }],
-          opacity: bannerOpacity,
-        }}>
-          <LinearGradient
-            colors={['#F9E28C', '#E1C05B', '#D4AF37']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.heroBanner}
-          >
-            {/* Floating sparkles */}
-            <Animated.View style={[styles.heroBannerSparkle1, {
-              transform: [
-                { rotate: sparkleSpin },
-                { scale: sparkleScale },
-              ],
-            }]}>
-              <Ionicons name="sparkles" size={20} color={theme.colors.primaryDark} />
-            </Animated.View>
-            <Animated.View style={[styles.heroBannerSparkle2, {
-              transform: [
-                { rotate: sparkleSpin },
-                { scale: sparkleScale },
-              ],
-            }]}>
-              <Ionicons name="sparkles" size={16} color={theme.colors.primaryDark} />
-            </Animated.View>
-
-            <View style={styles.heroContent}>
-              <View style={styles.heroIconRow}>
-                <View style={styles.heroIconBubble}>
-                  <Ionicons name="calendar" size={20} color={theme.colors.primaryDark} />
-                </View>
-                <View style={styles.heroIconBubble}>
-                  <Ionicons name="people" size={20} color={theme.colors.primaryDark} />
-                </View>
-                <View style={styles.heroIconBubble}>
-                  <Ionicons name="sparkles" size={20} color={theme.colors.primaryDark} />
-                </View>
-              </View>
-              <Text style={styles.heroTitle}>Book. Collaborate.{'\n'}Get Noticed.</Text>
-              <Text style={styles.heroSubtitle}>
-                Whether it's a live event, personal gig, or brand collab — we make it easy to connect, partner, and grow.
-              </Text>
-              <View style={styles.heroDivider} />
-              <Text style={styles.heroDescription}>
-                Hire or get hired, check availability, and grow your visibility effortlessly.
-              </Text>
-            </View>
-          </LinearGradient>
-        </Animated.View>
-      </LinearGradient>
-
       <ScrollView
-        style={styles.content}
+        style={styles.scrollView}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.colors.secondary} />
         }
         scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
       >
+        <LinearGradient
+          colors={[theme.colors.primaryDark, theme.colors.background]}
+          style={styles.header}
+        >
+          <View style={styles.headerContent}>
+            <View style={styles.headerLeft}>
+              <Animated.View style={{
+                transform: [{ scale: logoScale }],
+                opacity: logoOpacity,
+              }}>
+                <Image 
+                  source={{ uri: 'https://customer-assets.emergentagent.com/job_talent-nexus-25/artifacts/qp2elcj3_logo%20with%20transparent%20bcakg.png' }}
+                  style={styles.logoImage}
+                  resizeMode="contain"
+                />
+              </Animated.View>
+              <Animated.Text style={[styles.tagline, {
+                transform: [{ scale: logoScale }],
+                opacity: logoOpacity,
+              }]}>
+                One platform. Endless connections.
+              </Animated.Text>
+            </View>
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={async () => {
+                await logout();
+                router.replace('/auth/welcome');
+              }}
+            >
+              <Ionicons name="log-out-outline" size={24} color={theme.colors.secondary} />
+            </TouchableOpacity>
+          </View>
+          
+          <Animated.View style={{
+            transform: [{ scale: bannerScale }],
+            opacity: bannerOpacity,
+          }}>
+            <LinearGradient
+              colors={['#F9E28C', '#E1C05B', '#D4AF37']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.heroBanner}
+            >
+              {/* Floating sparkles */}
+              <Animated.View style={[styles.heroBannerSparkle1, {
+                transform: [
+                  { rotate: sparkleSpin },
+                  { scale: sparkleScale },
+                ],
+              }]}>
+                <Ionicons name="sparkles" size={20} color={theme.colors.primaryDark} />
+              </Animated.View>
+              <Animated.View style={[styles.heroBannerSparkle2, {
+                transform: [
+                  { rotate: sparkleSpin },
+                  { scale: sparkleScale },
+                ],
+              }]}>
+                <Ionicons name="sparkles" size={16} color={theme.colors.primaryDark} />
+              </Animated.View>
+
+              <View style={styles.heroContent}>
+                <View style={styles.heroIconRow}>
+                  <View style={styles.heroIconBubble}>
+                    <Ionicons name="calendar" size={20} color={theme.colors.primaryDark} />
+                  </View>
+                  <View style={styles.heroIconBubble}>
+                    <Ionicons name="people" size={20} color={theme.colors.primaryDark} />
+                  </View>
+                  <View style={styles.heroIconBubble}>
+                    <Ionicons name="sparkles" size={20} color={theme.colors.primaryDark} />
+                  </View>
+                </View>
+                <Text style={styles.heroTitle}>Book. Collaborate.{'\n'}Get Noticed.</Text>
+                <Text style={styles.heroSubtitle}>
+                  Whether it's a live event, personal gig, or brand collab — we make it easy to connect, partner, and grow.
+                </Text>
+                <View style={styles.heroDivider} />
+                <Text style={styles.heroDescription}>
+                  Hire or get hired, check availability, and grow your visibility effortlessly.
+                </Text>
+              </View>
+            </LinearGradient>
+          </Animated.View>
+        </LinearGradient>
+
+        <View style={styles.content}>
         {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Explore</Text>
