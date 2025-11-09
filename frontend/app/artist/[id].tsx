@@ -409,7 +409,7 @@ export default function ArtistDetailScreen() {
             </View>
           )}
 
-          {/* AVAILABILITY - PROMINENTLY DISPLAYED */}
+          {/* AVAILABILITY - CALENDAR VIEW */}
           <View style={styles.availabilitySection}>
             <View style={styles.availabilityHeader}>
               <Ionicons name="calendar" size={28} color={theme.colors.secondary} />
@@ -417,42 +417,49 @@ export default function ArtistDetailScreen() {
             </View>
 
             {artist?.availability && artist.availability.length > 0 ? (
-              <View style={styles.availabilityGrid}>
-                {artist.availability.map((slot: any, index: number) => (
-                  <View key={index} style={styles.availabilityCard}>
-                    {slot.date ? (
-                      // New calendar format
-                      <View style={styles.dateAvailability}>
-                        <Ionicons name="calendar" size={20} color={theme.colors.success} />
-                        <Text style={styles.availabilityDate}>
-                          {new Date(slot.date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </Text>
-                      </View>
-                    ) : (
-                      // Old day/time_slots format (backward compatibility)
-                      <>
-                        <View style={styles.dayHeader}>
-                          <Ionicons name="checkmark-circle" size={20} color={theme.colors.success} />
-                          <Text style={styles.dayName}>{slot.day}</Text>
-                        </View>
-                        {slot.time_slots && slot.time_slots.length > 0 && (
-                          <View style={styles.timeSlotsContainer}>
-                            {slot.time_slots.map((timeSlot: string, idx: number) => (
-                              <View key={idx} style={styles.timeSlot}>
-                                <Ionicons name="time" size={16} color={theme.colors.secondary} />
-                                <Text style={styles.timeSlotText}>{timeSlot}</Text>
-                              </View>
-                            ))}
-                          </View>
-                        )}
-                      </>
-                    )}
+              <View style={styles.calendarContainer}>
+                <Calendar
+                  markedDates={
+                    artist.availability.reduce((acc: any, slot: any) => {
+                      if (slot.date) {
+                        acc[slot.date] = {
+                          selected: true,
+                          marked: true,
+                          selectedColor: theme.colors.secondary,
+                          selectedTextColor: theme.colors.primaryDark,
+                        };
+                      }
+                      return acc;
+                    }, {})
+                  }
+                  theme={{
+                    backgroundColor: theme.colors.surface,
+                    calendarBackground: theme.colors.surface,
+                    textSectionTitleColor: theme.colors.textSecondary,
+                    selectedDayBackgroundColor: theme.colors.secondary,
+                    selectedDayTextColor: theme.colors.primaryDark,
+                    todayTextColor: theme.colors.secondary,
+                    dayTextColor: theme.colors.text,
+                    textDisabledColor: theme.colors.textTertiary,
+                    dotColor: theme.colors.secondary,
+                    selectedDotColor: theme.colors.primaryDark,
+                    arrowColor: theme.colors.secondary,
+                    monthTextColor: theme.colors.text,
+                    textDayFontWeight: '500',
+                    textMonthFontWeight: '700',
+                    textDayHeaderFontWeight: '600',
+                    textDayFontSize: 14,
+                    textMonthFontSize: 18,
+                    textDayHeaderFontSize: 12,
+                  }}
+                  style={styles.calendar}
+                />
+                <View style={styles.calendarLegend}>
+                  <View style={styles.legendItem}>
+                    <View style={[styles.legendDot, { backgroundColor: theme.colors.secondary }]} />
+                    <Text style={styles.legendText}>Available</Text>
                   </View>
-                ))}
+                </View>
               </View>
             ) : (
               <View style={styles.noAvailability}>
