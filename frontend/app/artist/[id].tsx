@@ -360,10 +360,13 @@ export default function ArtistDetailScreen() {
                 {artist.media_gallery.map((media: string, index: number) => (
                   <View key={index} style={styles.mediaItemContainer}>
                     {media.startsWith('data:video') ? (
-                      <View style={styles.videoPlaceholder}>
-                        <Ionicons name="play-circle" size={64} color={theme.colors.secondary} />
-                        <Text style={styles.videoText}>Video {index + 1}</Text>
-                      </View>
+                      <Video
+                        source={{ uri: media }}
+                        style={styles.mediaVideo}
+                        useNativeControls
+                        resizeMode={ResizeMode.CONTAIN}
+                        isLooping
+                      />
                     ) : (
                       <Image source={{ uri: media }} style={styles.mediaImage} resizeMode="cover" />
                     )}
