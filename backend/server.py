@@ -1770,6 +1770,86 @@ async def verify_partner_pro_payment(data: dict, current_user: dict = Depends(ge
     
     return {"message": "Payment verified and Partner Pro subscription activated", "status": "active"}
 
+@api_router.post("/partner/subscription/initialize")
+async def initialize_partner_subscription(current_user: dict = Depends(get_current_user)):
+    """Initialize free tier for new partner users"""
+    if current_user["user_type"] != "partner":
+        raise HTTPException(status_code=403, detail="Only partners can have partner subscriptions")
+    
+    # Check if subscription already exists
+    existing = await db.partner_subscriptions.find_one({"partner_user_id": current_user["id"]})
+    if existing:
+        existing.pop("_id", None)
+        return existing
+    
+    # Create free tier subscription
+    subscription = {
+        "id": str(uuid.uuid4()),
+        "partner_user_id": current_user["id"],
+        "subscription_type": "free",
+        "profile_views_remaining": 10,
+        "subscription_status": "active",
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.partner_subscriptions.insert_one(subscription)
+    subscription.pop("_id", None)
+    return subscription
+
+@api_router.get("/partner/subscription/status")
+async def get_partner_subscription_status(current_user: dict = Depends(get_current_user)):
+    if current_user["user_type"] != "partner":
+        raise HTTPException(status_code=403, detail="Only partners can check subscription")
+    
+    subscription = await db.partner_subscriptions.find_one({"partner_user_id": current_user["id"]})
+    if not subscription:
+        # Auto-initialize
+        return await initialize_partner_subscription(current_user)
+    
+    subscription.pop("_id", None)
+    return subscription
+
+@api_router.post("/partner/subscription/track-view")
+async def track_partner_profile_view(data: dict, current_user: dict = Depends(get_current_user)):
+    """Track when partner views another profile"""
+    if current_user["user_type"] != "partner":
+        raise HTTPException(status_code=403, detail="Only partners can track views")
+    
+    profile_id = data.get("profile_id")
+    if not profile_id:
+        raise HTTPException(status_code=400, detail="profile_id is required")
+    
+    subscription = await db.partner_subscriptions.find_one({"partner_user_id": current_user["id"]})
+    if not subscription:
+        subscription_obj = await initialize_partner_subscription(current_user)
+        subscription = await db.partner_subscriptions.find_one({"partner_user_id": current_user["id"]})
+    
+    # Check if Pro (unlimited views)
+    if subscription["profile_views_remaining"] == -1:
+        return {"allowed": True, "views_remaining": -1, "subscription_type": subscription["subscription_type"]}
+    
+    # Check if free views exhausted
+    if subscription["profile_views_remaining"] <= 0:
+        return {
+            "allowed": False,
+            "views_remaining": 0,
+            "subscription_type": subscription["subscription_type"],
+            "message": "Free views exhausted. Upgrade to Pro for unlimited access."
+        }
+    
+    # Decrement view count
+    await db.partner_subscriptions.update_one(
+        {"partner_user_id": current_user["id"]},
+        {"$inc": {"profile_views_remaining": -1}}
+    )
+    
+    new_count = subscription["profile_views_remaining"] - 1
+    return {
+        "allowed": True,
+        "views_remaining": new_count,
+        "subscription_type": subscription["subscription_type"]
+    }
+
 # ==================== HOST/VENUE SUBSCRIPTION ENDPOINTS ====================
 
 @api_router.post("/venue/subscription/create-razorpay-order")
