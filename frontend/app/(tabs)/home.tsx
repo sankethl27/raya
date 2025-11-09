@@ -457,10 +457,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   heroSubtitle: {
-    fontSize: theme.fontSize.md,
+    fontSize: theme.fontSize.sm,
     color: theme.colors.primaryDark,
-    lineHeight: 22,
-    marginBottom: theme.spacing.md,
+    lineHeight: 20,
+    marginBottom: theme.spacing.sm,
     textAlign: 'center',
     opacity: 0.9,
   },
