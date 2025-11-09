@@ -131,24 +131,20 @@ export default function EditProfileScreen() {
         const asset = result.assets[0];
         const isVideo = asset.type === 'video';
         
-        if (isVideo) {
-          // For videos, use URI directly (no base64 due to size)
-          const videoUri = `data:video/mp4;uri,${asset.uri}`;
-          setMediaGallery([...mediaGallery, videoUri]);
-          Alert.alert('Success', 'Video added! (Videos are stored as references)');
-        } else {
-          // For images, convert to base64
-          const response = await fetch(asset.uri);
-          const blob = await response.blob();
-          const reader = new FileReader();
-          
-          reader.onloadend = () => {
-            const base64 = reader.result as string;
-            setMediaGallery([...mediaGallery, base64]);
-          };
-          
-          reader.readAsDataURL(blob);
-        }
+        // Convert both images and videos to base64
+        const response = await fetch(asset.uri);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        
+        reader.onloadend = () => {
+          const base64 = reader.result as string;
+          setMediaGallery([...mediaGallery, base64]);
+          if (isVideo) {
+            Alert.alert('Success', 'Video added successfully!');
+          }
+        };
+        
+        reader.readAsDataURL(blob);
       }
     } catch (error) {
       console.error('Media picker error:', error);
