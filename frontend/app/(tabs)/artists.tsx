@@ -20,6 +20,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '../../contexts/AuthContext';
 import { ArtistProModal } from '../../components/ArtistProModal';
 import { Calendar } from 'react-native-calendars';
+import { showPaymentOptions } from '../../services/paymentService';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
