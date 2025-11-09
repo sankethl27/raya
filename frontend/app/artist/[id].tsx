@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import SubscriptionPopup from '../../components/SubscriptionPopup';
 import { ArtistProModal } from '../../components/ArtistProModal';
+import { showPaymentOptions } from '../../services/paymentService';
 
 const { width } = Dimensions.get('window');
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
