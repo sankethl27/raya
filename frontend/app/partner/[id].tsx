@@ -16,9 +16,96 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 import SubscriptionPopup from '../../components/SubscriptionPopup';
+import { useVideoPlayer, VideoView } from 'expo-video';
 
 const { width } = Dimensions.get('window');
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+const MediaItem = ({
+  media,
+  index,
+  currentPlaying,
+  setCurrentPlaying,
+}: {
+  media: string;
+  index: number;
+  currentPlaying: number | null;
+  setCurrentPlaying: (i: number | null) => void;
+}) => {
+  const isVideo =
+    media.startsWith("data:video") ||
+    /\.(mp4|mov|avi|webm)$/i.test(media);
+
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const player = useVideoPlayer(media, (p) => {
+    p.loop = true;
+  });
+  
+  useEffect(() => {
+    if (!isVideo) return;
+
+    const callback = (event: { isPlaying: boolean }) => {
+      setIsPlaying(event.isPlaying);
+    };
+
+    player.addListener("playingChange", callback);
+
+    return () => {
+      player.removeListener("playingChange", callback);
+    };
+  }, [player]);
+
+  useEffect(() => {
+    if (!isVideo) return;
+
+    if (currentPlaying !== index) {
+      player.pause();
+    }
+  }, [currentPlaying]);
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      player.pause();
+      setCurrentPlaying(null);
+    } else {
+      setCurrentPlaying(index);
+      player.play();
+    }
+  };
+
+  if (isVideo) {
+    return (
+      <View style={styles.mediaItemContainer}>
+        <VideoView
+          style={styles.mediaImage}
+          player={player}
+          nativeControls={true}
+          allowsFullscreen
+          allowsPictureInPicture
+        />
+
+        <TouchableOpacity
+          onPress={togglePlay}
+          style={{
+            position: "absolute",
+            bottom: 10,
+            right: 10,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            padding: 8,
+            borderRadius: 20,
+          }}
+        >
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.mediaItemContainer}>
+      <Image source={{ uri: media }} style={styles.mediaImage} />
+    </View>
+  );
+};
 
 export default function PartnerDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -29,7 +116,8 @@ export default function PartnerDetailScreen() {
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
-
+  const [currentPlaying, setCurrentPlaying] = useState<number | null>(null);
+  
   useEffect(() => {
     if (user?.user_type === 'venue') {
       trackView();
@@ -249,7 +337,31 @@ export default function PartnerDetailScreen() {
             <Text style={styles.sectionTitle}>About</Text>
             <Text style={styles.description}>{partner.description || 'No description available.'}</Text>
           </View>
-
+            {/* MEDIA GALLERY - BIGGER DISPLAY */}
+            {partner.media_gallery && partner.media_gallery.length > 0 && (
+              <View style={styles.mediaSection}>
+                <View style={styles.mediaSectionHeader}>
+                  <Ionicons name="images" size={28} color={theme.colors.secondary} />
+                  <Text style={styles.sectionTitle}>Media Gallery</Text>
+                </View>
+  
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.mediaScroll}
+                >
+                  {partner.media_gallery.map((media: string, index: number) => (
+                    <MediaItem
+                      key={index}
+                      media={media}
+                      index={index}
+                      currentPlaying={currentPlaying}
+                      setCurrentPlaying={setCurrentPlaying}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            )}
           {/* Services Highlight */}
           <View style={styles.servicesSection}>
             <View style={styles.servicesHeader}>
@@ -553,5 +665,88 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.lg,
     fontWeight: '700',
     color: theme.colors.secondary,
+  },
+  fullscreenButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Semi-transparent black background
+    zIndex: 10, // Ensure it's above the overlay background
+},
+  mediaSection: {
+    marginBottom: theme.spacing.xl,
+  },
+  mediaSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+  },
+  mediaScroll: {
+    marginHorizontal: -theme.spacing.lg,
+    paddingHorizontal: theme.spacing.lg,
+  },
+  mediaItemContainer: {
+    marginRight: theme.spacing.md,
+    borderRadius: theme.borderRadius.lg,
+    overflow: 'hidden',
+    ...theme.shadows.lg,
+  },
+  mediaImage: {
+    width: 280,
+    height: 360,
+    borderRadius: theme.borderRadius.lg,
+  },
+  videoContainer: {
+    position: 'relative',
+    width: 280,
+    height: 360,
+  },
+  videoOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: theme.borderRadius.lg,
+  },
+  playButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: theme.colors.secondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...theme.shadows.lg,
+  },
+  videoLabel: {
+    color: theme.colors.text,
+    fontSize: theme.fontSize.md,
+    fontWeight: '600',
+    marginTop: theme.spacing.md,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  videoPlaceholder: {
+    width: 280,
+    height: 360,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.md,
+    borderWidth: 2,
+    borderColor: theme.colors.secondary,
+  },
+  videoText: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.secondary,
+    fontWeight: '600',
   },
 });

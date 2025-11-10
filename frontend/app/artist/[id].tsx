@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -19,11 +19,99 @@ import SubscriptionPopup from '../../components/SubscriptionPopup';
 import { ArtistProModal } from '../../components/ArtistProModal';
 import { showPaymentOptions } from '../../services/paymentService';
 import { Calendar } from 'react-native-calendars';
-
+import { VideoView, useVideoPlayer } from 'expo-video'; 
 const { width } = Dimensions.get('window');
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const MediaItem = ({
+  media,
+  index,
+  currentPlaying,
+  setCurrentPlaying,
+}: {
+  media: string;
+  index: number;
+  currentPlaying: number | null;
+  setCurrentPlaying: (i: number | null) => void;
+}) => {
+  const isVideo =
+    media.startsWith("data:video") ||
+    /\.(mp4|mov|avi|webm)$/i.test(media);
+
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const player = useVideoPlayer(media, (p) => {
+    p.loop = true;
+  });
+  
+  useEffect(() => {
+    if (!isVideo) return;
+
+    const callback = (event: { isPlaying: boolean }) => {
+      setIsPlaying(event.isPlaying);
+    };
+
+    player.addListener("playingChange", callback);
+
+    return () => {
+      player.removeListener("playingChange", callback);
+    };
+  }, [player]);
+
+  useEffect(() => {
+    if (!isVideo) return;
+
+    if (currentPlaying !== index) {
+      player.pause();
+    }
+  }, [currentPlaying]);
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      player.pause();
+      setCurrentPlaying(null);
+    } else {
+      setCurrentPlaying(index);
+      player.play();
+    }
+  };
+
+  if (isVideo) {
+    return (
+      <View style={styles.mediaItemContainer}>
+        <VideoView
+          style={styles.mediaImage}
+          player={player}
+          nativeControls={true}
+          allowsFullscreen
+          allowsPictureInPicture
+        />
+
+        <TouchableOpacity
+          onPress={togglePlay}
+          style={{
+            position: "absolute",
+            bottom: 10,
+            right: 10,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            padding: 8,
+            borderRadius: 20,
+          }}
+        >
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.mediaItemContainer}>
+      <Image source={{ uri: media }} style={styles.mediaImage} />
+    </View>
+  );
+};
+
 
 export default function ArtistDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -36,6 +124,7 @@ export default function ArtistDetailScreen() {
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
   const [subscription, setSubscription] = useState<any>(null);
+  const [currentPlaying, setCurrentPlaying] = useState<number | null>(null);
 
   const isArtist = user?.user_type === 'artist';
   const isMyProfile = user?.id && artist?.user_id === user?.id;
@@ -192,6 +281,7 @@ export default function ArtistDetailScreen() {
       console.error('Error checking wishlist:', error);
     }
   };
+  
 
   const toggleWishlist = async () => {
     if (user?.user_type !== 'venue') {
@@ -271,6 +361,9 @@ export default function ArtistDetailScreen() {
       </View>
     );
   }
+
+  
+
 
   return (
     <View style={styles.container}>
@@ -355,23 +448,20 @@ export default function ArtistDetailScreen() {
                 <Ionicons name="images" size={28} color={theme.colors.secondary} />
                 <Text style={styles.sectionTitle}>Media Gallery</Text>
               </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaScroll}>
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.mediaScroll}
+              >
                 {artist.media_gallery.map((media: string, index: number) => (
-                  <View key={index} style={styles.mediaItemContainer}>
-                    {media.startsWith('data:video') ? (
-                      <View style={styles.videoContainer}>
-                        <Image source={{ uri: media }} style={styles.mediaImage} resizeMode="cover" />
-                        <View style={styles.videoOverlay}>
-                          <View style={styles.playButton}>
-                            <Ionicons name="play" size={40} color={theme.colors.primaryDark} />
-                          </View>
-                          <Text style={styles.videoLabel}>Video {index + 1}</Text>
-                        </View>
-                      </View>
-                    ) : (
-                      <Image source={{ uri: media }} style={styles.mediaImage} resizeMode="cover" />
-                    )}
-                  </View>
+                  <MediaItem
+                    key={index}
+                    media={media}
+                    index={index}
+                    currentPlaying={currentPlaying}
+                    setCurrentPlaying={setCurrentPlaying}
+                  />
                 ))}
               </ScrollView>
             </View>
@@ -542,6 +632,8 @@ export default function ArtistDetailScreen() {
   );
 }
 
+
+// ... (styles object remains the same)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -685,6 +777,15 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
     lineHeight: 24,
   },
+  fullscreenButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Semi-transparent black background
+    zIndex: 10, // Ensure it's above the overlay background
+},
   mediaSection: {
     marginBottom: theme.spacing.xl,
   },
@@ -986,5 +1087,5 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.md,
     color: theme.colors.text,
     fontWeight: '500',
-  },
+  }
 });
