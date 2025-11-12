@@ -41,17 +41,18 @@ export default function ArtistDetailScreen() {
   const isMyProfile = user?.id && artist?.user_id === user?.id;
 
   useEffect(() => {
+    // Track views for all user types that have subscription system
     if (user?.user_type === 'venue') {
       trackView();
+      checkWishlist();
     } else if (user?.user_type === 'artist') {
       trackArtistView();
       fetchArtistSubscription();
+    } else if (user?.user_type === 'partner') {
+      trackPartnerView();
     }
     fetchArtistDetails();
     fetchReviews();
-    if (user?.user_type === 'venue') {
-      checkWishlist();
-    }
   }, [id]);
 
   const fetchArtistSubscription = async () => {
