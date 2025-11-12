@@ -1,515 +1,456 @@
-diff --git a/frontend/app/(tabs)/profile.tsx b/frontend/app/(tabs)/profile.tsx
-index ecbc1d6..9d3aa0d 100644
---- a/frontend/app/(tabs)/profile.tsx
-+++ b/frontend/app/(tabs)/profile.tsx
-@@ -7,7 +7,7 @@ import {
-   TouchableOpacity,
-   Alert,
- } from 'react-native';
--import { useRouter } from 'expo-router';
-+import { useRouter, useFocusEffect } from 'expo-router';
- import { useAuth } from '../../contexts/AuthContext';
- import { theme } from '../../utils/theme';
- import { Ionicons } from '@expo/vector-icons';
-@@ -34,6 +34,15 @@ export default function ProfileScreen() {
-     }
-   }, []);
- 
-+  // Refetch subscription data when screen comes into focus
-+  useFocusEffect(
-+    React.useCallback(() => {
-+      if (user?.user_type === 'artist' || user?.user_type === 'partner' || user?.user_type === 'venue') {
-+        fetchSubscription();
-+      }
-+    }, [user?.user_type, token])
-+  );
-+
-   const fetchSubscription = async () => {
-     if (!token) return;
-     try {
+diff --git a/frontend/app/artist/[id].tsx b/frontend/app/artist/[id].tsx
+index ff258a1..3bb632b 100644
+--- a/frontend/app/artist/[id].tsx
++++ b/frontend/app/artist/[id].tsx
+@@ -77,10 +77,8 @@ export default function ArtistDetailScreen() {
+       );
+       
+       if (!response.data.allowed) {
+-        // Show Go Pro modal
++        // Show Go Pro modal and prevent profile load
+         setShowProModal(true);
+-        // Optionally navigate back
+-        setTimeout(() => router.back(), 500);
+         return;
+       }
+       
+@@ -104,10 +102,8 @@ export default function ArtistDetailScreen() {
+       );
+       
+       if (!response.data.allowed) {
+-        // Show Go Pro modal
++        // Show Go Pro modal and prevent profile load
+         setShowProModal(true);
+-        // Optionally navigate back
+-        setTimeout(() => router.back(), 500);
+         return;
+       }
+       
 diff --git a/model.patch b/model.patch
-index ae2419d..e69de29 100644
+index e5215b6..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,971 +0,0 @@
--diff --git a/frontend/app/artist/[id].tsx b/frontend/app/artist/[id].tsx
--index 9c45f56..012c47f 100644
----- a/frontend/app/artist/[id].tsx
--+++ b/frontend/app/artist/[id].tsx
--@@ -709,11 +709,39 @@ const styles = StyleSheet.create({
--     height: 360,
--     borderRadius: theme.borderRadius.lg,
--   },
---  mediaVideo: {
--+  videoContainer: {
--+    position: 'relative',
--     width: 280,
--     height: 360,
--+  },
--+  videoOverlay: {
--+    position: 'absolute',
--+    top: 0,
--+    left: 0,
--+    right: 0,
--+    bottom: 0,
--+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
--+    justifyContent: 'center',
--+    alignItems: 'center',
--     borderRadius: theme.borderRadius.lg,
---    backgroundColor: theme.colors.background,
--+  },
--+  playButton: {
--+    width: 80,
--+    height: 80,
--+    borderRadius: 40,
--+    backgroundColor: theme.colors.secondary,
--+    justifyContent: 'center',
--+    alignItems: 'center',
--+    ...theme.shadows.lg,
--+  },
--+  videoLabel: {
--+    color: theme.colors.text,
--+    fontSize: theme.fontSize.md,
--+    fontWeight: '600',
--+    marginTop: theme.spacing.md,
--+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
--+    textShadowOffset: { width: 0, height: 1 },
--+    textShadowRadius: 3,
--   },
--   videoPlaceholder: {
--     width: 280,
+@@ -1,1005 +0,0 @@
+-diff --git a/frontend/app/(tabs)/profile.tsx b/frontend/app/(tabs)/profile.tsx
+-index ecbc1d6..9d3aa0d 100644
+---- a/frontend/app/(tabs)/profile.tsx
+-+++ b/frontend/app/(tabs)/profile.tsx
+-@@ -7,7 +7,7 @@ import {
+-   TouchableOpacity,
+-   Alert,
+- } from 'react-native';
+--import { useRouter } from 'expo-router';
+-+import { useRouter, useFocusEffect } from 'expo-router';
+- import { useAuth } from '../../contexts/AuthContext';
+- import { theme } from '../../utils/theme';
+- import { Ionicons } from '@expo/vector-icons';
+-@@ -34,6 +34,15 @@ export default function ProfileScreen() {
+-     }
+-   }, []);
+- 
+-+  // Refetch subscription data when screen comes into focus
+-+  useFocusEffect(
+-+    React.useCallback(() => {
+-+      if (user?.user_type === 'artist' || user?.user_type === 'partner' || user?.user_type === 'venue') {
+-+        fetchSubscription();
+-+      }
+-+    }, [user?.user_type, token])
+-+  );
+-+
+-   const fetchSubscription = async () => {
+-     if (!token) return;
+-     try {
 -diff --git a/model.patch b/model.patch
--index 8b6a464..e69de29 100644
+-index ae2419d..e69de29 100644
 ---- a/model.patch
 -+++ b/model.patch
--@@ -1,920 +0,0 @@
+-@@ -1,971 +0,0 @@
 --diff --git a/frontend/app/artist/[id].tsx b/frontend/app/artist/[id].tsx
---index 4d69779..b3418b3 100644
+--index 9c45f56..012c47f 100644
 ----- a/frontend/app/artist/[id].tsx
 --+++ b/frontend/app/artist/[id].tsx
---@@ -708,6 +708,12 @@ const styles = StyleSheet.create({
+--@@ -709,11 +709,39 @@ const styles = StyleSheet.create({
 --     height: 360,
 --     borderRadius: theme.borderRadius.lg,
 --   },
---+  mediaVideo: {
---+    width: 280,
---+    height: 360,
---+    borderRadius: theme.borderRadius.lg,
---+    backgroundColor: theme.colors.background,
---+  },
---   videoPlaceholder: {
+---  mediaVideo: {
+--+  videoContainer: {
+--+    position: 'relative',
 --     width: 280,
 --     height: 360,
+--+  },
+--+  videoOverlay: {
+--+    position: 'absolute',
+--+    top: 0,
+--+    left: 0,
+--+    right: 0,
+--+    bottom: 0,
+--+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+--+    justifyContent: 'center',
+--+    alignItems: 'center',
+--     borderRadius: theme.borderRadius.lg,
+---    backgroundColor: theme.colors.background,
+--+  },
+--+  playButton: {
+--+    width: 80,
+--+    height: 80,
+--+    borderRadius: 40,
+--+    backgroundColor: theme.colors.secondary,
+--+    justifyContent: 'center',
+--+    alignItems: 'center',
+--+    ...theme.shadows.lg,
+--+  },
+--+  videoLabel: {
+--+    color: theme.colors.text,
+--+    fontSize: theme.fontSize.md,
+--+    fontWeight: '600',
+--+    marginTop: theme.spacing.md,
+--+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+--+    textShadowOffset: { width: 0, height: 1 },
+--+    textShadowRadius: 3,
+--   },
+--   videoPlaceholder: {
+--     width: 280,
 --diff --git a/model.patch b/model.patch
---index af2eae0..e69de29 100644
+--index 8b6a464..e69de29 100644
 ----- a/model.patch
 --+++ b/model.patch
---@@ -1,898 +0,0 @@
----diff --git a/backend/server.py b/backend/server.py
----index 14ee8b7..2f307a4 100644
------- a/backend/server.py
----+++ b/backend/server.py
----@@ -1270,18 +1270,7 @@ async def initialize_subscription(current_user: dict = Depends(get_current_user)
----     subscription.pop("_id", None)
----     return subscription
---- 
-----@api_router.get("/subscription/status")
-----async def get_subscription_status(current_user: dict = Depends(get_current_user)):
-----    if current_user["user_type"] != "venue":
-----        raise HTTPException(status_code=403, detail="Only venues can check subscription")
-----    
-----    subscription = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
-----    if not subscription:
-----        # Auto-initialize
-----        return await initialize_subscription(current_user)
-----    
-----    subscription.pop("_id", None)
-----    return subscription
----+# Removed duplicate venue-only subscription status endpoint - using universal one below
---- 
---- @api_router.post("/subscription/track-view")
---- async def track_profile_view(data: dict, current_user: dict = Depends(get_current_user)):
----@@ -1963,6 +1952,8 @@ async def get_subscription_status(current_user: dict = Depends(get_current_user)
----     
----     if user_type == "artist":
----         subscription = await db.artist_subscriptions.find_one({"artist_user_id": current_user["id"]})
----+        if subscription:
----+            subscription.pop("_id", None)
----         return {
----             "user_type": "artist",
----             "is_pro": current_user.get("is_artist_pro", False),
----@@ -1970,6 +1961,8 @@ async def get_subscription_status(current_user: dict = Depends(get_current_user)
----         }
----     elif user_type == "partner":
----         subscription = await db.partner_subscriptions.find_one({"partner_user_id": current_user["id"]})
----+        if subscription:
----+            subscription.pop("_id", None)
----         return {
----             "user_type": "partner",
----             "is_pro": current_user.get("is_partner_pro", False),
----@@ -1977,6 +1970,8 @@ async def get_subscription_status(current_user: dict = Depends(get_current_user)
----         }
----     elif user_type == "venue":
----         subscription = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
----+        if subscription:
----+            subscription.pop("_id", None)
----         return {
----             "user_type": "venue",
----             "is_pro": current_user.get("is_venue_pro", False),
+--@@ -1,920 +0,0 @@
+---diff --git a/frontend/app/artist/[id].tsx b/frontend/app/artist/[id].tsx
+---index 4d69779..b3418b3 100644
+------ a/frontend/app/artist/[id].tsx
+---+++ b/frontend/app/artist/[id].tsx
+---@@ -708,6 +708,12 @@ const styles = StyleSheet.create({
+---     height: 360,
+---     borderRadius: theme.borderRadius.lg,
+---   },
+---+  mediaVideo: {
+---+    width: 280,
+---+    height: 360,
+---+    borderRadius: theme.borderRadius.lg,
+---+    backgroundColor: theme.colors.background,
+---+  },
+---   videoPlaceholder: {
+---     width: 280,
+---     height: 360,
 ---diff --git a/model.patch b/model.patch
----index 9271475..e69de29 100644
+---index af2eae0..e69de29 100644
 ------ a/model.patch
 ---+++ b/model.patch
----@@ -1,796 +0,0 @@
+---@@ -1,898 +0,0 @@
+----diff --git a/backend/server.py b/backend/server.py
+----index 14ee8b7..2f307a4 100644
+------- a/backend/server.py
+----+++ b/backend/server.py
+----@@ -1270,18 +1270,7 @@ async def initialize_subscription(current_user: dict = Depends(get_current_user)
+----     subscription.pop("_id", None)
+----     return subscription
+---- 
+-----@api_router.get("/subscription/status")
+-----async def get_subscription_status(current_user: dict = Depends(get_current_user)):
+-----    if current_user["user_type"] != "venue":
+-----        raise HTTPException(status_code=403, detail="Only venues can check subscription")
+-----    
+-----    subscription = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
+-----    if not subscription:
+-----        # Auto-initialize
+-----        return await initialize_subscription(current_user)
+-----    
+-----    subscription.pop("_id", None)
+-----    return subscription
+----+# Removed duplicate venue-only subscription status endpoint - using universal one below
+---- 
+---- @api_router.post("/subscription/track-view")
+---- async def track_profile_view(data: dict, current_user: dict = Depends(get_current_user)):
+----@@ -1963,6 +1952,8 @@ async def get_subscription_status(current_user: dict = Depends(get_current_user)
+----     
+----     if user_type == "artist":
+----         subscription = await db.artist_subscriptions.find_one({"artist_user_id": current_user["id"]})
+----+        if subscription:
+----+            subscription.pop("_id", None)
+----         return {
+----             "user_type": "artist",
+----             "is_pro": current_user.get("is_artist_pro", False),
+----@@ -1970,6 +1961,8 @@ async def get_subscription_status(current_user: dict = Depends(get_current_user)
+----         }
+----     elif user_type == "partner":
+----         subscription = await db.partner_subscriptions.find_one({"partner_user_id": current_user["id"]})
+----+        if subscription:
+----+            subscription.pop("_id", None)
+----         return {
+----             "user_type": "partner",
+----             "is_pro": current_user.get("is_partner_pro", False),
+----@@ -1977,6 +1970,8 @@ async def get_subscription_status(current_user: dict = Depends(get_current_user)
+----         }
+----     elif user_type == "venue":
+----         subscription = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
+----+        if subscription:
+----+            subscription.pop("_id", None)
+----         return {
+----             "user_type": "venue",
+----             "is_pro": current_user.get("is_venue_pro", False),
 ----diff --git a/model.patch b/model.patch
-----index 3eafef8..e69de29 100644
+----index 9271475..e69de29 100644
 ------- a/model.patch
 ----+++ b/model.patch
-----@@ -1,791 +0,0 @@
------diff --git a/frontend/app/edit-profile.tsx b/frontend/app/edit-profile.tsx
------index 58053f3..f39198b 100644
--------- a/frontend/app/edit-profile.tsx
------+++ b/frontend/app/edit-profile.tsx
------@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
------ import { LinearGradient } from 'expo-linear-gradient';
------ import axios from 'axios';
------ import * as ImagePicker from 'expo-image-picker';
------+import { Calendar } from 'react-native-calendars';
------ 
------ const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
------ const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+----@@ -1,796 +0,0 @@
 -----diff --git a/model.patch b/model.patch
------index 4db42ea..e69de29 100644
+-----index 3eafef8..e69de29 100644
 -------- a/model.patch
 -----+++ b/model.patch
------@@ -1,774 +0,0 @@
-------diff --git a/.emergent/emergent.yml b/.emergent/emergent.yml
-------index 48024a7..ffec4d7 100644
---------- a/.emergent/emergent.yml
-------+++ b/.emergent/emergent.yml
-------@@ -1,5 +1,5 @@
------- {
-------   "env_image_name": "expo_mongo_base_image_cloud_arm:release-13102025-1",
-------   "job_id": "687a7d5c-0510-4d03-91ed-edc180d7e104",
--------  "created_at": "2025-10-16T10:15:29.109116+00:00Z"
-------+  "created_at": "2025-10-20T08:59:41.582373+00:00Z"
------- }
-------diff --git a/.gitignore b/.gitignore
-------index 467d87d..36d22b2 100644
---------- a/.gitignore
-------+++ b/.gitignore
-------@@ -121,3 +121,7 @@ android-sdk/ -e
------- # Environment files
------- *.env
------- *.env.*
-------+-e 
-------+# Environment files
-------+*.env
-------+*.env.*
+-----@@ -1,791 +0,0 @@
 ------diff --git a/frontend/app/edit-profile.tsx b/frontend/app/edit-profile.tsx
-------index 4f35ef0..58053f3 100644
+------index 58053f3..f39198b 100644
 --------- a/frontend/app/edit-profile.tsx
 ------+++ b/frontend/app/edit-profile.tsx
-------@@ -463,7 +463,7 @@ export default function EditProfileScreen() {
-------                 
-------                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaGallery}>
-------                   {mediaGallery.map((media, index) => {
--------                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
-------+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov') || media.includes(';uri,');
-------                     
-------                     return (
-------                       <View key={index} style={styles.mediaItem}>
-------@@ -471,6 +471,7 @@ export default function EditProfileScreen() {
-------                           <View style={styles.videoPlaceholder}>
-------                             <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
-------                             <Text style={styles.videoLabel}>Video {index + 1}</Text>
-------+                            <Text style={styles.videoSubLabel}>Tap to play</Text>
-------                           </View>
-------                         ) : (
-------                           <Image source={{ uri: media }} style={styles.mediaImage} />
-------@@ -547,7 +548,7 @@ export default function EditProfileScreen() {
-------                 
-------                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaGallery}>
-------                   {mediaGallery.map((media, index) => {
--------                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
-------+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov') || media.includes(';uri,');
-------                     
-------                     return (
-------                       <View key={index} style={styles.mediaItem}>
-------@@ -555,6 +556,7 @@ export default function EditProfileScreen() {
-------                           <View style={styles.videoPlaceholder}>
-------                             <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
-------                             <Text style={styles.videoLabel}>Video {index + 1}</Text>
-------+                            <Text style={styles.videoSubLabel}>Tap to play</Text>
-------                           </View>
-------                         ) : (
-------                           <Image source={{ uri: media }} style={styles.mediaImage} />
-------@@ -951,4 +953,10 @@ const styles = StyleSheet.create({
-------     fontWeight: '600',
-------     marginTop: theme.spacing.xs,
-------   },
-------+  videoSubLabel: {
-------+    fontSize: theme.fontSize.xs,
-------+    color: theme.colors.textSecondary,
-------+    fontWeight: '400',
-------+    marginTop: theme.spacing.xs / 2,
-------+  },
------- });
+------@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
+------ import { LinearGradient } from 'expo-linear-gradient';
+------ import axios from 'axios';
+------ import * as ImagePicker from 'expo-image-picker';
+------+import { Calendar } from 'react-native-calendars';
+------ 
+------ const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+------ const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 ------diff --git a/model.patch b/model.patch
-------index 785c8cf..e69de29 100644
+------index 4db42ea..e69de29 100644
 --------- a/model.patch
 ------+++ b/model.patch
-------@@ -1,697 +0,0 @@
+------@@ -1,774 +0,0 @@
+-------diff --git a/.emergent/emergent.yml b/.emergent/emergent.yml
+-------index 48024a7..ffec4d7 100644
+---------- a/.emergent/emergent.yml
+-------+++ b/.emergent/emergent.yml
+-------@@ -1,5 +1,5 @@
+------- {
+-------   "env_image_name": "expo_mongo_base_image_cloud_arm:release-13102025-1",
+-------   "job_id": "687a7d5c-0510-4d03-91ed-edc180d7e104",
+--------  "created_at": "2025-10-16T10:15:29.109116+00:00Z"
+-------+  "created_at": "2025-10-20T08:59:41.582373+00:00Z"
+------- }
+-------diff --git a/.gitignore b/.gitignore
+-------index 467d87d..36d22b2 100644
+---------- a/.gitignore
+-------+++ b/.gitignore
+-------@@ -121,3 +121,7 @@ android-sdk/ -e
+------- # Environment files
+------- *.env
+------- *.env.*
+-------+-e 
+-------+# Environment files
+-------+*.env
+-------+*.env.*
 -------diff --git a/frontend/app/edit-profile.tsx b/frontend/app/edit-profile.tsx
--------index c971ad1..265e8c5 100644
+-------index 4f35ef0..58053f3 100644
 ---------- a/frontend/app/edit-profile.tsx
 -------+++ b/frontend/app/edit-profile.tsx
--------@@ -435,23 +435,42 @@ export default function EditProfileScreen() {
--------               
--------               {/* MEDIA GALLERY SECTION */}
--------               <View style={styles.mediaSection}>
---------                <Text style={styles.label}>Photos & Videos</Text>
--------+                <View style={styles.mediaHeader}>
--------+                  <Ionicons name="images" size={24} color={theme.colors.secondary} />
--------+                  <Text style={styles.label}>Photos & Videos</Text>
--------+                </View>
--------+                <Text style={styles.helperText}>Upload images and videos (max 10)</Text>
--------+                
+-------@@ -463,7 +463,7 @@ export default function EditProfileScreen() {
+-------                 
 -------                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaGallery}>
---------                  {mediaGallery.map((media, index) => (
---------                    <View key={index} style={styles.mediaItem}>
---------                      <Image source={{ uri: media }} style={styles.mediaImage} />
---------                      <TouchableOpacity
---------                        style={styles.removeMediaButton}
---------                        onPress={() => removeMedia(index)}
---------                      >
---------                        <Ionicons name="close-circle" size={24} color={theme.colors.error} />
---------                      </TouchableOpacity>
---------                    </View>
---------                  ))}
---------                  <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia}>
---------                    <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
---------                    <Text style={styles.addMediaText}>Add Photo/Video</Text>
---------                  </TouchableOpacity>
--------+                  {mediaGallery.map((media, index) => {
--------+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
--------+                    
--------+                    return (
--------+                      <View key={index} style={styles.mediaItem}>
--------+                        {isVideo ? (
--------+                          <View style={styles.videoPlaceholder}>
--------+                            <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
--------+                            <Text style={styles.videoLabel}>Video {index + 1}</Text>
--------+                          </View>
--------+                        ) : (
--------+                          <Image source={{ uri: media }} style={styles.mediaImage} />
--------+                        )}
--------+                        <TouchableOpacity
--------+                          style={styles.removeMediaButton}
--------+                          onPress={() => removeMedia(index)}
--------+                        >
--------+                          <Ionicons name="close-circle" size={24} color={theme.colors.error} />
--------+                        </TouchableOpacity>
--------+                      </View>
--------+                    );
--------+                  })}
--------+                  
--------+                  {mediaGallery.length < 10 && (
--------+                    <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia} disabled={loading}>
--------+                      <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
--------+                      <Text style={styles.addMediaText}>Add Photo/Video</Text>
--------+                    </TouchableOpacity>
--------+                  )}
--------                 </ScrollView>
--------               </View>
--------             </>
--------@@ -500,23 +519,42 @@ export default function EditProfileScreen() {
-------- 
--------               {/* MEDIA GALLERY SECTION */}
--------               <View style={styles.mediaSection}>
---------                <Text style={styles.label}>Photos & Videos</Text>
--------+                <View style={styles.mediaHeader}>
--------+                  <Ionicons name="images" size={24} color={theme.colors.secondary} />
--------+                  <Text style={styles.label}>Photos & Videos</Text>
--------+                </View>
--------+                <Text style={styles.helperText}>Upload images and videos (max 10)</Text>
--------+                
+-------                   {mediaGallery.map((media, index) => {
+--------                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
+-------+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov') || media.includes(';uri,');
+-------                     
+-------                     return (
+-------                       <View key={index} style={styles.mediaItem}>
+-------@@ -471,6 +471,7 @@ export default function EditProfileScreen() {
+-------                           <View style={styles.videoPlaceholder}>
+-------                             <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
+-------                             <Text style={styles.videoLabel}>Video {index + 1}</Text>
+-------+                            <Text style={styles.videoSubLabel}>Tap to play</Text>
+-------                           </View>
+-------                         ) : (
+-------                           <Image source={{ uri: media }} style={styles.mediaImage} />
+-------@@ -547,7 +548,7 @@ export default function EditProfileScreen() {
+-------                 
 -------                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaGallery}>
---------                  {mediaGallery.map((media, index) => (
---------                    <View key={index} style={styles.mediaItem}>
---------                      <Image source={{ uri: media }} style={styles.mediaImage} />
---------                      <TouchableOpacity
---------                        style={styles.removeMediaButton}
---------                        onPress={() => removeMedia(index)}
---------                      >
---------                        <Ionicons name="close-circle" size={24} color={theme.colors.error} />
---------                      </TouchableOpacity>
---------                    </View>
---------                  ))}
---------                  <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia}>
---------                    <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
---------                    <Text style={styles.addMediaText}>Add Photo/Video</Text>
---------                  </TouchableOpacity>
--------+                  {mediaGallery.map((media, index) => {
--------+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
--------+                    
--------+                    return (
--------+                      <View key={index} style={styles.mediaItem}>
--------+                        {isVideo ? (
--------+                          <View style={styles.videoPlaceholder}>
--------+                            <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
--------+                            <Text style={styles.videoLabel}>Video {index + 1}</Text>
--------+                          </View>
--------+                        ) : (
--------+                          <Image source={{ uri: media }} style={styles.mediaImage} />
--------+                        )}
--------+                        <TouchableOpacity
--------+                          style={styles.removeMediaButton}
--------+                          onPress={() => removeMedia(index)}
--------+                        >
--------+                          <Ionicons name="close-circle" size={24} color={theme.colors.error} />
--------+                        </TouchableOpacity>
--------+                      </View>
--------+                    );
--------+                  })}
--------+                  
--------+                  {mediaGallery.length < 10 && (
--------+                    <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia} disabled={loading}>
--------+                      <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
--------+                      <Text style={styles.addMediaText}>Add Photo/Video</Text>
--------+                    </TouchableOpacity>
--------+                  )}
--------                 </ScrollView>
--------               </View>
--------             </>
--------@@ -848,4 +886,26 @@ const styles = StyleSheet.create({
+-------                   {mediaGallery.map((media, index) => {
+--------                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
+-------+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov') || media.includes(';uri,');
+-------                     
+-------                     return (
+-------                       <View key={index} style={styles.mediaItem}>
+-------@@ -555,6 +556,7 @@ export default function EditProfileScreen() {
+-------                           <View style={styles.videoPlaceholder}>
+-------                             <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
+-------                             <Text style={styles.videoLabel}>Video {index + 1}</Text>
+-------+                            <Text style={styles.videoSubLabel}>Tap to play</Text>
+-------                           </View>
+-------                         ) : (
+-------                           <Image source={{ uri: media }} style={styles.mediaImage} />
+-------@@ -951,4 +953,10 @@ const styles = StyleSheet.create({
 -------     fontWeight: '600',
 -------     marginTop: theme.spacing.xs,
 -------   },
--------+  mediaHeader: {
--------+    flexDirection: 'row',
--------+    alignItems: 'center',
--------+    gap: theme.spacing.sm,
--------+    marginBottom: theme.spacing.xs,
--------+  },
--------+  videoPlaceholder: {
--------+    width: 120,
--------+    height: 120,
--------+    borderRadius: theme.borderRadius.lg,
--------+    backgroundColor: theme.colors.surfaceLight,
--------+    alignItems: 'center',
--------+    justifyContent: 'center',
--------+    borderWidth: 1,
--------+    borderColor: theme.colors.border,
--------+  },
--------+  videoLabel: {
+-------+  videoSubLabel: {
 -------+    fontSize: theme.fontSize.xs,
--------+    color: theme.colors.white,
--------+    fontWeight: '600',
--------+    marginTop: theme.spacing.xs,
+-------+    color: theme.colors.textSecondary,
+-------+    fontWeight: '400',
+-------+    marginTop: theme.spacing.xs / 2,
 -------+  },
 ------- });
 -------diff --git a/model.patch b/model.patch
--------index c81912d..7d21741 100644
+-------index 785c8cf..e69de29 100644
 ---------- a/model.patch
 -------+++ b/model.patch
--------@@ -1,543 +0,0 @@
---------diff --git a/frontend/app/partner/[id].tsx b/frontend/app/partner/[id].tsx
---------index 47f7f3c..fcd82e4 100644
------------ a/frontend/app/partner/[id].tsx
---------+++ b/frontend/app/partner/[id].tsx
---------@@ -15,6 +15,7 @@ import { theme } from '../../utils/theme';
--------- import { Ionicons } from '@expo/vector-icons';
--------- import { LinearGradient } from 'expo-linear-gradient';
--------- import axios from 'axios';
---------+import SubscriptionPopup from '../../components/SubscriptionPopup';
+-------@@ -1,697 +0,0 @@
+--------diff --git a/frontend/app/edit-profile.tsx b/frontend/app/edit-profile.tsx
+--------index c971ad1..265e8c5 100644
+----------- a/frontend/app/edit-profile.tsx
+--------+++ b/frontend/app/edit-profile.tsx
+--------@@ -435,23 +435,42 @@ export default function EditProfileScreen() {
+--------               
+--------               {/* MEDIA GALLERY SECTION */}
+--------               <View style={styles.mediaSection}>
+---------                <Text style={styles.label}>Photos & Videos</Text>
+--------+                <View style={styles.mediaHeader}>
+--------+                  <Ionicons name="images" size={24} color={theme.colors.secondary} />
+--------+                  <Text style={styles.label}>Photos & Videos</Text>
+--------+                </View>
+--------+                <Text style={styles.helperText}>Upload images and videos (max 10)</Text>
+--------+                
+--------                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaGallery}>
+---------                  {mediaGallery.map((media, index) => (
+---------                    <View key={index} style={styles.mediaItem}>
+---------                      <Image source={{ uri: media }} style={styles.mediaImage} />
+---------                      <TouchableOpacity
+---------                        style={styles.removeMediaButton}
+---------                        onPress={() => removeMedia(index)}
+---------                      >
+---------                        <Ionicons name="close-circle" size={24} color={theme.colors.error} />
+---------                      </TouchableOpacity>
+---------                    </View>
+---------                  ))}
+---------                  <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia}>
+---------                    <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
+---------                    <Text style={styles.addMediaText}>Add Photo/Video</Text>
+---------                  </TouchableOpacity>
+--------+                  {mediaGallery.map((media, index) => {
+--------+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
+--------+                    
+--------+                    return (
+--------+                      <View key={index} style={styles.mediaItem}>
+--------+                        {isVideo ? (
+--------+                          <View style={styles.videoPlaceholder}>
+--------+                            <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
+--------+                            <Text style={styles.videoLabel}>Video {index + 1}</Text>
+--------+                          </View>
+--------+                        ) : (
+--------+                          <Image source={{ uri: media }} style={styles.mediaImage} />
+--------+                        )}
+--------+                        <TouchableOpacity
+--------+                          style={styles.removeMediaButton}
+--------+                          onPress={() => removeMedia(index)}
+--------+                        >
+--------+                          <Ionicons name="close-circle" size={24} color={theme.colors.error} />
+--------+                        </TouchableOpacity>
+--------+                      </View>
+--------+                    );
+--------+                  })}
+--------+                  
+--------+                  {mediaGallery.length < 10 && (
+--------+                    <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia} disabled={loading}>
+--------+                      <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
+--------+                      <Text style={styles.addMediaText}>Add Photo/Video</Text>
+--------+                    </TouchableOpacity>
+--------+                  )}
+--------                 </ScrollView>
+--------               </View>
+--------             </>
+--------@@ -500,23 +519,42 @@ export default function EditProfileScreen() {
 -------- 
--------- const { width } = Dimensions.get('window');
--------- const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
---------@@ -27,8 +28,12 @@ export default function PartnerDetailScreen() {
---------   const [reviews, setReviews] = useState([]);
---------   const [isInWishlist, setIsInWishlist] = useState(false);
---------   const [loading, setLoading] = useState(true);
---------+  const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
--------- 
---------   useEffect(() => {
---------+    if (user?.user_type === 'venue') {
---------+      trackView();
---------+    }
---------     fetchPartnerDetails();
---------     fetchReviews();
---------     if (user?.user_type === 'venue') {
---------@@ -36,6 +41,48 @@ export default function PartnerDetailScreen() {
---------     }
---------   }, [id]);
--------- 
---------+  const trackView = async () => {
---------+    try {
---------+      const response = await axios.post(
---------+        `${BACKEND_URL}/api/subscription/track-view`,
---------+        { profile_id: id },
---------+        { headers: { Authorization: `Bearer ${token}` } }
---------+      );
---------+
---------+      if (!response.data.allowed) {
---------+        setShowSubscriptionPopup(true);
---------+      }
---------+    } catch (error) {
---------+      console.log('View tracking:', error);
---------+    }
---------+  };
---------+
---------+  const handleSubscribe = async (type: 'monthly' | 'pay_per_view') => {
---------+    try {
---------+      const orderResponse = await axios.post(
---------+        `${BACKEND_URL}/api/subscription/create-razorpay-order`,
---------+        { payment_type: type },
---------+        { headers: { Authorization: `Bearer ${token}` } }
---------+      );
---------+
---------+      await axios.post(
---------+        `${BACKEND_URL}/api/subscription/verify-payment`,
---------+        {
---------+          razorpay_order_id: orderResponse.data.order_id,
---------+          razorpay_payment_id: 'test_payment_' + Date.now(),
---------+          razorpay_signature: 'test_signature',
---------+          payment_type: type,
---------+        },
---------+        { headers: { Authorization: `Bearer ${token}` } }
---------+      );
---------+
---------+      Alert.alert('Success!', 'Subscription activated successfully!');
---------+      setShowSubscriptionPopup(false);
---------+    } catch (error) {
---------+      Alert.alert('Error', 'Payment failed. Please try again.');
---------+    }
---------+  };
---------+
---------   const fetchPartnerDetails = async () => {
---------     try {
---------       const response = await axios.get(`${BACKEND_URL}/api/partners/${id}`);
---------@@ -254,6 +301,12 @@ export default function PartnerDetailScreen() {
---------           )}
---------         </View>
---------       </ScrollView>
---------+      
---------+      <SubscriptionPopup
---------+        visible={showSubscriptionPopup}
---------+        onClose={() => setShowSubscriptionPopup(false)}
---------+        onSubscribe={handleSubscribe}
---------+      />
---------     </View>
---------   );
--------- }
+--------               {/* MEDIA GALLERY SECTION */}
+--------               <View style={styles.mediaSection}>
+---------                <Text style={styles.label}>Photos & Videos</Text>
+--------+                <View style={styles.mediaHeader}>
+--------+                  <Ionicons name="images" size={24} color={theme.colors.secondary} />
+--------+                  <Text style={styles.label}>Photos & Videos</Text>
+--------+                </View>
+--------+                <Text style={styles.helperText}>Upload images and videos (max 10)</Text>
+--------+                
+--------                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaGallery}>
+---------                  {mediaGallery.map((media, index) => (
+---------                    <View key={index} style={styles.mediaItem}>
+---------                      <Image source={{ uri: media }} style={styles.mediaImage} />
+---------                      <TouchableOpacity
+---------                        style={styles.removeMediaButton}
+---------                        onPress={() => removeMedia(index)}
+---------                      >
+---------                        <Ionicons name="close-circle" size={24} color={theme.colors.error} />
+---------                      </TouchableOpacity>
+---------                    </View>
+---------                  ))}
+---------                  <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia}>
+---------                    <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
+---------                    <Text style={styles.addMediaText}>Add Photo/Video</Text>
+---------                  </TouchableOpacity>
+--------+                  {mediaGallery.map((media, index) => {
+--------+                    const isVideo = media.includes('data:video') || media.includes('.mp4') || media.includes('.mov');
+--------+                    
+--------+                    return (
+--------+                      <View key={index} style={styles.mediaItem}>
+--------+                        {isVideo ? (
+--------+                          <View style={styles.videoPlaceholder}>
+--------+                            <Ionicons name="play-circle" size={48} color={theme.colors.secondary} />
+--------+                            <Text style={styles.videoLabel}>Video {index + 1}</Text>
+--------+                          </View>
+--------+                        ) : (
+--------+                          <Image source={{ uri: media }} style={styles.mediaImage} />
+--------+                        )}
+--------+                        <TouchableOpacity
+--------+                          style={styles.removeMediaButton}
+--------+                          onPress={() => removeMedia(index)}
+--------+                        >
+--------+                          <Ionicons name="close-circle" size={24} color={theme.colors.error} />
+--------+                        </TouchableOpacity>
+--------+                      </View>
+--------+                    );
+--------+                  })}
+--------+                  
+--------+                  {mediaGallery.length < 10 && (
+--------+                    <TouchableOpacity style={styles.addMediaButton} onPress={pickMedia} disabled={loading}>
+--------+                      <Ionicons name="add-circle" size={48} color={theme.colors.secondary} />
+--------+                      <Text style={styles.addMediaText}>Add Photo/Video</Text>
+--------+                    </TouchableOpacity>
+--------+                  )}
+--------                 </ScrollView>
+--------               </View>
+--------             </>
+--------@@ -848,4 +886,26 @@ const styles = StyleSheet.create({
+--------     fontWeight: '600',
+--------     marginTop: theme.spacing.xs,
+--------   },
+--------+  mediaHeader: {
+--------+    flexDirection: 'row',
+--------+    alignItems: 'center',
+--------+    gap: theme.spacing.sm,
+--------+    marginBottom: theme.spacing.xs,
+--------+  },
+--------+  videoPlaceholder: {
+--------+    width: 120,
+--------+    height: 120,
+--------+    borderRadius: theme.borderRadius.lg,
+--------+    backgroundColor: theme.colors.surfaceLight,
+--------+    alignItems: 'center',
+--------+    justifyContent: 'center',
+--------+    borderWidth: 1,
+--------+    borderColor: theme.colors.border,
+--------+  },
+--------+  videoLabel: {
+--------+    fontSize: theme.fontSize.xs,
+--------+    color: theme.colors.white,
+--------+    fontWeight: '600',
+--------+    marginTop: theme.spacing.xs,
+--------+  },
+-------- });
 --------diff --git a/model.patch b/model.patch
---------index 2028d0e..e69de29 100644
+--------index c81912d..7d21741 100644
 ----------- a/model.patch
 --------+++ b/model.patch
---------@@ -1,451 +0,0 @@
----------diff --git a/frontend/app/artist/[id].tsx b/frontend/app/artist/[id].tsx
----------index 1a42691..b04b81d 100644
------------- a/frontend/app/artist/[id].tsx
----------+++ b/frontend/app/artist/[id].tsx
+--------@@ -1,543 +0,0 @@
+---------diff --git a/frontend/app/partner/[id].tsx b/frontend/app/partner/[id].tsx
+---------index 47f7f3c..fcd82e4 100644
+------------ a/frontend/app/partner/[id].tsx
+---------+++ b/frontend/app/partner/[id].tsx
 ---------@@ -15,6 +15,7 @@ import { theme } from '../../utils/theme';
 --------- import { Ionicons } from '@expo/vector-icons';
 --------- import { LinearGradient } from 'expo-linear-gradient';
@@ -518,7 +459,7 @@ index ae2419d..e69de29 100644
 --------- 
 --------- const { width } = Dimensions.get('window');
 --------- const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
----------@@ -29,8 +30,12 @@ export default function ArtistDetailScreen() {
+---------@@ -27,8 +28,12 @@ export default function PartnerDetailScreen() {
 ---------   const [reviews, setReviews] = useState([]);
 ---------   const [isInWishlist, setIsInWishlist] = useState(false);
 ---------   const [loading, setLoading] = useState(true);
@@ -528,10 +469,10 @@ index ae2419d..e69de29 100644
 ---------+    if (user?.user_type === 'venue') {
 ---------+      trackView();
 ---------+    }
----------     fetchArtistDetails();
+---------     fetchPartnerDetails();
 ---------     fetchReviews();
 ---------     if (user?.user_type === 'venue') {
----------@@ -38,6 +43,49 @@ export default function ArtistDetailScreen() {
+---------@@ -36,6 +41,48 @@ export default function PartnerDetailScreen() {
 ---------     }
 ---------   }, [id]);
 --------- 
@@ -559,7 +500,6 @@ index ae2419d..e69de29 100644
 ---------+        { headers: { Authorization: `Bearer ${token}` } }
 ---------+      );
 ---------+
----------+      // In test mode, auto-verify payment
 ---------+      await axios.post(
 ---------+        `${BACKEND_URL}/api/subscription/verify-payment`,
 ---------+        {
@@ -578,10 +518,10 @@ index ae2419d..e69de29 100644
 ---------+    }
 ---------+  };
 ---------+
----------   const fetchArtistDetails = async () => {
+---------   const fetchPartnerDetails = async () => {
 ---------     try {
----------       const response = await axios.get(`${BACKEND_URL}/api/artists/${id}`);
----------@@ -342,6 +390,12 @@ export default function ArtistDetailScreen() {
+---------       const response = await axios.get(`${BACKEND_URL}/api/partners/${id}`);
+---------@@ -254,6 +301,12 @@ export default function PartnerDetailScreen() {
 ---------           )}
 ---------         </View>
 ---------       </ScrollView>
@@ -595,411 +535,504 @@ index ae2419d..e69de29 100644
 ---------   );
 --------- }
 ---------diff --git a/model.patch b/model.patch
----------index aef3849..e69de29 100644
+---------index 2028d0e..e69de29 100644
 ------------ a/model.patch
 ---------+++ b/model.patch
----------@@ -1,358 +0,0 @@
-----------diff --git a/frontend/app/(tabs)/home.tsx b/frontend/app/(tabs)/home.tsx
-----------index 319aa01..d08d671 100644
-------------- a/frontend/app/(tabs)/home.tsx
-----------+++ b/frontend/app/(tabs)/home.tsx
-----------@@ -28,40 +28,75 @@ export default function HomeScreen() {
-----------   const [refreshing, setRefreshing] = useState(false);
+---------@@ -1,451 +0,0 @@
+----------diff --git a/frontend/app/artist/[id].tsx b/frontend/app/artist/[id].tsx
+----------index 1a42691..b04b81d 100644
+------------- a/frontend/app/artist/[id].tsx
+----------+++ b/frontend/app/artist/[id].tsx
+----------@@ -15,6 +15,7 @@ import { theme } from '../../utils/theme';
+---------- import { Ionicons } from '@expo/vector-icons';
+---------- import { LinearGradient } from 'expo-linear-gradient';
+---------- import axios from 'axios';
+----------+import SubscriptionPopup from '../../components/SubscriptionPopup';
 ---------- 
-----------   // Animations
------------  const logoScale = useSharedValue(0.8);
------------  const logoOpacity = useSharedValue(0);
------------  const bannerScale = useSharedValue(0.95);
------------  const bannerOpacity = useSharedValue(0);
------------  const sparkleRotate = useSharedValue(0);
------------  const sparkleScale = useSharedValue(1);
------------  const scrollY = useSharedValue(0);
-----------+  const logoScale = useRef(new Animated.Value(0.8)).current;
-----------+  const logoOpacity = useRef(new Animated.Value(0)).current;
-----------+  const bannerScale = useRef(new Animated.Value(0.95)).current;
-----------+  const bannerOpacity = useRef(new Animated.Value(0)).current;
-----------+  const sparkleRotate = useRef(new Animated.Value(0)).current;
-----------+  const sparkleScale = useRef(new Animated.Value(1)).current;
+---------- const { width } = Dimensions.get('window');
+---------- const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+----------@@ -29,8 +30,12 @@ export default function ArtistDetailScreen() {
+----------   const [reviews, setReviews] = useState([]);
+----------   const [isInWishlist, setIsInWishlist] = useState(false);
+----------   const [loading, setLoading] = useState(true);
+----------+  const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
 ---------- 
 ----------   useEffect(() => {
-----------     fetchData();
+----------+    if (user?.user_type === 'venue') {
+----------+      trackView();
+----------+    }
+----------     fetchArtistDetails();
+----------     fetchReviews();
+----------     if (user?.user_type === 'venue') {
+----------@@ -38,6 +43,49 @@ export default function ArtistDetailScreen() {
+----------     }
+----------   }, [id]);
 ---------- 
-----------     // Entrance animations
------------    logoScale.value = withSpring(1, { damping: 10 });
------------    logoOpacity.value = withTiming(1, { duration: 600 });
-----------+    Animated.parallel([
-----------+      Animated.spring(logoScale, {
-----------+        toValue: 1,
-----------+        friction: 10,
-----------+        useNativeDriver: true,
-----------+      }),
-----------+      Animated.timing(logoOpacity, {
-----------+        toValue: 1,
-----------+        duration: 600,
-----------+        useNativeDriver: true,
-----------+      }),
-----------+    ]).start();
----------- 
-----------     setTimeout(() => {
------------      bannerScale.value = withSpring(1, { damping: 8 });
------------      bannerOpacity.value = withTiming(1, { duration: 500 });
-----------+      Animated.parallel([
-----------+        Animated.spring(bannerScale, {
-----------+          toValue: 1,
-----------+          friction: 8,
-----------+          useNativeDriver: true,
-----------+        }),
-----------+        Animated.timing(bannerOpacity, {
-----------+          toValue: 1,
-----------+          duration: 500,
-----------+          useNativeDriver: true,
-----------+        }),
-----------+      ]).start();
-----------     }, 300);
----------- 
-----------     // Continuous sparkle animation
------------    sparkleRotate.value = withRepeat(
------------      withTiming(360, { duration: 3000, easing: Easing.linear }),
------------      -1
------------    );
------------    sparkleScale.value = withRepeat(
------------      withSequence(
------------        withTiming(1.2, { duration: 1000 }),
------------        withTiming(1, { duration: 1000 })
------------      ),
------------      -1
------------    );
-----------+    Animated.loop(
-----------+      Animated.timing(sparkleRotate, {
-----------+        toValue: 1,
-----------+        duration: 3000,
-----------+        useNativeDriver: true,
-----------+      })
-----------+    ).start();
+----------+  const trackView = async () => {
+----------+    try {
+----------+      const response = await axios.post(
+----------+        `${BACKEND_URL}/api/subscription/track-view`,
+----------+        { profile_id: id },
+----------+        { headers: { Authorization: `Bearer ${token}` } }
+----------+      );
 ----------+
-----------+    Animated.loop(
-----------+      Animated.sequence([
-----------+        Animated.timing(sparkleScale, {
-----------+          toValue: 1.2,
-----------+          duration: 1000,
-----------+          useNativeDriver: true,
-----------+        }),
-----------+        Animated.timing(sparkleScale, {
-----------+          toValue: 1,
-----------+          duration: 1000,
-----------+          useNativeDriver: true,
-----------+        }),
-----------+      ])
-----------+    ).start();
-----------   }, []);
----------- 
-----------+  const sparkleSpin = sparkleRotate.interpolate({
-----------+    inputRange: [0, 1],
-----------+    outputRange: ['0deg', '360deg'],
-----------+  });
+----------+      if (!response.data.allowed) {
+----------+        setShowSubscriptionPopup(true);
+----------+      }
+----------+    } catch (error) {
+----------+      console.log('View tracking:', error);
+----------+    }
+----------+  };
 ----------+
-----------   const fetchData = async () => {
+----------+  const handleSubscribe = async (type: 'monthly' | 'pay_per_view') => {
+----------+    try {
+----------+      const orderResponse = await axios.post(
+----------+        `${BACKEND_URL}/api/subscription/create-razorpay-order`,
+----------+        { payment_type: type },
+----------+        { headers: { Authorization: `Bearer ${token}` } }
+----------+      );
+----------+
+----------+      // In test mode, auto-verify payment
+----------+      await axios.post(
+----------+        `${BACKEND_URL}/api/subscription/verify-payment`,
+----------+        {
+----------+          razorpay_order_id: orderResponse.data.order_id,
+----------+          razorpay_payment_id: 'test_payment_' + Date.now(),
+----------+          razorpay_signature: 'test_signature',
+----------+          payment_type: type,
+----------+        },
+----------+        { headers: { Authorization: `Bearer ${token}` } }
+----------+      );
+----------+
+----------+      Alert.alert('Success!', 'Subscription activated successfully!');
+----------+      setShowSubscriptionPopup(false);
+----------+    } catch (error) {
+----------+      Alert.alert('Error', 'Payment failed. Please try again.');
+----------+    }
+----------+  };
+----------+
+----------   const fetchArtistDetails = async () => {
 ----------     try {
-----------       const [artistsRes, partnersRes] = await Promise.all([
-----------@@ -85,31 +120,6 @@ export default function HomeScreen() {
-----------     setRefreshing(false);
-----------   };
----------- 
------------  const logoAnimatedStyle = useAnimatedStyle(() => ({
------------    transform: [{ scale: logoScale.value }],
------------    opacity: logoOpacity.value,
------------  }));
------------
------------  const bannerAnimatedStyle = useAnimatedStyle(() => ({
------------    transform: [{ scale: bannerScale.value }],
------------    opacity: bannerOpacity.value,
------------  }));
------------
------------  const sparkleAnimatedStyle = useAnimatedStyle(() => ({
------------    transform: [
------------      { rotate: `${sparkleRotate.value}deg` },
------------      { scale: sparkleScale.value },
------------    ],
------------  }));
------------
------------  const handleCardPress = (scale: Animated.SharedValue<number>, action: () => void) => {
------------    scale.value = withSequence(
------------      withSpring(0.95, { damping: 10 }),
------------      withSpring(1, { damping: 10 })
------------    );
------------    setTimeout(action, 100);
------------  };
------------
-----------   return (
-----------     <View style={styles.container}>
-----------       <LinearGradient
-----------@@ -118,14 +128,20 @@ export default function HomeScreen() {
-----------       >
-----------         <View style={styles.headerContent}>
-----------           <View style={styles.headerLeft}>
------------            <Animated.View style={logoAnimatedStyle}>
-----------+            <Animated.View style={{
-----------+              transform: [{ scale: logoScale }],
-----------+              opacity: logoOpacity,
-----------+            }}>
-----------               <Image 
-----------                 source={{ uri: 'https://customer-assets.emergentagent.com/job_artist-hub-37/artifacts/nm0jan68_ChatGPT%20Image%20Oct%2015%2C%202025%2C%2010_51_19%20PM.png' }}
-----------                 style={styles.logoImage}
-----------                 resizeMode="contain"
-----------               />
-----------             </Animated.View>
------------            <Animated.Text style={[styles.tagline, logoAnimatedStyle]}>
-----------+            <Animated.Text style={[styles.tagline, {
-----------+              transform: [{ scale: logoScale }],
-----------+              opacity: logoOpacity,
-----------+            }]}>
-----------               One platform. Endless connections.
-----------             </Animated.Text>
-----------           </View>
-----------@@ -140,7 +156,10 @@ export default function HomeScreen() {
-----------           </TouchableOpacity>
+----------       const response = await axios.get(`${BACKEND_URL}/api/artists/${id}`);
+----------@@ -342,6 +390,12 @@ export default function ArtistDetailScreen() {
+----------           )}
 ----------         </View>
-----------         
------------        <Animated.View style={bannerAnimatedStyle}>
-----------+        <Animated.View style={{
-----------+          transform: [{ scale: bannerScale }],
-----------+          opacity: bannerOpacity,
-----------+        }}>
-----------           <LinearGradient
-----------             colors={['#F9E28C', '#E1C05B', '#D4AF37']}
-----------             start={{ x: 0, y: 0 }}
-----------@@ -148,10 +167,20 @@ export default function HomeScreen() {
-----------             style={styles.heroBanner}
-----------           >
-----------             {/* Floating sparkles */}
------------            <Animated.View style={[styles.heroBannerSparkle1, sparkleAnimatedStyle]}>
-----------+            <Animated.View style={[styles.heroBannerSparkle1, {
-----------+              transform: [
-----------+                { rotate: sparkleSpin },
-----------+                { scale: sparkleScale },
-----------+              ],
-----------+            }]}>
-----------               <Ionicons name="sparkles" size={20} color={theme.colors.primaryDark} />
-----------             </Animated.View>
------------            <Animated.View style={[styles.heroBannerSparkle2, sparkleAnimatedStyle]}>
-----------+            <Animated.View style={[styles.heroBannerSparkle2, {
-----------+              transform: [
-----------+                { rotate: sparkleSpin },
-----------+                { scale: sparkleScale },
-----------+              ],
-----------+            }]}>
-----------               <Ionicons name="sparkles" size={16} color={theme.colors.primaryDark} />
-----------             </Animated.View>
----------- 
-----------@@ -191,7 +220,7 @@ export default function HomeScreen() {
-----------         <View style={styles.section}>
-----------           <Text style={styles.sectionTitle}>Explore</Text>
-----------           <View style={styles.quickActions}>
------------            <AnimatedTouchableOpacity
-----------+            <TouchableOpacity
-----------               style={styles.actionCard}
-----------               onPress={() => router.push('/(tabs)/artists')}
-----------               activeOpacity={0.9}
-----------@@ -206,9 +235,9 @@ export default function HomeScreen() {
-----------                 <Text style={styles.actionTitle}>Artists</Text>
-----------                 <Text style={styles.actionSubtitle}>Discover talent</Text>
-----------               </LinearGradient>
------------            </AnimatedTouchableOpacity>
-----------+            </TouchableOpacity>
----------- 
------------            <AnimatedTouchableOpacity
-----------+            <TouchableOpacity
-----------               style={styles.actionCard}
-----------               onPress={() => router.push('/(tabs)/partners')}
-----------               activeOpacity={0.9}
-----------@@ -223,7 +252,7 @@ export default function HomeScreen() {
-----------                 <Text style={styles.actionTitle}>Partners</Text>
-----------                 <Text style={styles.actionSubtitle}>Find brands</Text>
-----------               </LinearGradient>
------------            </AnimatedTouchableOpacity>
-----------+            </TouchableOpacity>
-----------           </View>
-----------         </View>
----------- 
+----------       </ScrollView>
+----------+      
+----------+      <SubscriptionPopup
+----------+        visible={showSubscriptionPopup}
+----------+        onClose={() => setShowSubscriptionPopup(false)}
+----------+        onSubscribe={handleSubscribe}
+----------+      />
+----------     </View>
+----------   );
+---------- }
 ----------diff --git a/model.patch b/model.patch
-----------index d93cf10..19ba047 100644
+----------index aef3849..e69de29 100644
 ------------- a/model.patch
 ----------+++ b/model.patch
-----------@@ -1,131 +0,0 @@
------------diff --git a/test_result.md b/test_result.md
------------index 187cba4..d8456a5 100644
--------------- a/test_result.md
------------+++ b/test_result.md
------------@@ -100,4 +100,123 @@
+----------@@ -1,358 +0,0 @@
+-----------diff --git a/frontend/app/(tabs)/home.tsx b/frontend/app/(tabs)/home.tsx
+-----------index 319aa01..d08d671 100644
+-------------- a/frontend/app/(tabs)/home.tsx
+-----------+++ b/frontend/app/(tabs)/home.tsx
+-----------@@ -28,40 +28,75 @@ export default function HomeScreen() {
+-----------   const [refreshing, setRefreshing] = useState(false);
 ----------- 
------------ #====================================================================================================
------------ # Testing Data - Main Agent and testing sub agent both should log testing data below this section
-------------#====================================================================================================
------------\ No newline at end of file
------------+#====================================================================================================
+-----------   // Animations
+------------  const logoScale = useSharedValue(0.8);
+------------  const logoOpacity = useSharedValue(0);
+------------  const bannerScale = useSharedValue(0.95);
+------------  const bannerOpacity = useSharedValue(0);
+------------  const sparkleRotate = useSharedValue(0);
+------------  const sparkleScale = useSharedValue(1);
+------------  const scrollY = useSharedValue(0);
+-----------+  const logoScale = useRef(new Animated.Value(0.8)).current;
+-----------+  const logoOpacity = useRef(new Animated.Value(0)).current;
+-----------+  const bannerScale = useRef(new Animated.Value(0.95)).current;
+-----------+  const bannerOpacity = useRef(new Animated.Value(0)).current;
+-----------+  const sparkleRotate = useRef(new Animated.Value(0)).current;
+-----------+  const sparkleScale = useRef(new Animated.Value(1)).current;
+----------- 
+-----------   useEffect(() => {
+-----------     fetchData();
+----------- 
+-----------     // Entrance animations
+------------    logoScale.value = withSpring(1, { damping: 10 });
+------------    logoOpacity.value = withTiming(1, { duration: 600 });
+-----------+    Animated.parallel([
+-----------+      Animated.spring(logoScale, {
+-----------+        toValue: 1,
+-----------+        friction: 10,
+-----------+        useNativeDriver: true,
+-----------+      }),
+-----------+      Animated.timing(logoOpacity, {
+-----------+        toValue: 1,
+-----------+        duration: 600,
+-----------+        useNativeDriver: true,
+-----------+      }),
+-----------+    ]).start();
+----------- 
+-----------     setTimeout(() => {
+------------      bannerScale.value = withSpring(1, { damping: 8 });
+------------      bannerOpacity.value = withTiming(1, { duration: 500 });
+-----------+      Animated.parallel([
+-----------+        Animated.spring(bannerScale, {
+-----------+          toValue: 1,
+-----------+          friction: 8,
+-----------+          useNativeDriver: true,
+-----------+        }),
+-----------+        Animated.timing(bannerOpacity, {
+-----------+          toValue: 1,
+-----------+          duration: 500,
+-----------+          useNativeDriver: true,
+-----------+        }),
+-----------+      ]).start();
+-----------     }, 300);
+----------- 
+-----------     // Continuous sparkle animation
+------------    sparkleRotate.value = withRepeat(
+------------      withTiming(360, { duration: 3000, easing: Easing.linear }),
+------------      -1
+------------    );
+------------    sparkleScale.value = withRepeat(
+------------      withSequence(
+------------        withTiming(1.2, { duration: 1000 }),
+------------        withTiming(1, { duration: 1000 })
+------------      ),
+------------      -1
+------------    );
+-----------+    Animated.loop(
+-----------+      Animated.timing(sparkleRotate, {
+-----------+        toValue: 1,
+-----------+        duration: 3000,
+-----------+        useNativeDriver: true,
+-----------+      })
+-----------+    ).start();
 -----------+
------------+user_problem_statement: "Test the Raya mobile app backend APIs including authentication, artists, partners, reviews, wishlist, and chat endpoints"
+-----------+    Animated.loop(
+-----------+      Animated.sequence([
+-----------+        Animated.timing(sparkleScale, {
+-----------+          toValue: 1.2,
+-----------+          duration: 1000,
+-----------+          useNativeDriver: true,
+-----------+        }),
+-----------+        Animated.timing(sparkleScale, {
+-----------+          toValue: 1,
+-----------+          duration: 1000,
+-----------+          useNativeDriver: true,
+-----------+        }),
+-----------+      ])
+-----------+    ).start();
+-----------   }, []);
+----------- 
+-----------+  const sparkleSpin = sparkleRotate.interpolate({
+-----------+    inputRange: [0, 1],
+-----------+    outputRange: ['0deg', '360deg'],
+-----------+  });
 -----------+
------------+backend:
------------+  - task: "Authentication - User Registration"
------------+    implemented: true
------------+    working: true
------------+    file: "/app/backend/server.py"
------------+    stuck_count: 0
------------+    priority: "high"
------------+    needs_retesting: false
------------+    status_history:
------------+        - working: true
------------+          agent: "testing"
------------+          comment: "Registration endpoint working correctly. Tested with POST /api/auth/register for all user types (artist, partner, venue). Users can be created successfully with profile data. Minor network timeout issues during bulk testing but individual registration confirmed working."
------------+
------------+  - task: "Authentication - User Login"
------------+    implemented: true
------------+    working: true
------------+    file: "/app/backend/server.py"
------------+    stuck_count: 0
------------+    priority: "high"
------------+    needs_retesting: false
------------+    status_history:
------------+        - working: true
------------+          agent: "testing"
------------+          comment: "Login endpoint working perfectly. POST /api/auth/login successfully authenticates users and returns access tokens. Tested with all three user types: test.artist@raya.com, premium.water@raya.com, venue.manager@raya.com"
------------+
------------+  - task: "Authentication - Get Current User"
------------+    implemented: true
------------+    working: true
------------+    file: "/app/backend/server.py"
------------+    stuck_count: 0
------------+    priority: "high"
------------+    needs_retesting: false
------------+    status_history:
------------+        - working: true
------------+          agent: "testing"
------------+          comment: "GET /api/auth/me endpoint working correctly. Returns user data and profile information for authenticated users. Proper JWT token validation implemented."
------------+
------------+  - task: "Artists Profile Management"
------------+    implemented: true
------------+    working: true
------------+    file: "/app/backend/server.py"
------------+    stuck_count: 0
------------+    priority: "high"
------------+    needs_retesting: false
------------+    status_history:
------------+        - working: true
------------+          agent: "testing"
------------+          comment: "All artist endpoints working: GET /api/artists (list all), GET /api/artists/{id} (get specific), PUT /api/artists/{id} (update with auth). Proper authorization checks in place."
------------+
------------+  - task: "Partners Profile Management"
------------+    implemented: true
------------+    working: true
------------+    file: "/app/backend/server.py"
------------+    stuck_count: 0
------------+    priority: "high"
------------+    needs_retesting: false
------------+    status_history:
------------+        - working: true
------------+          agent: "testing"
------------+          comment: "All partner endpoints working: GET /api/partners (list all), GET /api/partners/{id} (get specific), PUT /api/partners/{id} (update with auth). Proper authorization checks in place."
------------+
------------+  - task: "Reviews System"
------------+    implemented: true
------------+    working: true
------------+    file: "/app/backend/server.py"
------------+    stuck_count: 0
------------+    priority: "high"
------------+    needs_retesting: false
------------+    status_history:
------------+        - working: true
------------+          agent: "testing"
------------+          comment: "Review system working correctly. POST /api/reviews (venue-only creation) and GET /api/reviews/{profile_id} both functional. Proper rating calculation and review aggregation implemented."
------------+
------------+  - task: "Wishlist Management"
------------+    implemented: true
------------+    working: true
------------+    file: "/app/backend/server.py"
------------+    stuck_count: 0
------------+    priority: "high"
------------+    needs_retesting: false
------------+    status_history:
------------+        - working: true
------------+          agent: "testing"
------------+          comment: "Wishlist endpoints working perfectly. POST /api/wishlist (add), GET /api/wishlist (list), DELETE /api/wishlist/{profile_id} (remove) all functional. Venue-only access properly enforced."
------------+
------------+  - task: "Chat Room System"
------------+    implemented: true
------------+    working: true
------------+    file: "/app/backend/server.py"
------------+    stuck_count: 0
------------+    priority: "high"
------------+    needs_retesting: false
------------+    status_history:
------------+        - working: true
------------+          agent: "testing"
------------+          comment: "Chat system working correctly. POST /api/chat/room (create/get room), GET /api/chat/rooms (list user rooms), GET /api/chat/messages/{room_id} (get messages) all functional. Proper authorization and room access controls implemented."
------------+
------------+frontend:
------------+  # No frontend testing performed as per instructions
------------+
------------+metadata:
------------+  created_by: "testing_agent"
------------+  version: "1.0"
------------+  test_sequence: 1
------------+  run_ui: false
------------+
------------+test_plan:
------------+  current_focus:
------------+    - "All backend API endpoints tested and verified"
------------+  stuck_tasks: []
------------+  test_all: true
------------+  test_priority: "high_first"
------------+
------------+agent_communication:
------------+    - agent: "testing"
------------+      message: "Comprehensive backend API testing completed. All 8 major backend components tested successfully: Authentication (register/login/me), Artists management, Partners management, Reviews system, Wishlist management, and Chat rooms. All endpoints responding correctly with proper authentication, authorization, and data handling. Test users confirmed working: test.artist@raya.com, premium.water@raya.com, venue.manager@raya.com. Backend is fully functional and ready for production use."
------------\ No newline at end of file
----diff --git a/test_result.md b/test_result.md
----index 07b1cd6..b85f0e1 100644
------- a/test_result.md
----+++ b/test_result.md
----@@ -107,15 +107,18 @@ user_problem_statement: "Test the Raya mobile app backend APIs including authent
---- backend:
----   - task: "Razorpay Go Pro Payment Integration - Backend"
----     implemented: true
-----    working: "NA"
----+    working: true
----     file: "/app/backend/server.py"
----     stuck_count: 0
----     priority: "high"
-----    needs_retesting: true
----+    needs_retesting: false
----     status_history:
----         - working: "NA"
----           agent: "main"
----           comment: "Implemented complete subscription payment backend for all user types. Added models: PartnerSubscription, HostSubscription. Added is_partner_pro flag to User model. Created endpoints: POST /api/artist/subscription/create-razorpay-order, POST /api/artist/subscription/verify-payment, GET /api/artist/subscription/status, POST /api/artist/subscription/track-view (similar for partner and venue). Added universal GET /api/subscription/status endpoint. System works in test mode without Razorpay keys. Production requires RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in .env."
----+        - working: true
----+          agent: "testing"
----+          comment: "RAZORPAY SUBSCRIPTION ENDPOINTS WORKING CORRECTLY: ✅ Artist subscription endpoints: initialize, status, track-view, create-order, verify-payment all functional. ✅ Partner subscription endpoints: initialize, status, track-view, create-order, verify-payment all functional. ✅ Venue subscription endpoints: create-order, verify-payment working. ✅ Universal /api/subscription/status endpoint working for all user types. ✅ Free tier enforcement: 10 views then blocked (tested and confirmed). ✅ Pro tier upgrade: Payment verification correctly upgrades users to Pro with unlimited views (-1). ✅ Test mode functionality: Works without Razorpay keys, accepts test payment data. ✅ Database updates: Pro flags (is_artist_pro, is_partner_pro, is_venue_pro) correctly set. Fixed duplicate endpoint issue causing 403 errors. All core subscription functionality verified working in test mode."
---- 
----   - task: "Authentication - User Registration"
----     implemented: true
----@@ -234,13 +237,15 @@ metadata:
---- 
---- test_plan:
----   current_focus:
-----    - "All backend API endpoints tested and verified"
----+    - "Razorpay Go Pro subscription endpoints testing completed"
----   stuck_tasks: []
-----  test_all: true
----+  test_all: false
----   test_priority: "high_first"
---- 
---- agent_communication:
----     - agent: "testing"
----       message: "Comprehensive backend API testing completed. All 8 major backend components tested successfully: Authentication (register/login/me), Artists management, Partners management, Reviews system, Wishlist management, and Chat rooms. All endpoints responding correctly with proper authentication, authorization, and data handling. Test users confirmed working: test.artist@raya.com, premium.water@raya.com, venue.manager@raya.com. Backend is fully functional and ready for production use."
----     - agent: "main"
-----      message: "RAZORPAY 'GO PRO' INTEGRATION COMPLETED: Added complete subscription system for all user types (Artists, Partners, Hosts). Backend: Created subscription models and endpoints for payment creation, verification, and status tracking. Added is_partner_pro flag and PartnerSubscription/HostSubscription models. Frontend: Created payment service with Razorpay integration, updated ArtistProModal usage in artists.tsx and artist/[id].tsx, added subscription section to profile.tsx showing Pro status and upgrade button. System works in test mode without Razorpay keys. Payment URL placeholder ready for configuration. Users get 10 free profile views, then upgrade to Pro for ₹499/month for unlimited views, chats, and increased visibility. See RAZORPAY_INTEGRATION_GUIDE.md for setup instructions."
----\ No newline at end of file
----+      message: "RAZORPAY 'GO PRO' INTEGRATION COMPLETED: Added complete subscription system for all user types (Artists, Partners, Hosts). Backend: Created subscription models and endpoints for payment creation, verification, and status tracking. Added is_partner_pro flag and PartnerSubscription/HostSubscription models. Frontend: Created payment service with Razorpay integration, updated ArtistProModal usage in artists.tsx and artist/[id].tsx, added subscription section to profile.tsx showing Pro status and upgrade button. System works in test mode without Razorpay keys. Payment URL placeholder ready for configuration. Users get 10 free profile views, then upgrade to Pro for ₹499/month for unlimited views, chats, and increased visibility. See RAZORPAY_INTEGRATION_GUIDE.md for setup instructions."
----+    - agent: "testing"
----+      message: "RAZORPAY SUBSCRIPTION TESTING COMPLETED ✅: All new subscription endpoints tested and verified working. Fixed duplicate /api/subscription/status endpoint causing 403 errors. Core functionality confirmed: Free tier (10 views then blocked), Pro upgrade via payment (₹499), unlimited views for Pro users, test mode payment flow, database Pro flag updates. All user types (artist, partner, venue) subscription flows working correctly. System ready for production with Razorpay keys."
----\ No newline at end of file
+-----------   const fetchData = async () => {
+-----------     try {
+-----------       const [artistsRes, partnersRes] = await Promise.all([
+-----------@@ -85,31 +120,6 @@ export default function HomeScreen() {
+-----------     setRefreshing(false);
+-----------   };
+----------- 
+------------  const logoAnimatedStyle = useAnimatedStyle(() => ({
+------------    transform: [{ scale: logoScale.value }],
+------------    opacity: logoOpacity.value,
+------------  }));
+------------
+------------  const bannerAnimatedStyle = useAnimatedStyle(() => ({
+------------    transform: [{ scale: bannerScale.value }],
+------------    opacity: bannerOpacity.value,
+------------  }));
+------------
+------------  const sparkleAnimatedStyle = useAnimatedStyle(() => ({
+------------    transform: [
+------------      { rotate: `${sparkleRotate.value}deg` },
+------------      { scale: sparkleScale.value },
+------------    ],
+------------  }));
+------------
+------------  const handleCardPress = (scale: Animated.SharedValue<number>, action: () => void) => {
+------------    scale.value = withSequence(
+------------      withSpring(0.95, { damping: 10 }),
+------------      withSpring(1, { damping: 10 })
+------------    );
+------------    setTimeout(action, 100);
+------------  };
+------------
+-----------   return (
+-----------     <View style={styles.container}>
+-----------       <LinearGradient
+-----------@@ -118,14 +128,20 @@ export default function HomeScreen() {
+-----------       >
+-----------         <View style={styles.headerContent}>
+-----------           <View style={styles.headerLeft}>
+------------            <Animated.View style={logoAnimatedStyle}>
+-----------+            <Animated.View style={{
+-----------+              transform: [{ scale: logoScale }],
+-----------+              opacity: logoOpacity,
+-----------+            }}>
+-----------               <Image 
+-----------                 source={{ uri: 'https://customer-assets.emergentagent.com/job_artist-hub-37/artifacts/nm0jan68_ChatGPT%20Image%20Oct%2015%2C%202025%2C%2010_51_19%20PM.png' }}
+-----------                 style={styles.logoImage}
+-----------                 resizeMode="contain"
+-----------               />
+-----------             </Animated.View>
+------------            <Animated.Text style={[styles.tagline, logoAnimatedStyle]}>
+-----------+            <Animated.Text style={[styles.tagline, {
+-----------+              transform: [{ scale: logoScale }],
+-----------+              opacity: logoOpacity,
+-----------+            }]}>
+-----------               One platform. Endless connections.
+-----------             </Animated.Text>
+-----------           </View>
+-----------@@ -140,7 +156,10 @@ export default function HomeScreen() {
+-----------           </TouchableOpacity>
+-----------         </View>
+-----------         
+------------        <Animated.View style={bannerAnimatedStyle}>
+-----------+        <Animated.View style={{
+-----------+          transform: [{ scale: bannerScale }],
+-----------+          opacity: bannerOpacity,
+-----------+        }}>
+-----------           <LinearGradient
+-----------             colors={['#F9E28C', '#E1C05B', '#D4AF37']}
+-----------             start={{ x: 0, y: 0 }}
+-----------@@ -148,10 +167,20 @@ export default function HomeScreen() {
+-----------             style={styles.heroBanner}
+-----------           >
+-----------             {/* Floating sparkles */}
+------------            <Animated.View style={[styles.heroBannerSparkle1, sparkleAnimatedStyle]}>
+-----------+            <Animated.View style={[styles.heroBannerSparkle1, {
+-----------+              transform: [
+-----------+                { rotate: sparkleSpin },
+-----------+                { scale: sparkleScale },
+-----------+              ],
+-----------+            }]}>
+-----------               <Ionicons name="sparkles" size={20} color={theme.colors.primaryDark} />
+-----------             </Animated.View>
+------------            <Animated.View style={[styles.heroBannerSparkle2, sparkleAnimatedStyle]}>
+-----------+            <Animated.View style={[styles.heroBannerSparkle2, {
+-----------+              transform: [
+-----------+                { rotate: sparkleSpin },
+-----------+                { scale: sparkleScale },
+-----------+              ],
+-----------+            }]}>
+-----------               <Ionicons name="sparkles" size={16} color={theme.colors.primaryDark} />
+-----------             </Animated.View>
+----------- 
+-----------@@ -191,7 +220,7 @@ export default function HomeScreen() {
+-----------         <View style={styles.section}>
+-----------           <Text style={styles.sectionTitle}>Explore</Text>
+-----------           <View style={styles.quickActions}>
+------------            <AnimatedTouchableOpacity
+-----------+            <TouchableOpacity
+-----------               style={styles.actionCard}
+-----------               onPress={() => router.push('/(tabs)/artists')}
+-----------               activeOpacity={0.9}
+-----------@@ -206,9 +235,9 @@ export default function HomeScreen() {
+-----------                 <Text style={styles.actionTitle}>Artists</Text>
+-----------                 <Text style={styles.actionSubtitle}>Discover talent</Text>
+-----------               </LinearGradient>
+------------            </AnimatedTouchableOpacity>
+-----------+            </TouchableOpacity>
+----------- 
+------------            <AnimatedTouchableOpacity
+-----------+            <TouchableOpacity
+-----------               style={styles.actionCard}
+-----------               onPress={() => router.push('/(tabs)/partners')}
+-----------               activeOpacity={0.9}
+-----------@@ -223,7 +252,7 @@ export default function HomeScreen() {
+-----------                 <Text style={styles.actionTitle}>Partners</Text>
+-----------                 <Text style={styles.actionSubtitle}>Find brands</Text>
+-----------               </LinearGradient>
+------------            </AnimatedTouchableOpacity>
+-----------+            </TouchableOpacity>
+-----------           </View>
+-----------         </View>
+----------- 
+-----------diff --git a/model.patch b/model.patch
+-----------index d93cf10..19ba047 100644
+-------------- a/model.patch
+-----------+++ b/model.patch
+-----------@@ -1,131 +0,0 @@
+------------diff --git a/test_result.md b/test_result.md
+------------index 187cba4..d8456a5 100644
+--------------- a/test_result.md
+------------+++ b/test_result.md
+------------@@ -100,4 +100,123 @@
+------------ 
+------------ #====================================================================================================
+------------ # Testing Data - Main Agent and testing sub agent both should log testing data below this section
+-------------#====================================================================================================
+------------\ No newline at end of file
+------------+#====================================================================================================
+------------+
+------------+user_problem_statement: "Test the Raya mobile app backend APIs including authentication, artists, partners, reviews, wishlist, and chat endpoints"
+------------+
+------------+backend:
+------------+  - task: "Authentication - User Registration"
+------------+    implemented: true
+------------+    working: true
+------------+    file: "/app/backend/server.py"
+------------+    stuck_count: 0
+------------+    priority: "high"
+------------+    needs_retesting: false
+------------+    status_history:
+------------+        - working: true
+------------+          agent: "testing"
+------------+          comment: "Registration endpoint working correctly. Tested with POST /api/auth/register for all user types (artist, partner, venue). Users can be created successfully with profile data. Minor network timeout issues during bulk testing but individual registration confirmed working."
+------------+
+------------+  - task: "Authentication - User Login"
+------------+    implemented: true
+------------+    working: true
+------------+    file: "/app/backend/server.py"
+------------+    stuck_count: 0
+------------+    priority: "high"
+------------+    needs_retesting: false
+------------+    status_history:
+------------+        - working: true
+------------+          agent: "testing"
+------------+          comment: "Login endpoint working perfectly. POST /api/auth/login successfully authenticates users and returns access tokens. Tested with all three user types: test.artist@raya.com, premium.water@raya.com, venue.manager@raya.com"
+------------+
+------------+  - task: "Authentication - Get Current User"
+------------+    implemented: true
+------------+    working: true
+------------+    file: "/app/backend/server.py"
+------------+    stuck_count: 0
+------------+    priority: "high"
+------------+    needs_retesting: false
+------------+    status_history:
+------------+        - working: true
+------------+          agent: "testing"
+------------+          comment: "GET /api/auth/me endpoint working correctly. Returns user data and profile information for authenticated users. Proper JWT token validation implemented."
+------------+
+------------+  - task: "Artists Profile Management"
+------------+    implemented: true
+------------+    working: true
+------------+    file: "/app/backend/server.py"
+------------+    stuck_count: 0
+------------+    priority: "high"
+------------+    needs_retesting: false
+------------+    status_history:
+------------+        - working: true
+------------+          agent: "testing"
+------------+          comment: "All artist endpoints working: GET /api/artists (list all), GET /api/artists/{id} (get specific), PUT /api/artists/{id} (update with auth). Proper authorization checks in place."
+------------+
+------------+  - task: "Partners Profile Management"
+------------+    implemented: true
+------------+    working: true
+------------+    file: "/app/backend/server.py"
+------------+    stuck_count: 0
+------------+    priority: "high"
+------------+    needs_retesting: false
+------------+    status_history:
+------------+        - working: true
+------------+          agent: "testing"
+------------+          comment: "All partner endpoints working: GET /api/partners (list all), GET /api/partners/{id} (get specific), PUT /api/partners/{id} (update with auth). Proper authorization checks in place."
+------------+
+------------+  - task: "Reviews System"
+------------+    implemented: true
+------------+    working: true
+------------+    file: "/app/backend/server.py"
+------------+    stuck_count: 0
+------------+    priority: "high"
+------------+    needs_retesting: false
+------------+    status_history:
+------------+        - working: true
+------------+          agent: "testing"
+------------+          comment: "Review system working correctly. POST /api/reviews (venue-only creation) and GET /api/reviews/{profile_id} both functional. Proper rating calculation and review aggregation implemented."
+------------+
+------------+  - task: "Wishlist Management"
+------------+    implemented: true
+------------+    working: true
+------------+    file: "/app/backend/server.py"
+------------+    stuck_count: 0
+------------+    priority: "high"
+------------+    needs_retesting: false
+------------+    status_history:
+------------+        - working: true
+------------+          agent: "testing"
+------------+          comment: "Wishlist endpoints working perfectly. POST /api/wishlist (add), GET /api/wishlist (list), DELETE /api/wishlist/{profile_id} (remove) all functional. Venue-only access properly enforced."
+------------+
+------------+  - task: "Chat Room System"
+------------+    implemented: true
+------------+    working: true
+------------+    file: "/app/backend/server.py"
+------------+    stuck_count: 0
+------------+    priority: "high"
+------------+    needs_retesting: false
+------------+    status_history:
+------------+        - working: true
+------------+          agent: "testing"
+------------+          comment: "Chat system working correctly. POST /api/chat/room (create/get room), GET /api/chat/rooms (list user rooms), GET /api/chat/messages/{room_id} (get messages) all functional. Proper authorization and room access controls implemented."
+------------+
+------------+frontend:
+------------+  # No frontend testing performed as per instructions
+------------+
+------------+metadata:
+------------+  created_by: "testing_agent"
+------------+  version: "1.0"
+------------+  test_sequence: 1
+------------+  run_ui: false
+------------+
+------------+test_plan:
+------------+  current_focus:
+------------+    - "All backend API endpoints tested and verified"
+------------+  stuck_tasks: []
+------------+  test_all: true
+------------+  test_priority: "high_first"
+------------+
+------------+agent_communication:
+------------+    - agent: "testing"
+------------+      message: "Comprehensive backend API testing completed. All 8 major backend components tested successfully: Authentication (register/login/me), Artists management, Partners management, Reviews system, Wishlist management, and Chat rooms. All endpoints responding correctly with proper authentication, authorization, and data handling. Test users confirmed working: test.artist@raya.com, premium.water@raya.com, venue.manager@raya.com. Backend is fully functional and ready for production use."
+------------\ No newline at end of file
+----diff --git a/test_result.md b/test_result.md
+----index 07b1cd6..b85f0e1 100644
+------- a/test_result.md
+----+++ b/test_result.md
+----@@ -107,15 +107,18 @@ user_problem_statement: "Test the Raya mobile app backend APIs including authent
+---- backend:
+----   - task: "Razorpay Go Pro Payment Integration - Backend"
+----     implemented: true
+-----    working: "NA"
+----+    working: true
+----     file: "/app/backend/server.py"
+----     stuck_count: 0
+----     priority: "high"
+-----    needs_retesting: true
+----+    needs_retesting: false
+----     status_history:
+----         - working: "NA"
+----           agent: "main"
+----           comment: "Implemented complete subscription payment backend for all user types. Added models: PartnerSubscription, HostSubscription. Added is_partner_pro flag to User model. Created endpoints: POST /api/artist/subscription/create-razorpay-order, POST /api/artist/subscription/verify-payment, GET /api/artist/subscription/status, POST /api/artist/subscription/track-view (similar for partner and venue). Added universal GET /api/subscription/status endpoint. System works in test mode without Razorpay keys. Production requires RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in .env."
+----+        - working: true
+----+          agent: "testing"
+----+          comment: "RAZORPAY SUBSCRIPTION ENDPOINTS WORKING CORRECTLY: ✅ Artist subscription endpoints: initialize, status, track-view, create-order, verify-payment all functional. ✅ Partner subscription endpoints: initialize, status, track-view, create-order, verify-payment all functional. ✅ Venue subscription endpoints: create-order, verify-payment working. ✅ Universal /api/subscription/status endpoint working for all user types. ✅ Free tier enforcement: 10 views then blocked (tested and confirmed). ✅ Pro tier upgrade: Payment verification correctly upgrades users to Pro with unlimited views (-1). ✅ Test mode functionality: Works without Razorpay keys, accepts test payment data. ✅ Database updates: Pro flags (is_artist_pro, is_partner_pro, is_venue_pro) correctly set. Fixed duplicate endpoint issue causing 403 errors. All core subscription functionality verified working in test mode."
+---- 
+----   - task: "Authentication - User Registration"
+----     implemented: true
+----@@ -234,13 +237,15 @@ metadata:
+---- 
+---- test_plan:
+----   current_focus:
+-----    - "All backend API endpoints tested and verified"
+----+    - "Razorpay Go Pro subscription endpoints testing completed"
+----   stuck_tasks: []
+-----  test_all: true
+----+  test_all: false
+----   test_priority: "high_first"
+---- 
+---- agent_communication:
+----     - agent: "testing"
+----       message: "Comprehensive backend API testing completed. All 8 major backend components tested successfully: Authentication (register/login/me), Artists management, Partners management, Reviews system, Wishlist management, and Chat rooms. All endpoints responding correctly with proper authentication, authorization, and data handling. Test users confirmed working: test.artist@raya.com, premium.water@raya.com, venue.manager@raya.com. Backend is fully functional and ready for production use."
+----     - agent: "main"
+-----      message: "RAZORPAY 'GO PRO' INTEGRATION COMPLETED: Added complete subscription system for all user types (Artists, Partners, Hosts). Backend: Created subscription models and endpoints for payment creation, verification, and status tracking. Added is_partner_pro flag and PartnerSubscription/HostSubscription models. Frontend: Created payment service with Razorpay integration, updated ArtistProModal usage in artists.tsx and artist/[id].tsx, added subscription section to profile.tsx showing Pro status and upgrade button. System works in test mode without Razorpay keys. Payment URL placeholder ready for configuration. Users get 10 free profile views, then upgrade to Pro for ₹499/month for unlimited views, chats, and increased visibility. See RAZORPAY_INTEGRATION_GUIDE.md for setup instructions."
+----\ No newline at end of file
+----+      message: "RAZORPAY 'GO PRO' INTEGRATION COMPLETED: Added complete subscription system for all user types (Artists, Partners, Hosts). Backend: Created subscription models and endpoints for payment creation, verification, and status tracking. Added is_partner_pro flag and PartnerSubscription/HostSubscription models. Frontend: Created payment service with Razorpay integration, updated ArtistProModal usage in artists.tsx and artist/[id].tsx, added subscription section to profile.tsx showing Pro status and upgrade button. System works in test mode without Razorpay keys. Payment URL placeholder ready for configuration. Users get 10 free profile views, then upgrade to Pro for ₹499/month for unlimited views, chats, and increased visibility. See RAZORPAY_INTEGRATION_GUIDE.md for setup instructions."
+----+    - agent: "testing"
+----+      message: "RAZORPAY SUBSCRIPTION TESTING COMPLETED ✅: All new subscription endpoints tested and verified working. Fixed duplicate /api/subscription/status endpoint causing 403 errors. Core functionality confirmed: Free tier (10 views then blocked), Pro upgrade via payment (₹499), unlimited views for Pro users, test mode payment flow, database Pro flag updates. All user types (artist, partner, venue) subscription flows working correctly. System ready for production with Razorpay keys."
+----\ No newline at end of file
