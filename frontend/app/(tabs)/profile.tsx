@@ -43,6 +43,15 @@ export default function ProfileScreen() {
     }, [user?.user_type, token])
   );
 
+  // Refetch subscription data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user?.user_type === 'artist' || user?.user_type === 'partner' || user?.user_type === 'venue') {
+        fetchSubscription();
+      }
+    }, [user?.user_type, token])
+  );
+
   const fetchSubscription = async () => {
     if (!token) return;
     try {
