@@ -94,6 +94,33 @@ export default function ArtistDetailScreen() {
     }
   };
 
+  const trackPartnerView = async () => {
+    if (!token || user?.user_type !== 'partner') return;
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/partner/subscription/track-view`,
+        { profile_id: id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (!response.data.allowed) {
+        // Show Go Pro modal
+        setShowProModal(true);
+        // Optionally navigate back
+        setTimeout(() => router.back(), 500);
+        return;
+      }
+      
+      // Update subscription state
+      setSubscription((prev: any) => ({
+        ...prev,
+        profile_views_remaining: response.data.views_remaining,
+      }));
+    } catch (error) {
+      console.error('Error tracking partner view:', error);
+    }
+  };
+
   const handleUpgradeToPro = async () => {
     setShowProModal(false);
     
