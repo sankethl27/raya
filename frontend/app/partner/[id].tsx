@@ -71,7 +71,6 @@ export default function PartnerDetailScreen() {
       
       if (!response.data.allowed) {
         setShowSubscriptionPopup(true);
-        setTimeout(() => router.back(), 500);
       }
     } catch (error) {
       console.error('Error tracking artist view:', error);
@@ -89,7 +88,6 @@ export default function PartnerDetailScreen() {
       
       if (!response.data.allowed) {
         setShowSubscriptionPopup(true);
-        setTimeout(() => router.back(), 500);
       }
     } catch (error) {
       console.error('Error tracking partner view:', error);
