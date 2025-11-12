@@ -287,6 +287,32 @@ export default function PartnerDetailScreen() {
             <Text style={styles.description}>{partner.description || 'No description available.'}</Text>
           </View>
 
+          {/* MEDIA GALLERY */}
+          {partner.media_gallery && partner.media_gallery.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Portfolio</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaScroll}>
+                {partner.media_gallery.map((media: string, index: number) => (
+                  <View key={index} style={styles.mediaItemContainer}>
+                    {media.startsWith('data:video') ? (
+                      <View style={styles.videoContainer}>
+                        <Image source={{ uri: media }} style={styles.mediaImage} resizeMode="cover" />
+                        <View style={styles.videoOverlay}>
+                          <View style={styles.playButton}>
+                            <Ionicons name="play" size={40} color={theme.colors.primaryDark} />
+                          </View>
+                          <Text style={styles.videoLabel}>Video {index + 1}</Text>
+                        </View>
+                      </View>
+                    ) : (
+                      <Image source={{ uri: media }} style={styles.mediaImage} resizeMode="cover" />
+                    )}
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+
           {/* Services Highlight */}
           <View style={styles.servicesSection}>
             <View style={styles.servicesHeader}>
