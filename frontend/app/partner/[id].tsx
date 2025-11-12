@@ -60,6 +60,42 @@ export default function PartnerDetailScreen() {
     }
   };
 
+  const trackArtistView = async () => {
+    if (!token || user?.user_type !== 'artist') return;
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/artist/subscription/track-view`,
+        { profile_id: id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (!response.data.allowed) {
+        setShowSubscriptionPopup(true);
+        setTimeout(() => router.back(), 500);
+      }
+    } catch (error) {
+      console.error('Error tracking artist view:', error);
+    }
+  };
+
+  const trackPartnerView = async () => {
+    if (!token || user?.user_type !== 'partner') return;
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/api/partner/subscription/track-view`,
+        { profile_id: id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (!response.data.allowed) {
+        setShowSubscriptionPopup(true);
+        setTimeout(() => router.back(), 500);
+      }
+    } catch (error) {
+      console.error('Error tracking partner view:', error);
+    }
+  };
+
   const handleSubscribe = async (type: 'monthly' | 'pay_per_view') => {
     try {
       const orderResponse = await axios.post(
