@@ -31,14 +31,17 @@ export default function PartnerDetailScreen() {
   const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
 
   useEffect(() => {
+    // Track views for all user types with subscription
     if (user?.user_type === 'venue') {
       trackView();
+      checkWishlist();
+    } else if (user?.user_type === 'artist') {
+      trackArtistView();
+    } else if (user?.user_type === 'partner') {
+      trackPartnerView();
     }
     fetchPartnerDetails();
     fetchReviews();
-    if (user?.user_type === 'venue') {
-      checkWishlist();
-    }
   }, [id]);
 
   const trackView = async () => {
