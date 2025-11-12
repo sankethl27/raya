@@ -987,4 +987,22 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSize.md,
     fontWeight: '700',
   },
+  proActivatedButton: {
+    marginTop: theme.spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.lg,
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 2,
+    borderColor: theme.colors.success,
+  },
+  proActivatedText: {
+    color: theme.colors.success,
+    fontSize: theme.fontSize.md,
+    fontWeight: '700',
+  },
 });
