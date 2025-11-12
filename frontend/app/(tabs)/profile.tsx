@@ -335,6 +335,10 @@ export default function ProfileScreen() {
                     <Text style={styles.proBenefitText}>Featured visibility</Text>
                   </View>
                 </View>
+                <View style={styles.proActivatedButton}>
+                  <Ionicons name="checkmark-circle" size={24} color={theme.colors.success} />
+                  <Text style={styles.proActivatedText}>Pro Activated</Text>
+                </View>
               </View>
             ) : (
               <View style={styles.freeContainer}>
