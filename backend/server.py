@@ -1952,30 +1952,72 @@ async def get_subscription_status(current_user: dict = Depends(get_current_user)
     
     if user_type == "artist":
         subscription = await db.artist_subscriptions.find_one({"artist_user_id": current_user["id"]})
-        if subscription:
+        
+        # Auto-initialize if doesn't exist
+        if not subscription:
+            subscription = {
+                "id": str(uuid.uuid4()),
+                "artist_user_id": current_user["id"],
+                "subscription_type": "free",
+                "profile_views_remaining": 10,
+                "subscription_status": "active",
+                "created_at": datetime.utcnow()
+            }
+            await db.artist_subscriptions.insert_one(subscription)
             subscription.pop("_id", None)
+        else:
+            subscription.pop("_id", None)
+            
         return {
             "user_type": "artist",
             "is_pro": current_user.get("is_artist_pro", False),
-            "subscription": subscription if subscription else None
+            "subscription": subscription
         }
     elif user_type == "partner":
         subscription = await db.partner_subscriptions.find_one({"partner_user_id": current_user["id"]})
-        if subscription:
+        
+        # Auto-initialize if doesn't exist
+        if not subscription:
+            subscription = {
+                "id": str(uuid.uuid4()),
+                "partner_user_id": current_user["id"],
+                "subscription_type": "free",
+                "profile_views_remaining": 10,
+                "subscription_status": "active",
+                "created_at": datetime.utcnow()
+            }
+            await db.partner_subscriptions.insert_one(subscription)
             subscription.pop("_id", None)
+        else:
+            subscription.pop("_id", None)
+            
         return {
             "user_type": "partner",
             "is_pro": current_user.get("is_partner_pro", False),
-            "subscription": subscription if subscription else None
+            "subscription": subscription
         }
     elif user_type == "venue":
         subscription = await db.venue_subscriptions.find_one({"venue_user_id": current_user["id"]})
-        if subscription:
+        
+        # Auto-initialize if doesn't exist
+        if not subscription:
+            subscription = {
+                "id": str(uuid.uuid4()),
+                "venue_user_id": current_user["id"],
+                "subscription_type": "free",
+                "profile_views_remaining": 10,
+                "subscription_status": "active",
+                "created_at": datetime.utcnow()
+            }
+            await db.venue_subscriptions.insert_one(subscription)
             subscription.pop("_id", None)
+        else:
+            subscription.pop("_id", None)
+            
         return {
             "user_type": "venue",
             "is_pro": current_user.get("is_venue_pro", False),
-            "subscription": subscription if subscription else None
+            "subscription": subscription
         }
     else:
         raise HTTPException(status_code=400, detail="Invalid user type")
