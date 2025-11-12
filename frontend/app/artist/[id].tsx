@@ -77,10 +77,8 @@ export default function ArtistDetailScreen() {
       );
       
       if (!response.data.allowed) {
-        // Show Go Pro modal
+        // Show Go Pro modal and prevent profile load
         setShowProModal(true);
-        // Optionally navigate back
-        setTimeout(() => router.back(), 500);
         return;
       }
       
@@ -104,10 +102,8 @@ export default function ArtistDetailScreen() {
       );
       
       if (!response.data.allowed) {
-        // Show Go Pro modal
+        // Show Go Pro modal and prevent profile load
         setShowProModal(true);
-        // Optionally navigate back
-        setTimeout(() => router.back(), 500);
         return;
       }
       
