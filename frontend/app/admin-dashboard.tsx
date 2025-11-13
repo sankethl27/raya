@@ -227,24 +227,98 @@ export default function AdminDashboard() {
         <Text style={styles.emptyText}>No chats available</Text>
       ) : (
         chats.map((chat) => (
-          <View key={chat.id} style={styles.chatCard}>
+          <View key={chat.room?.id} style={styles.chatCard}>
             <View style={styles.chatHeader}>
               <View style={styles.chatInfo}>
                 <Ionicons name="chatbubbles" size={20} color={theme.colors.secondary} />
                 <Text style={styles.chatTitle}>
-                  {chat.venue_name || 'Venue'} ↔ {chat.provider_name || 'Provider'}
+                  {chat.user1_profile?.profile?.stage_name || chat.user1_profile?.profile?.brand_name || chat.user1_profile?.profile?.venue_name || 'User 1'} ↔ {chat.user2_profile?.profile?.stage_name || chat.user2_profile?.profile?.brand_name || chat.user2_profile?.profile?.venue_name || 'User 2'}
                 </Text>
               </View>
               <Text style={styles.chatDate}>
-                {new Date(chat.created_at).toLocaleDateString()}
+                {chat.room?.created_at ? new Date(chat.room.created_at).toLocaleDateString() : 'N/A'}
               </Text>
             </View>
             <TouchableOpacity
               style={styles.viewChatButton}
-              onPress={() => router.push(`/chat/${chat.id}`)}
+              onPress={() => router.push(`/chat/${chat.room?.id}`)}
             >
-              <Text style={styles.viewChatText}>View Conversation</Text>
+              <Text style={styles.viewChatText}>View Conversation ({chat.messages?.length || 0} messages)</Text>
               <Ionicons name="arrow-forward" size={16} color={theme.colors.secondary} />
+            </TouchableOpacity>
+          </View>
+        ))
+      )}
+    </View>
+  );
+
+  const renderReportsTab = () => (
+    <View style={styles.tabContent}>
+      {reports.length === 0 ? (
+        <Text style={styles.emptyText}>No user reports</Text>
+      ) : (
+        reports.map((report, index) => (
+          <View key={report.report?.id || index} style={styles.reportCard}>
+            <View style={styles.reportHeader}>
+              <Ionicons name="warning" size={24} color={theme.colors.error} />
+              <Text style={styles.reportDate}>
+                {report.report?.created_at ? new Date(report.report.created_at).toLocaleString() : 'N/A'}
+              </Text>
+            </View>
+            
+            <View style={styles.reportDetails}>
+              <View style={styles.reportRow}>
+                <Text style={styles.reportLabel}>Reporter:</Text>
+                <Text style={styles.reportValue}>
+                  {report.reporter?.email || 'Unknown'} ({report.reporter?.user_type || 'N/A'})
+                </Text>
+              </View>
+              
+              <View style={styles.reportRow}>
+                <Text style={styles.reportLabel}>Reported User:</Text>
+                <Text style={styles.reportValue}>
+                  {report.reported_user?.email || 'Unknown'} ({report.reported_user?.user_type || 'N/A'})
+                </Text>
+              </View>
+              
+              {report.report?.reason && (
+                <View style={styles.reportRow}>
+                  <Text style={styles.reportLabel}>Reason:</Text>
+                  <Text style={styles.reportReason}>{report.report.reason}</Text>
+                </View>
+              )}
+            </View>
+            
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => {
+                Alert.alert(
+                  'Delete User',
+                  `Do you want to delete the reported user (${report.reported_user?.email})?`,
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Delete',
+                      style: 'destructive',
+                      onPress: async () => {
+                        try {
+                          await axios.delete(
+                            `${BACKEND_URL}/api/admin/users/${report.reported_user?.id}`,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                          );
+                          Alert.alert('Success', 'User deleted successfully');
+                          fetchData();
+                        } catch (error) {
+                          Alert.alert('Error', 'Failed to delete user');
+                        }
+                      },
+                    },
+                  ]
+                );
+              }}
+            >
+              <Ionicons name="trash" size={18} color={theme.colors.error} />
+              <Text style={styles.deleteButtonText}>Delete Reported User</Text>
             </TouchableOpacity>
           </View>
         ))
