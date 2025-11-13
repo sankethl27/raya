@@ -1138,6 +1138,47 @@ async def get_all_chats(current_user: dict = Depends(get_current_user)):
     
     return result
 
+@api_router.get("/admin/reports")
+async def get_all_reports(current_user: dict = Depends(get_current_user)):
+    """Get all user reports for admin dashboard"""
+    if current_user["user_type"] != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    reports = await db.user_reports.find().sort("created_at", -1).to_list(1000)
+    
+    # Enrich reports with user information
+    enriched_reports = []
+    for report in reports:
+        report.pop("_id", None)
+        
+        # Get reporter user info
+        reporter_user = await db.users.find_one({"id": report["reporter_user_id"]})
+        reporter_info = None
+        if reporter_user:
+            reporter_info = {
+                "id": reporter_user["id"],
+                "email": reporter_user["email"],
+                "user_type": reporter_user["user_type"]
+            }
+        
+        # Get reported user info
+        reported_user = await db.users.find_one({"id": report["reported_user_id"]})
+        reported_info = None
+        if reported_user:
+            reported_info = {
+                "id": reported_user["id"],
+                "email": reported_user["email"],
+                "user_type": reported_user["user_type"]
+            }
+        
+        enriched_reports.append({
+            "report": report,
+            "reporter": reporter_info,
+            "reported_user": reported_info
+        })
+    
+    return enriched_reports
+
 @api_router.delete("/admin/users/{user_id}")
 async def delete_user(user_id: str, current_user: dict = Depends(get_current_user)):
     if current_user["user_type"] != "admin":
