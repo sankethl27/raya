@@ -123,8 +123,8 @@ export default function EditProfileScreen() {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images', 'videos'],
         allowsMultipleSelection: false,
-        quality: 0.5,
-        videoMaxDuration: 60, // Max 60 seconds for videos
+        quality: 0.3, // Lower quality for smaller file size
+        videoMaxDuration: 30, // Reduced to 30 seconds to keep file size manageable
       });
 
       if (!result.canceled && result.assets[0]) {
@@ -134,14 +134,32 @@ export default function EditProfileScreen() {
         // Convert both images and videos to base64
         const response = await fetch(asset.uri);
         const blob = await response.blob();
+        
+        // Check file size (limit to 10MB for videos, 5MB for images)
+        const maxSize = isVideo ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+        if (blob.size > maxSize) {
+          Alert.alert(
+            'File Too Large',
+            isVideo 
+              ? 'Video must be under 10MB. Please select a shorter or lower quality video.'
+              : 'Image must be under 5MB. Please select a smaller image.'
+          );
+          return;
+        }
+        
         const reader = new FileReader();
         
         reader.onloadend = () => {
           const base64 = reader.result as string;
           setMediaGallery([...mediaGallery, base64]);
-          if (isVideo) {
-            Alert.alert('Success', 'Video added successfully!');
-          }
+          Alert.alert(
+            'Success', 
+            isVideo ? 'Video added successfully!' : 'Image added successfully!'
+          );
+        };
+        
+        reader.onerror = () => {
+          Alert.alert('Error', 'Failed to process media. Please try again.');
         };
         
         reader.readAsDataURL(blob);
