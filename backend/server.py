@@ -1091,23 +1091,49 @@ async def get_all_chats(current_user: dict = Depends(get_current_user)):
         for msg in messages:
             msg.pop("_id", None)
         
-        # Get profiles
-        venue_profile = await db.venue_profiles.find_one({"user_id": room["venue_user_id"]})
-        if room["provider_type"] == "artist":
-            provider_profile = await db.artist_profiles.find_one({"user_id": room["provider_user_id"]})
-        else:
-            provider_profile = await db.partner_profiles.find_one({"user_id": room["provider_user_id"]})
+        # Handle different chat types
+        user1_profile = None
+        user2_profile = None
         
-        if venue_profile:
-            venue_profile.pop("_id", None)
-        if provider_profile:
-            provider_profile.pop("_id", None)
+        # Get user1 profile (could be artist, partner, or venue)
+        user1_id = room.get("user1_id")
+        if user1_id:
+            user1_artist = await db.artist_profiles.find_one({"user_id": user1_id})
+            user1_partner = await db.partner_profiles.find_one({"user_id": user1_id})
+            user1_venue = await db.venue_profiles.find_one({"user_id": user1_id})
+            
+            if user1_artist:
+                user1_artist.pop("_id", None)
+                user1_profile = {"type": "artist", "profile": user1_artist}
+            elif user1_partner:
+                user1_partner.pop("_id", None)
+                user1_profile = {"type": "partner", "profile": user1_partner}
+            elif user1_venue:
+                user1_venue.pop("_id", None)
+                user1_profile = {"type": "venue", "profile": user1_venue}
+        
+        # Get user2 profile
+        user2_id = room.get("user2_id")
+        if user2_id:
+            user2_artist = await db.artist_profiles.find_one({"user_id": user2_id})
+            user2_partner = await db.partner_profiles.find_one({"user_id": user2_id})
+            user2_venue = await db.venue_profiles.find_one({"user_id": user2_id})
+            
+            if user2_artist:
+                user2_artist.pop("_id", None)
+                user2_profile = {"type": "artist", "profile": user2_artist}
+            elif user2_partner:
+                user2_partner.pop("_id", None)
+                user2_profile = {"type": "partner", "profile": user2_partner}
+            elif user2_venue:
+                user2_venue.pop("_id", None)
+                user2_profile = {"type": "venue", "profile": user2_venue}
         
         result.append({
             "room": room,
             "messages": messages,
-            "venue_profile": venue_profile,
-            "provider_profile": provider_profile
+            "user1_profile": user1_profile,
+            "user2_profile": user2_profile
         })
     
     return result
