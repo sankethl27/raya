@@ -69,7 +69,7 @@ export default function EditProfileScreen() {
           if (item.date && item.is_available) {
             markedDates[item.date] = {
               selected: true,
-              selectedColor: theme.colors.success,
+              selectedColor: '#00D9FF',
             };
           }
         });
