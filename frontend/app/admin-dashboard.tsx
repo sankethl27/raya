@@ -63,6 +63,11 @@ export default function AdminDashboard() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setChats(response.data);
+      } else if (activeTab === 'reports') {
+        const response = await axios.get(`${BACKEND_URL}/api/admin/reports`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setReports(response.data);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
