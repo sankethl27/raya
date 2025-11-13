@@ -98,7 +98,7 @@ export default function EditProfileScreen() {
       // Add date
       newSelectedDates[dateString] = {
         selected: true,
-        selectedColor: theme.colors.success,
+        selectedColor: '#00D9FF',
       };
     }
     
