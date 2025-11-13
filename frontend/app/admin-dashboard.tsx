@@ -422,6 +422,7 @@ export default function AdminDashboard() {
             {activeTab === 'artists' && renderArtistsTab()}
             {activeTab === 'partners' && renderPartnersTab()}
             {activeTab === 'chats' && renderChatsTab()}
+            {activeTab === 'reports' && renderReportsTab()}
           </>
         )}
       </ScrollView>
