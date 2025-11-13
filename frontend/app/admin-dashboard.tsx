@@ -20,7 +20,7 @@ import axios from 'axios';
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
-type TabType = 'artists' | 'partners' | 'chats';
+type TabType = 'artists' | 'partners' | 'chats' | 'reports';
 
 export default function AdminDashboard() {
   const { user, token } = useAuth();
@@ -29,6 +29,7 @@ export default function AdminDashboard() {
   const [artists, setArtists] = useState<any[]>([]);
   const [partners, setPartners] = useState<any[]>([]);
   const [chats, setChats] = useState<any[]>([]);
+  const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
