@@ -307,6 +307,20 @@ export default function AdminDashboard() {
             Chats
           </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'reports' && styles.activeTab]}
+          onPress={() => setActiveTab('reports')}
+        >
+          <Ionicons
+            name="warning"
+            size={20}
+            color={activeTab === 'reports' ? theme.colors.secondary : theme.colors.textSecondary}
+          />
+          <Text style={[styles.tabText, activeTab === 'reports' && styles.activeTabText]}>
+            Reports
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Add Button */}
