@@ -730,4 +730,62 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: theme.colors.primaryDark,
   },
+  reportCard: {
+    backgroundColor: theme.colors.surface,
+    padding: theme.spacing.lg,
+    borderRadius: theme.borderRadius.lg,
+    marginBottom: theme.spacing.md,
+    borderWidth: 2,
+    borderColor: theme.colors.error,
+  },
+  reportHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  reportDate: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+  },
+  reportDetails: {
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+  },
+  reportRow: {
+    marginBottom: theme.spacing.sm,
+  },
+  reportLabel: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.textSecondary,
+    fontWeight: '600',
+    marginBottom: theme.spacing.xs / 2,
+  },
+  reportValue: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.text,
+  },
+  reportReason: {
+    fontSize: theme.fontSize.md,
+    color: theme.colors.text,
+    fontStyle: 'italic',
+    marginTop: theme.spacing.xs,
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
+    backgroundColor: 'rgba(255, 82, 82, 0.1)',
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.error,
+  },
+  deleteButtonText: {
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.error,
+    fontWeight: '600',
+  },
 });
