@@ -454,8 +454,8 @@ export default function ArtistDetailScreen() {
                         acc[slot.date] = {
                           selected: true,
                           marked: true,
-                          selectedColor: theme.colors.secondary,
-                          selectedTextColor: theme.colors.primaryDark,
+                          selectedColor: '#00D9FF',
+                          selectedTextColor: '#FFFFFF',
                         };
                       }
                       return acc;
@@ -465,14 +465,14 @@ export default function ArtistDetailScreen() {
                     backgroundColor: theme.colors.surface,
                     calendarBackground: theme.colors.surface,
                     textSectionTitleColor: theme.colors.textSecondary,
-                    selectedDayBackgroundColor: theme.colors.secondary,
-                    selectedDayTextColor: theme.colors.primaryDark,
-                    todayTextColor: theme.colors.secondary,
+                    selectedDayBackgroundColor: '#00D9FF',
+                    selectedDayTextColor: '#FFFFFF',
+                    todayTextColor: '#00D9FF',
                     dayTextColor: theme.colors.text,
                     textDisabledColor: theme.colors.textTertiary,
-                    dotColor: theme.colors.secondary,
-                    selectedDotColor: theme.colors.primaryDark,
-                    arrowColor: theme.colors.secondary,
+                    dotColor: '#00D9FF',
+                    selectedDotColor: '#FFFFFF',
+                    arrowColor: '#00D9FF',
                     monthTextColor: theme.colors.text,
                     textDayFontWeight: '500',
                     textMonthFontWeight: '700',
@@ -485,7 +485,7 @@ export default function ArtistDetailScreen() {
                 />
                 <View style={styles.calendarLegend}>
                   <View style={styles.legendItem}>
-                    <View style={[styles.legendDot, { backgroundColor: theme.colors.secondary }]} />
+                    <View style={[styles.legendDot, { backgroundColor: '#00D9FF' }]} />
                     <Text style={styles.legendText}>Available</Text>
                   </View>
                 </View>
