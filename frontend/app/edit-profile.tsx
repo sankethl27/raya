@@ -351,13 +351,13 @@ export default function EditProfileScreen() {
                     backgroundColor: theme.colors.surface,
                     calendarBackground: theme.colors.surface,
                     textSectionTitleColor: theme.colors.text,
-                    selectedDayBackgroundColor: theme.colors.success,
-                    selectedDayTextColor: theme.colors.white,
-                    todayTextColor: theme.colors.secondary,
+                    selectedDayBackgroundColor: '#00D9FF',
+                    selectedDayTextColor: '#FFFFFF',
+                    todayTextColor: '#00D9FF',
                     dayTextColor: theme.colors.text,
                     textDisabledColor: theme.colors.textSecondary,
                     monthTextColor: theme.colors.text,
-                    arrowColor: theme.colors.secondary,
+                    arrowColor: '#00D9FF',
                   }}
                   style={styles.calendar}
                 />
